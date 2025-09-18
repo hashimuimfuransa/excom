@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  mongo:
+    image: mongo:7
+    restart: always
+    ports: ["27017:27017"]
+    volumes:
+      - mongo_data:/data/db
+  backend:
+    build: ./backend
+    depends_on: [mongo]
+    environment:
+      - PORT=4000
+      - MONGO_URI=mongodb://mongo:27017/excom
+      - JWT_SECRET=change_me
+      - GEMINI_API_KEY=
+    ports: ["4000:4000"]
+    command: ["node", "dist/index.js"]
+  frontend:
+    build: ./frontend
+    depends_on: [backend]
+    environment:
+      - NEXT_PUBLIC_API_BASE=http://localhost:4000
+    ports: ["3000:3000"]
+    command: ["npm", "run", "start"]
+volumes:
+  mongo_data:
