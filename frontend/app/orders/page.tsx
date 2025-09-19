@@ -25,6 +25,7 @@ import {
   Schedule as PendingIcon,
   Payment as PaidIcon
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { apiGet } from '@utils/api';
 
 interface OrderItem {
@@ -50,6 +51,7 @@ interface Order {
 }
 
 export default function OrdersPage() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -152,10 +154,10 @@ export default function OrdersPage() {
           </Avatar>
           <Box>
             <Typography variant="h4" fontWeight={700}>
-              My Orders
+              {t('ordersPage.title')}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Track and manage your order history
+              {t('ordersPage.subtitle')}
             </Typography>
           </Box>
         </Stack>
@@ -176,10 +178,10 @@ export default function OrdersPage() {
         >
           <ShoppingBagIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" gutterBottom>
-            No orders yet
+            {t('ordersPage.noOrdersTitle')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            When you place your first order, it will appear here.
+            {t('ordersPage.noOrdersMessage')}
           </Typography>
         </Paper>
       ) : (
@@ -214,16 +216,16 @@ export default function OrdersPage() {
                   >
                     <Box>
                       <Typography variant="h6" fontWeight={600} gutterBottom>
-                        Order #{order._id.slice(-8).toUpperCase()}
+                        {t('ordersPage.orderNumber')}{order._id.slice(-8).toUpperCase()}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Placed on {formatDate(order.createdAt)}
+                        {t('ordersPage.placedOn')} {formatDate(order.createdAt)}
                       </Typography>
                     </Box>
                     <Stack direction="row" alignItems="center" spacing={2}>
                       <Chip
                         icon={getStatusIcon(order.status)}
-                        label={order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        label={t(`ordersPage.status${order.status.charAt(0).toUpperCase() + order.status.slice(1)}`)}
                         color={getStatusColor(order.status)}
                         variant="outlined"
                         sx={{
@@ -267,10 +269,10 @@ export default function OrdersPage() {
                               {item.product.name || 'Product Name'}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Vendor: {item.vendor}
+                              {t('ordersPage.vendor')}: {item.vendor}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Qty: {item.quantity} × ${item.price.toFixed(2)}
+                              {t('ordersPage.quantity')}: {item.quantity} × ${item.price.toFixed(2)}
                             </Typography>
                           </Box>
                           <Typography variant="subtitle1" fontWeight={600}>
@@ -288,10 +290,10 @@ export default function OrdersPage() {
                   <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <Typography variant="body2" color="text.secondary">
-                        Last updated: {formatDate(order.updatedAt)}
+                        {t('ordersPage.lastUpdated')}: {formatDate(order.updatedAt)}
                       </Typography>
                       <Typography variant="h6" fontWeight={700}>
-                        Total: ${order.total.toFixed(2)} {order.currency}
+                        {t('ordersPage.total')}: ${order.total.toFixed(2)} {order.currency}
                       </Typography>
                     </Stack>
                   </Box>

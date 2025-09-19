@@ -19,6 +19,7 @@ import {
   Avatar,
   CircularProgress
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import {
   Delete as DeleteIcon,
   Add as AddIcon,
@@ -34,6 +35,7 @@ import { useRouter } from 'next/navigation';
 import { getCartItemImage, hasRealImages } from '@utils/imageHelpers';
 
 export default function CartPage() {
+  const { t } = useTranslation();
   const { items, setItems, bookingItems, setBookingItems, total, bookingTotal, grandTotal, refreshCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -170,7 +172,7 @@ export default function CartPage() {
             <Box flex={1}>
               <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                 <Chip 
-                  label="BOOKING" 
+                  label={t('cart.booking_')} 
                   size="small" 
                   color="primary" 
                   variant="filled" 
@@ -189,20 +191,20 @@ export default function CartPage() {
               <Stack spacing={0.5} mt={1}>
                 {item.bookingData.checkIn && item.bookingData.checkOut && (
                   <Typography variant="body2" color="text.secondary">
-                    Check-in: {new Date(item.bookingData.checkIn).toLocaleDateString()} - 
-                    Check-out: {new Date(item.bookingData.checkOut).toLocaleDateString()}
+                    {t('cart.checkIn')}: {new Date(item.bookingData.checkIn).toLocaleDateString()} - 
+                    {t('cart.checkOut')}: {new Date(item.bookingData.checkOut).toLocaleDateString()}
                   </Typography>
                 )}
                 <Typography variant="body2" color="text.secondary">
-                  Guests: {item.bookingData.guests}
+                  {t('cart.guests')}: {item.bookingData.guests}
                 </Typography>
                 {item.bookingData.roomType && (
                   <Typography variant="body2" color="text.secondary">
-                    Room Type: {item.bookingData.roomType}
+                    {t('cart.roomType')}: {item.bookingData.roomType}
                   </Typography>
                 )}
                 <Typography variant="body2" color="text.secondary">
-                  Customer: {item.bookingData.customerInfo.name} ({item.bookingData.customerInfo.email})
+                  {t('cart.customer')}: {item.bookingData.customerInfo.name} ({item.bookingData.customerInfo.email})
                 </Typography>
               </Stack>
             </Box>
@@ -274,7 +276,7 @@ export default function CartPage() {
               {/* Quantity Controls */}
               <Stack direction="row" alignItems="center" spacing={1} mt={2}>
                 <Typography variant="body2" color="text.secondary" mr={1}>
-                  Qty:
+                  {t('cart.quantity')}:
                 </Typography>
                 <IconButton 
                   size="small"
@@ -317,7 +319,7 @@ export default function CartPage() {
 
               {/* Subtotal */}
               <Typography variant="body2" color="text.secondary" mt={1}>
-                Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                {t('cart.subtotal')}: ${(item.price * item.quantity).toFixed(2)}
               </Typography>
             </Box>
 
@@ -353,12 +355,11 @@ export default function CartPage() {
           </Avatar>
           
           <Typography variant="h5" fontWeight={700} gutterBottom>
-            Your Cart is Empty
+            {t('cart.emptyCart')}
           </Typography>
           
           <Typography variant="body1" color="text.secondary" mb={4}>
-            Looks like you haven't added any products to your cart yet. 
-            Start shopping to add items to your cart.
+            {t('cart.emptyCartMessage')}
           </Typography>
           
           <Button
@@ -368,7 +369,7 @@ export default function CartPage() {
             size="large"
             sx={{ borderRadius: 2, px: 4 }}
           >
-            Continue Shopping
+            {t('cart.continueShopping')}
           </Button>
         </Paper>
       </Container>
@@ -378,11 +379,11 @@ export default function CartPage() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={700} gutterBottom>
-        Shopping Cart
+        {t('cart.title')}
       </Typography>
       
       <Typography variant="body1" color="text.secondary" gutterBottom>
-        Review your items before checkout
+        {t('cart.reviewItems')}
       </Typography>
 
       <Grid container spacing={4} mt={2}>
@@ -408,7 +409,7 @@ export default function CartPage() {
               variant="outlined"
               startIcon={<ArrowForwardIcon sx={{ transform: 'rotate(180deg)' }} />}
             >
-              Continue Shopping
+              {t('cart.continueShopping')}
             </Button>
           </Box>
         </Grid>
@@ -417,7 +418,7 @@ export default function CartPage() {
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 3, borderRadius: 3, position: 'sticky', top: 20 }}>
             <Typography variant="h6" fontWeight={700} gutterBottom>
-              Order Summary
+              {t('cart.orderSummary')}
             </Typography>
             
             <Divider sx={{ my: 2 }} />
@@ -426,7 +427,7 @@ export default function CartPage() {
               {items.length > 0 && (
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    Products ({items.length} item{items.length !== 1 ? 's' : ''})
+                    {t('cart.products')} ({items.length} {items.length !== 1 ? t('cart.items') : t('cart.item')})
                   </Typography>
                   <Typography variant="body2" fontWeight={600}>
                     ${total.toFixed(2)}
@@ -437,7 +438,7 @@ export default function CartPage() {
               {bookingItems.length > 0 && (
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    Bookings ({bookingItems.length} booking{bookingItems.length !== 1 ? 's' : ''})
+                    {t('cart.bookings')} ({bookingItems.length} {bookingItems.length !== 1 ? t('cart.bookings') : t('cart.booking')})
                   </Typography>
                   <Typography variant="body2" fontWeight={600}>
                     ${bookingTotal.toFixed(2)}
@@ -447,10 +448,10 @@ export default function CartPage() {
               
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="body2" color="text.secondary">
-                  Shipping
+                  {t('cart.shipping')}
                 </Typography>
                 <Chip 
-                  label="FREE" 
+                  label={t('cart.free')} 
                   size="small" 
                   color="success" 
                   variant="outlined"
@@ -459,10 +460,10 @@ export default function CartPage() {
               
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="body2" color="text.secondary">
-                  Tax
+                  {t('cart.tax')}
                 </Typography>
                 <Typography variant="body2" fontWeight={600}>
-                  Calculated at checkout
+                  {t('cart.calculatedAtCheckout')}
                 </Typography>
               </Stack>
               
@@ -470,7 +471,7 @@ export default function CartPage() {
               
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="h6" fontWeight={700}>
-                  Total
+                  {t('cart.total')}
                 </Typography>
                 <Typography variant="h6" fontWeight={700} color="primary.main">
                   ${grandTotal.toFixed(2)}
@@ -489,7 +490,7 @@ export default function CartPage() {
               {checkoutLoading ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
-                'Proceed to Checkout'
+                t('cart.proceedToCheckout')
               )}
             </Button>
             
@@ -498,11 +499,11 @@ export default function CartPage() {
               <Stack spacing={1}>
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <ShippingIcon fontSize="small" color="primary" />
-                  <Typography variant="caption">Free shipping on all orders</Typography>
+                  <Typography variant="caption">{t('cart.freeShippingInfo')}</Typography>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <SecurityIcon fontSize="small" color="primary" />
-                  <Typography variant="caption">Secure 256-bit SSL encryption</Typography>
+                  <Typography variant="caption">{t('cart.secureEncryption')}</Typography>
                 </Stack>
               </Stack>
             </Paper>
@@ -517,8 +518,7 @@ export default function CartPage() {
         icon={<ShippingIcon />}
       >
         <Typography variant="body2">
-          <strong>Free shipping</strong> on all orders. Items from multiple vendors will be 
-          shipped separately and may arrive at different times.
+          <strong>{t('cart.freeShippingInfo')}</strong>. {t('cart.multipleVendorsInfo')}
         </Typography>
       </Alert>
     </Container>

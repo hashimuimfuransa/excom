@@ -18,6 +18,7 @@ import {
   InputAdornment,
   IconButton,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StarIcon from '@mui/icons-material/Star';
@@ -51,6 +52,7 @@ export default function HomePage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[] | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { t } = useTranslation('common');
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
@@ -136,7 +138,7 @@ export default function HomePage() {
             }
           }}
         >
-          View All
+          {t('products.viewAll')}
         </Button>
       </Stack>
       
@@ -231,7 +233,7 @@ export default function HomePage() {
                     {/* New Badge */}
                     {p.createdAt && new Date(p.createdAt) > new Date(Date.now() - 7*24*60*60*1000) && (
                       <Chip
-                        label="NEW"
+                        label={t('products.new')}
                         size="small"
                         sx={{
                           position: 'absolute',
@@ -245,10 +247,41 @@ export default function HomePage() {
                         }}
                       />
                     )}
+
+                    {/* Bargaining Badge */}
+                    {p.bargainingEnabled && (
+                      <Chip
+                        label="💬 Bargain!"
+                        size="small"
+                        sx={{
+                          position: 'absolute',
+                          bottom: 8,
+                          left: 8,
+                          bgcolor: 'warning.main',
+                          color: 'white',
+                          fontWeight: 700,
+                          fontSize: '0.7rem',
+                          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)',
+                          animation: 'pulse 2s infinite',
+                          '@keyframes pulse': {
+                            '0%': {
+                              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)',
+                            },
+                            '50%': {
+                              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.6)',
+                              transform: 'scale(1.05)',
+                            },
+                            '100%': {
+                              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)',
+                            }
+                          }
+                        }}
+                      />
+                    )}
                     
                     {!isRealImage && (
                       <Chip
-                        label="Demo"
+                        label={t('products.demo')}
                         size="small"
                         sx={{
                           position: 'absolute',
@@ -294,7 +327,7 @@ export default function HomePage() {
                           }
                         }}
                       >
-                        Quick View
+                        {t('products.quickView')}
                       </Button>
                     </Box>
                   </Box>
@@ -362,7 +395,7 @@ export default function HomePage() {
                           )}
                         </Stack>
                         <Typography variant="caption" color="success.main" fontWeight={600}>
-                          Free Shipping ✅
+                          {t('products.freeShipping')} ✅
                         </Typography>
                       </Box>
                       
@@ -452,10 +485,10 @@ export default function HomePage() {
             <Box textAlign="center">
               <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} mb={1}>
                 <Typography variant="h5" fontWeight={800}>
-                  🎯 What's Your Next Quest?
+                  🎯 {t('home.questTitle')}
                 </Typography>
                 <Chip 
-                  label="POWER UP" 
+                  label={t('home.powerUp')} 
                   size="small" 
                   sx={{ 
                     bgcolor: '#FF4757', 
@@ -466,14 +499,14 @@ export default function HomePage() {
                 />
               </Stack>
               <Typography variant="body1" color="text.secondary">
-                🚀 Discover epic deals • ⚡ Unlock exclusive items • 🏆 Level up your shopping game
+                🚀 {t('home.discoverEpicDeals')} • ⚡ {t('home.unlockExclusiveItems')} • 🏆 {t('home.levelUpShopping')}
               </Typography>
             </Box>
             
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
               <AiSearchBar 
                 onSearch={handleSearch}
-                placeholder="🎯 Ask AI: Find me the perfect product..."
+                placeholder={`🎯 ${t('home.aiSearchPlaceholder')}`}
                 showSuggestions={true}
               />
               <Button 
@@ -498,21 +531,21 @@ export default function HomePage() {
                   }
                 }}
               >
-                🚀 Quest On!
+                🚀 {t('home.questOn')}
               </Button>
             </Stack>
             
             <Box>
               <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 600 }}>
-                🔥 Popular Quests:
+                🔥 {t('home.popularQuests')}
               </Typography>
               <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
                 {[
-                  {label:'⚡ Electronics', href:'/categories/electronics', color: '#2196F3'},
-                  {label:'👗 Fashion', href:'/categories/fashion', color: '#E91E63'},
-                  {label:'🏡 Home & Garden', href:'/categories/home', color: '#4CAF50'},
-                  {label:'🏃 Sports', href:'/categories/sports', color: '#FF9800'},
-                  {label:'📚 Books', href:'/categories/books', color: '#795548'}
+                  {label:`⚡ ${t('home.electronics')}`, href:'/categories/electronics', color: '#2196F3'},
+                  {label:`👗 ${t('home.fashion')}`, href:'/categories/fashion', color: '#E91E63'},
+                  {label:`🏡 ${t('home.homeAndGarden')}`, href:'/categories/home', color: '#4CAF50'},
+                  {label:`🏃 ${t('home.sports')}`, href:'/categories/sports', color: '#FF9800'},
+                  {label:`📚 ${t('home.books')}`, href:'/categories/books', color: '#795548'}
                 ].map((q) => (
                   <Chip 
                     key={q.label} 
@@ -558,10 +591,10 @@ export default function HomePage() {
             <Box>
               <Stack direction="row" alignItems="center" spacing={2} mb={1}>
                 <Typography variant="h5" fontWeight={900}>
-                  🎮 Epic Collections
+                  🎮 {t('home.epicCollections')}
                 </Typography>
                 <Chip 
-                  label="LEGENDARY TIER" 
+                  label={t('home.legendaryTier')} 
                   size="small" 
                   sx={{ 
                     bgcolor: '#FFD700', 
@@ -573,7 +606,7 @@ export default function HomePage() {
                 />
               </Stack>
               <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-                🏨 Hotels • 🍽️ Restaurants • 🏡 Real Estate • 💼 Services & More
+                🏨 {t('home.collectionCategories')}
               </Typography>
             </Box>
             <Button 
@@ -593,64 +626,64 @@ export default function HomePage() {
                 }
               }}
             >
-              🏆 Browse All
+              🏆 {t('home.browseAll')}
             </Button>
           </Stack>
           <Grid container spacing={3}>
             {[
               { 
-                title: '🏨 Premium Hotels', 
-                subtitle: 'Luxury accommodations worldwide',
+                title: `🏨 ${t('home.premiumHotels')}`, 
+                subtitle: t('home.luxuryAccommodations'),
                 img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format&fit=crop', 
                 href: '/collections?type=hotel',
-                badge: '🔥 TRENDING',
+                badge: `🔥 ${t('home.badgeTrending')}`,
                 badgeColor: '#2196F3',
-                powerLevel: 'EPIC'
+                powerLevel: t('home.powerLevelEpic')
               },
               { 
-                title: '🍽️ Top Restaurants', 
-                subtitle: 'Fine dining & local cuisines',
+                title: `🍽️ ${t('home.topRestaurants')}`, 
+                subtitle: t('home.fineDining'),
                 img: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1200&auto=format&fit=crop', 
                 href: '/collections?type=restaurant',
-                badge: '⭐ NEW SPOTS',
+                badge: `⭐ ${t('home.badgeNewSpots')}`,
                 badgeColor: '#FF9800',
-                powerLevel: 'RARE'
+                powerLevel: t('home.powerLevelRare')
               },
               { 
-                title: '🏡 Real Estate', 
-                subtitle: 'Prime properties for rent & sale',
+                title: `🏡 ${t('home.realEstate')}`, 
+                subtitle: t('home.primeProperties'),
                 img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop', 
                 href: '/collections?type=real-estate',
-                badge: '👑 PREMIUM',
+                badge: `👑 ${t('home.badgePremium')}`,
                 badgeColor: '#4CAF50',
-                powerLevel: 'LEGENDARY'
+                powerLevel: t('home.powerLevelLegendary')
               },
               { 
-                title: '🚗 Car Rentals', 
-                subtitle: 'Premium vehicles for every journey',
+                title: `🚗 ${t('home.carRentals')}`, 
+                subtitle: t('home.premiumVehicles'),
                 img: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=1200&auto=format&fit=crop', 
                 href: '/collections?type=car-rental',
-                badge: '🚀 FAST',
+                badge: `🚀 ${t('home.badgeFast')}`,
                 badgeColor: '#E91E63',
-                powerLevel: 'RARE'
+                powerLevel: t('home.powerLevelRare')
               },
               { 
-                title: '🎓 Tutors & Courses', 
-                subtitle: 'Expert knowledge & skill development',
+                title: `🎓 ${t('home.tutorsAndCourses')}`, 
+                subtitle: t('home.expertKnowledge'),
                 img: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600&fit=crop&crop=center', 
                 href: '/collections?type=education',
-                badge: '📚 LEARN',
+                badge: `📚 ${t('home.badgeLearn')}`,
                 badgeColor: '#3F51B5',
-                powerLevel: 'EPIC'
+                powerLevel: t('home.powerLevelEpic')
               },
               { 
-                title: '🛍️ Shopping & Lifestyle', 
-                subtitle: 'Curated products & experiences',
+                title: `🛍️ ${t('home.shoppingLifestyle')}`, 
+                subtitle: t('home.curatedProducts'),
                 img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop', 
                 href: '/collections?type=shopping',
-                badge: '💎 LUXURY',
+                badge: `💎 ${t('home.badgeLuxury')}`,
                 badgeColor: '#9C27B0',
-                powerLevel: 'LEGENDARY'
+                powerLevel: t('home.powerLevelLegendary')
               },
             ].map((c) => (
               <Grid key={c.title} item xs={12} md={4}>
@@ -754,13 +787,13 @@ export default function HomePage() {
         </Box>
 
         {/* New Arrivals (real data) */}
-        <ProductGrid title="Fresh Arrivals" items={newArrivals} />
+        <ProductGrid title={t('products.newArrivals')} items={newArrivals} />
 
         {/* Top Picks (real data) */}
         <Box mt={6}>
           <Stack direction="row" alignItems="center" spacing={1} mb={2}>
             <TrendingUpIcon color="primary" />
-            <Typography variant="h5" fontWeight={800}>Trending Now</Typography>
+            <Typography variant="h5" fontWeight={800}>{t('products.topPicks')}</Typography>
           </Stack>
           <Grid container spacing={2}>
             {(!products ? Array.from({ length: 8 }) : topPicks).map((p: any, idx: number) => {
@@ -823,77 +856,141 @@ export default function HomePage() {
         {/* Testimonials Section */}
         <Box mt={8}>
           <Typography variant="h5" fontWeight={800} textAlign="center" gutterBottom>
-            What Our Customers Say
+            {t('home.customerTestimonials')}
           </Typography>
           <Typography variant="body1" color="text.secondary" textAlign="center" mb={4}>
-            Don't just take our word for it - hear from our satisfied customers
+            {t('home.testimonialSubtitle')}
           </Typography>
           
           <Grid container spacing={4}>
             {[
               {
-                name: 'Sarah Johnson',
-                role: 'Small Business Owner',
-                avatar: 'https://i.pravatar.cc/150?img=1',
+                name: t('testimonials.person1.name'),
+                role: t('testimonials.person1.role'),
+                avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: 'Excom has transformed how I source products for my business. The variety and quality are exceptional!'
+                text: t('testimonials.person1.text')
               },
               {
-                name: 'Michael Chen',
-                role: 'Tech Enthusiast',
-                avatar: 'https://i.pravatar.cc/150?img=2',
+                name: t('testimonials.person2.name'),
+                role: t('testimonials.person2.role'),
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: 'Found exactly what I needed at great prices. The vendor network is impressive and reliable.'
+                text: t('testimonials.person2.text')
               },
               {
-                name: 'Emma Davis',
-                role: 'Online Shopper',
-                avatar: 'https://i.pravatar.cc/150?img=3',
+                name: t('testimonials.person3.name'),
+                role: t('testimonials.person3.role'),
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: 'Love the user experience! Easy to navigate, secure checkout, and fast delivery every time.'
+                text: t('testimonials.person3.text')
               }
             ].map((testimonial, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Paper 
                   sx={{ 
-                    p: 3, 
-                    borderRadius: 3,
+                    p: 4, 
+                    borderRadius: 4,
                     height: '100%',
                     position: 'relative',
+                    background: (t) => t.palette.mode === 'light' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)'
+                      : 'linear-gradient(135deg, rgba(30,30,30,0.9) 0%, rgba(45,45,45,0.9) 100%)',
                     border: '1px solid',
                     borderColor: 'divider',
-                    transition: 'all 0.3s ease',
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
+                      transform: 'translateY(-8px) scale(1.02)',
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+                      borderColor: 'primary.main'
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 4,
+                      background: (t) => `linear-gradient(90deg, ${t.palette.primary.main}, ${t.palette.secondary.main})`,
+                      borderRadius: '4px 4px 0 0'
                     }
                   }}
                 >
-                  <Stack spacing={2}>
-                    <Stack direction="row" alignItems="center" spacing={2}>
+                  <Stack spacing={3}>
+                    <Stack direction="row" alignItems="center" spacing={3}>
                       <Avatar 
                         src={testimonial.avatar}
-                        sx={{ width: 50, height: 50 }}
+                        sx={{ 
+                          width: 64, 
+                          height: 64,
+                          border: '3px solid',
+                          borderColor: 'primary.main',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                        }}
                       />
                       <Box>
-                        <Typography variant="subtitle1" fontWeight={700}>
+                        <Typography variant="h6" fontWeight={700} color="text.primary">
                           {testimonial.name}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography 
+                          variant="body2" 
+                          color="primary.main" 
+                          fontWeight={500}
+                          sx={{ mt: 0.5 }}
+                        >
                           {testimonial.role}
                         </Typography>
                       </Box>
                     </Stack>
                     
-                    <Stack direction="row" spacing={0.5}>
+                    <Stack direction="row" spacing={0.5} justifyContent="center">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <StarIcon key={i} sx={{ color: 'warning.main', fontSize: '1.2rem' }} />
+                        <StarIcon 
+                          key={i} 
+                          sx={{ 
+                            color: '#FFD700', 
+                            fontSize: '1.5rem',
+                            filter: 'drop-shadow(0 2px 4px rgba(255,215,0,0.3))'
+                          }} 
+                        />
                       ))}
                     </Stack>
                     
-                    <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                      "{testimonial.text}"
-                    </Typography>
+                    <Box 
+                      sx={{ 
+                        position: 'relative',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'rgba(0,0,0,0.02)',
+                        border: '1px solid',
+                        borderColor: 'divider'
+                      }}
+                    >
+                      <Typography 
+                        variant="body1" 
+                        sx={{ 
+                          fontStyle: 'italic',
+                          lineHeight: 1.6,
+                          position: 'relative',
+                          zIndex: 1
+                        }}
+                      >
+                        "{testimonial.text}"
+                      </Typography>
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: -8,
+                          left: 12,
+                          width: 24,
+                          height: 24,
+                          bgcolor: 'primary.main',
+                          clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                          opacity: 0.8
+                        }}
+                      />
+                    </Box>
                   </Stack>
                 </Paper>
               </Grid>
@@ -932,19 +1029,19 @@ export default function HomePage() {
             <Box sx={{ position: 'relative', zIndex: 1 }}>
               <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} mb={2}>
                 <BoltIcon sx={{ fontSize: '2rem' }} />
-                <Typography variant="h4" fontWeight={800}>Flash Deals</Typography>
+                <Typography variant="h4" fontWeight={800}>{t('home.flashDeals')}</Typography>
               </Stack>
               
               <Typography variant="h6" textAlign="center" sx={{ opacity: 0.9, mb: 4 }}>
-                Limited time offers - Don't miss out!
+                {t('home.flashDealsSubtitle')}
               </Typography>
               
               <Grid container spacing={3}>
                 {[
-                  { title: 'Electronics Sale', discount: '30%', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400' },
-                  { title: 'Fashion Week', discount: '25%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400' },
-                  { title: 'Home Essentials', discount: '20%', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400' },
-                  { title: 'Sports Gear', discount: '35%', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400' }
+                  { title: t('deals.electronicsTitle'), discount: '30%', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400' },
+                  { title: t('deals.fashionTitle'), discount: '25%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400' },
+                  { title: t('deals.homeTitle'), discount: '20%', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400' },
+                  { title: t('deals.sportsTitle'), discount: '35%', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400' }
                 ].map((deal, index) => (
                   <Grid item xs={12} sm={6} md={3} key={index}>
                     <Card 
@@ -993,7 +1090,7 @@ export default function HomePage() {
                           {deal.title}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Save up to {deal.discount} today only
+                          {t('deals.saveUpTo')} {deal.discount} {t('deals.todayOnly')}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -1020,7 +1117,7 @@ export default function HomePage() {
                     }
                   }}
                 >
-                  Shop All Deals
+                  {t('home.shopAllDeals')}
                 </Button>
               </Box>
             </Box>
@@ -1042,10 +1139,10 @@ export default function HomePage() {
             }}
           >
             <Typography variant="h5" fontWeight={700} gutterBottom>
-              Stay Updated with Latest Deals
+              {t('home.newsletter')}
             </Typography>
             <Typography variant="body1" color="text.secondary" mb={3}>
-              Subscribe to our newsletter and never miss out on exclusive offers and new arrivals
+              {t('home.newsletterSubtitle')}
             </Typography>
             
             <Stack 
@@ -1075,12 +1172,12 @@ export default function HomePage() {
                   minWidth: 140
                 }}
               >
-                Subscribe
+                {t('home.subscribe')}
               </Button>
             </Stack>
             
             <Typography variant="caption" color="text.secondary" mt={2} display="block">
-              We respect your privacy. Unsubscribe at any time.
+              {t('home.privacyNote')}
             </Typography>
           </Paper>
         </Box>

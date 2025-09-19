@@ -35,30 +35,29 @@ import {
   Logout as LogoutIcon,
   Collections as CollectionsIcon,
   Search as SearchIcon,
-  Receipt as OrdersIcon
+  Receipt as OrdersIcon,
+  Favorite as FavoriteIcon,
+  Person as PersonIcon
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import DarkModeToggle from './DarkModeToggle';
+import LanguageSwitcher from './LanguageSwitcher';
 import NextLink from 'next/link';
-import { apiGet } from '@utils/api';
 import { useCart } from '@utils/cart';
-
-interface Me { name: string; email: string; role: 'buyer' | 'seller' | 'admin'; }
+import { useWishlist } from '@utils/wishlist';
+import { useAuth } from '@utils/auth.tsx';
 
 export default function Navbar() {
-  const [me, setMe] = useState<Me | null>(null);
+  const { user, logout: authLogout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [navLoading, setNavLoading] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const open = Boolean(anchorEl);
   const { items, bookingItems, refreshCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
+  const { t } = useTranslation('common');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-  useEffect(() => {
-    const token = localStorage.getItem('excom_token');
-    if (!token) return;
-    apiGet<Me>('/auth/me').then(setMe).catch(() => setMe(null));
-  }, []);
 
   useEffect(() => {
     const handleCartUpdate = () => refreshCart();
@@ -68,7 +67,7 @@ export default function Navbar() {
 
   function logout() {
     setNavLoading(true);
-    localStorage.removeItem('excom_token');
+    authLogout();
     setTimeout(() => {
       window.location.href = '/';
     }, 300);
@@ -87,10 +86,16 @@ export default function Navbar() {
   };
 
   const menuItems = [
-    { text: 'Collections', href: '/collections', icon: <CollectionsIcon /> },
-    { text: 'View Vendors', href: '/vendors', icon: <StoreIcon /> },
-    { text: 'Products', href: '/product', icon: <SearchIcon /> },
+    { text: t('navigation.collections'), href: '/collections', icon: <CollectionsIcon /> },
+    { text: t('navigation.viewVendors'), href: '/vendors', icon: <StoreIcon /> },
+    { text: t('navigation.products'), href: '/product', icon: <SearchIcon /> },
+    { text: t('wishlist.title'), href: '/wishlist', icon: <FavoriteIcon /> },
   ];
+
+  // Profile menu items for logged-in users
+  const profileMenuItems = user ? [
+    { text: t('navigation.profile'), href: '/profile', icon: <PersonIcon /> },
+  ] : [];
 
   const MobileDrawer = () => (
     <Box
@@ -145,9 +150,40 @@ export default function Navbar() {
           </ListItem>
         ))}
         
+        {/* Profile menu items for logged-in users */}
+        {profileMenuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton 
+              component={NextLink}
+              href={item.href}
+              onClick={() => setMobileOpen(false)}
+              sx={{ 
+                borderRadius: 2, 
+                mx: 2, 
+                mb: 0.5,
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.secondary.main, 0.1)
+                }
+              }}
+            >
+              <ListItemIcon sx={{ color: 'secondary.main', minWidth: 40 }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+        
         <Divider sx={{ my: 2 }} />
         
-        {!me ? (
+        {/* Language Switcher in Mobile */}
+        <ListItem sx={{ px: 2, py: 1 }}>
+          <LanguageSwitcher />
+        </ListItem>
+        
+        <Divider sx={{ my: 1 }} />
+        
+        {!user ? (
           <>
             <ListItem disablePadding>
               <ListItemButton 
@@ -166,7 +202,7 @@ export default function Navbar() {
                 <ListItemIcon sx={{ color: 'success.main', minWidth: 40 }}>
                   <LoginIcon />
                 </ListItemIcon>
-                <ListItemText primary="Login" />
+                <ListItemText primary={t('navigation.login')} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
@@ -186,7 +222,7 @@ export default function Navbar() {
                 <ListItemIcon sx={{ color: 'info.main', minWidth: 40 }}>
                   <PersonAddIcon />
                 </ListItemIcon>
-                <ListItemText primary="Register" />
+                <ListItemText primary={t('navigation.register')} />
               </ListItemButton>
             </ListItem>
           </>
@@ -194,21 +230,29 @@ export default function Navbar() {
           <>
             <ListItem>
               <Stack direction="row" alignItems="center" spacing={2} sx={{ px: 2 }}>
-                <Avatar sx={{ width: 40, height: 40 }}>
-                  {me.name?.[0]?.toUpperCase() || 'U'}
+                <Avatar 
+                  src={user.avatar}
+                  sx={{ 
+                    width: 40, 
+                    height: 40,
+                    background: user.avatar ? 'transparent' : 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                    boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)'
+                  }}
+                >
+                  {!user.avatar && (user.firstName?.[0] || user.lastName?.[0] || 'U')?.toUpperCase()}
                 </Avatar>
                 <Box>
                   <Typography variant="subtitle2" fontWeight={600}>
-                    {me.name || 'User'}
+                    {`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User'}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {me.email}
+                    {user.email}
                   </Typography>
                 </Box>
               </Stack>
             </ListItem>
             
-            {me.role === 'admin' && (
+            {user.role === 'admin' && (
               <ListItem disablePadding>
                 <ListItemButton 
                   component={NextLink}
@@ -226,12 +270,12 @@ export default function Navbar() {
                   <ListItemIcon sx={{ color: 'warning.main', minWidth: 40 }}>
                     <DashboardIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Admin Dashboard" />
+                  <ListItemText primary={t('navigation.adminDashboard')} />
                 </ListItemButton>
               </ListItem>
             )}
             
-            {me.role !== 'admin' && (
+            {user.role !== 'admin' && (
               <ListItem disablePadding>
                 <ListItemButton 
                   component={NextLink}
@@ -249,7 +293,7 @@ export default function Navbar() {
                   <ListItemIcon sx={{ color: 'primary.main', minWidth: 40 }}>
                     <DashboardIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Vendor Dashboard" />
+                  <ListItemText primary={t('navigation.vendorDashboard')} />
                 </ListItemButton>
               </ListItem>
             )}
@@ -271,7 +315,7 @@ export default function Navbar() {
                 <ListItemIcon sx={{ color: 'secondary.main', minWidth: 40 }}>
                   <OrdersIcon />
                 </ListItemIcon>
-                <ListItemText primary="My Orders" />
+                <ListItemText primary={t('navigation.myOrders')} />
               </ListItemButton>
             </ListItem>
             
@@ -290,7 +334,7 @@ export default function Navbar() {
                 <ListItemIcon sx={{ color: 'error.main', minWidth: 40 }}>
                   <LogoutIcon />
                 </ListItemIcon>
-                <ListItemText primary="Logout" />
+                <ListItemText primary={t('navigation.logout')} />
               </ListItemButton>
             </ListItem>
           </>
@@ -393,7 +437,7 @@ export default function Navbar() {
                   }
                 }}
               >
-                Collections
+                {t('navigation.collections')}
               </Button>
               <Button 
                 component={NextLink}
@@ -412,7 +456,7 @@ export default function Navbar() {
                   }
                 }}
               >
-                Vendors
+                {t('navigation.vendors')}
               </Button>
               <Button 
                 component={NextLink}
@@ -431,16 +475,17 @@ export default function Navbar() {
                   }
                 }}
               >
-                Products
+                {t('navigation.products')}
               </Button>
             </Stack>
           )}
 
           {/* Right side actions */}
           <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: 2 }}>
+            <LanguageSwitcher />
             <DarkModeToggle />
             
-            {!me ? (
+            {!user ? (
               <Stack direction="row" spacing={1}>
                 {!isMobile && (
                   <Button 
@@ -458,7 +503,7 @@ export default function Navbar() {
                       }
                     }}
                   >
-                    Login
+                    {t('navigation.login')}
                   </Button>
                 )}
                 <Button 
@@ -477,7 +522,7 @@ export default function Navbar() {
                     }
                   }}
                 >
-                  {isMobile ? 'Join' : 'Register'}
+                  {isMobile ? t('navigation.join') : t('navigation.register')}
                 </Button>
               </Stack>
             ) : (
@@ -493,14 +538,15 @@ export default function Navbar() {
                   }}
                 >
                   <Avatar 
+                    src={user.avatar}
                     sx={{ 
                       width: { xs: 36, sm: 40 }, 
                       height: { xs: 36, sm: 40 },
-                      background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                      background: user.avatar ? 'transparent' : 'linear-gradient(45deg, #2196F3, #21CBF3)',
                       boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)'
                     }}
                   >
-                    {me.name?.[0]?.toUpperCase() || 'U'}
+                    {!user.avatar && (user.firstName?.[0] || user.lastName?.[0] || 'U')?.toUpperCase()}
                   </Avatar>
                 </IconButton>
                 
@@ -519,31 +565,40 @@ export default function Navbar() {
                 >
                   <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
                     <Typography variant="subtitle2" fontWeight={600}>
-                      {me.name || 'User'}
+                      {`${user.firstName || ''} ${user.lastName || ''}`.trim() || t('user.user')}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {me.email}
+                      {user.email}
                     </Typography>
                   </Box>
                   
-                  {me.role === 'admin' && (
+                  <MenuItem 
+                    component={NextLink} 
+                    href="/profile"
+                    sx={{ gap: 1 }}
+                  >
+                    <PersonIcon fontSize="small" />
+                    {t('navigation.profile')}
+                  </MenuItem>
+                  
+                  {user.role === 'admin' && (
                     <MenuItem 
                       component={NextLink} 
                       href="/dashboard/admin"
                       sx={{ gap: 1 }}
                     >
                       <DashboardIcon fontSize="small" />
-                      Admin Dashboard
+                      {t('navigation.adminDashboard')}
                     </MenuItem>
                   )}
-                  {me.role !== 'admin' && (
+                  {user.role !== 'admin' && (
                     <MenuItem 
                       component={NextLink} 
                       href="/dashboard/vendor"
                       sx={{ gap: 1 }}
                     >
                       <DashboardIcon fontSize="small" />
-                      Vendor Dashboard
+                      {t('navigation.vendorDashboard')}
                     </MenuItem>
                   )}
                   <MenuItem 
@@ -552,15 +607,48 @@ export default function Navbar() {
                     sx={{ gap: 1 }}
                   >
                     <OrdersIcon fontSize="small" />
-                    My Orders
+                    {t('navigation.myOrders')}
                   </MenuItem>
                   <MenuItem onClick={logout} sx={{ gap: 1, color: 'error.main' }}>
                     <LogoutIcon fontSize="small" />
-                    Logout
+                    {t('navigation.logout')}
                   </MenuItem>
                 </Menu>
               </>
             )}
+
+            {/* Wishlist */}
+            <IconButton 
+              component={NextLink} 
+              href="/wishlist" 
+              aria-label="wishlist"
+              sx={{
+                color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a',
+                transition: 'transform 0.2s ease',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  color: theme.palette.primary.main
+                }
+              }}
+            >
+              <Badge 
+                badgeContent={wishlistCount || 0} 
+                color="error"
+                sx={{
+                  '& .MuiBadge-badge': {
+                    right: 2,
+                    top: 2,
+                    fontSize: '0.75rem',
+                    minWidth: '20px',
+                    height: '20px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(45deg, #e91e63, #f06292)'
+                  }
+                }}
+              >
+                <FavoriteIcon />
+              </Badge>
+            </IconButton>
 
             {/* Shopping Cart */}
             <IconButton 

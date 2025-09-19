@@ -2,6 +2,7 @@ import { Router } from 'express';
 import Product from '../models/Product';
 import Store from '../models/Store';
 import Order from '../models/Order';
+import BargainChat from '../models/BargainChat';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
@@ -132,6 +133,17 @@ router.get('/dashboard-stats', requireAuth, async (req: AuthRequest, res) => {
       });
     });
     
+    // Get bargaining statistics
+    const totalBargains = await BargainChat.countDocuments({ seller: sellerId });
+    const activeBargains = await BargainChat.countDocuments({ 
+      seller: sellerId, 
+      status: 'active' 
+    });
+    const acceptedBargains = await BargainChat.countDocuments({ 
+      seller: sellerId, 
+      status: 'accepted' 
+    });
+    
     // Get recent orders (last 5)
     const recentOrders = vendorOrders
       .slice(-5)
@@ -151,6 +163,9 @@ router.get('/dashboard-stats', requireAuth, async (req: AuthRequest, res) => {
       totalOrders,
       totalRevenue,
       pendingOrders,
+      totalBargains,
+      activeBargains,
+      acceptedBargains,
       recentOrders
     });
   } catch (error) {

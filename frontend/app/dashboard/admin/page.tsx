@@ -30,6 +30,7 @@ import {
   Notifications,
   Analytics
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { apiGet, apiPatch } from '@utils/api';
 import AdminLayout from '@/components/admin/AdminLayout';
 import StatsCard from '@/components/admin/StatsCard';
@@ -56,6 +57,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation('common');
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentStores, setRecentStores] = useState<Store[]>([]);
   const [pendingActions, setPendingActions] = useState<any[]>([]);
@@ -144,7 +146,7 @@ export default function AdminDashboardPage() {
       <AdminLayout>
         <Box sx={{ p: 3 }}>
           <LinearProgress />
-          <Typography sx={{ mt: 2, textAlign: 'center' }}>Loading dashboard...</Typography>
+          <Typography sx={{ mt: 2, textAlign: 'center' }}>{t('messages.loading')}</Typography>
         </Box>
       </AdminLayout>
     );
@@ -156,10 +158,10 @@ export default function AdminDashboardPage() {
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" fontWeight={800} gutterBottom>
-            Dashboard Overview
+            {t('admin.welcomeBack')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Monitor your platform's performance and manage key operations
+            {t('admin.platformOverview')}
           </Typography>
         </Box>
 
@@ -173,9 +175,9 @@ export default function AdminDashboardPage() {
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <StatsCard
-              title="Total Users"
+              title={t('admin.totalUsers')}
               value={stats?.totalUsers || 0}
-              subtitle="Registered platform users"
+              subtitle={t('admin.totalUsers')}
               icon={<People />}
               color="primary"
               trend={{
@@ -187,9 +189,9 @@ export default function AdminDashboardPage() {
           
           <Grid item xs={12} sm={6} md={3}>
             <StatsCard
-              title="Active Stores"
+              title={t('admin.activeStores')}
               value={stats?.activeStores || 0}
-              subtitle="Approved vendor stores"
+              subtitle={t('admin.activeStores')}
               icon={<Store />}
               color="success"
               trend={{
@@ -205,7 +207,7 @@ export default function AdminDashboardPage() {
           
           <Grid item xs={12} sm={6} md={3}>
             <StatsCard
-              title="Products Listed"
+              title={t('admin.totalProducts')}
               value={stats?.totalProducts || 0}
               subtitle="Total product catalog"
               icon={<ShoppingBag />}
@@ -219,7 +221,7 @@ export default function AdminDashboardPage() {
           
           <Grid item xs={12} sm={6} md={3}>
             <StatsCard
-              title="Pending Reviews"
+              title={t('admin.pendingReviews')}
               value={stats?.pendingStores || 0}
               subtitle="Awaiting approval"
               icon={<PendingActions />}
@@ -241,7 +243,7 @@ export default function AdminDashboardPage() {
               <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                   <Typography variant="h6" fontWeight={700}>
-                    Recent Store Applications
+                    {t('admin.storeApplications')}
                   </Typography>
                   <Chip 
                     size="small" 
@@ -254,7 +256,7 @@ export default function AdminDashboardPage() {
                   {recentStores.length === 0 ? (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                       <Typography variant="body2" color="text.secondary">
-                        No pending store applications
+                        {t('messages.noData')}
                       </Typography>
                     </Box>
                   ) : (
@@ -321,7 +323,7 @@ export default function AdminDashboardPage() {
               <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                   <Typography variant="h6" fontWeight={700}>
-                    Recent Activity
+                    {t('admin.recentActivity')}
                   </Typography>
                   <Notifications color="action" />
                 </Box>
@@ -330,7 +332,7 @@ export default function AdminDashboardPage() {
                   {pendingActions.length === 0 ? (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                       <Typography variant="body2" color="text.secondary">
-                        No recent activity
+                        {t('messages.noData')}
                       </Typography>
                     </Box>
                   ) : (
@@ -374,7 +376,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardContent sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={700} gutterBottom>
-                  Quick Actions
+                  {t('admin.quickActions')}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <Button
@@ -382,28 +384,28 @@ export default function AdminDashboardPage() {
                     startIcon={<Store />}
                     onClick={() => window.location.href = '/dashboard/admin/stores'}
                   >
-                    Review Stores
+                    {t('admin.manageStores')}
                   </Button>
                   <Button
                     variant="outlined"
                     startIcon={<People />}
                     onClick={() => window.location.href = '/dashboard/admin/users'}
                   >
-                    Manage Users
+                    {t('admin.manageUsers')}
                   </Button>
                   <Button
                     variant="outlined"
                     startIcon={<ShoppingBag />}
                     onClick={() => window.location.href = '/dashboard/admin/products'}
                   >
-                    View Products
+                    {t('admin.products')}
                   </Button>
                   <Button
                     variant="outlined"
                     startIcon={<Analytics />}
                     onClick={() => window.location.href = '/dashboard/admin/analytics'}
                   >
-                    View Analytics
+                    {t('admin.viewAnalytics')}
                   </Button>
                 </Box>
               </CardContent>

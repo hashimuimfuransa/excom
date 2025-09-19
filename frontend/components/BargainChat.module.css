@@ -1,0 +1,388 @@
+.bargain-chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.bargain-chat-container {
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  height: 80%;
+  max-height: 700px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bargain-chat-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.product-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+}
+
+.chat-info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.original-price {
+  margin: 0.125rem 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.current-offer {
+  margin: 0.125rem 0;
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.status {
+  margin: 0.125rem 0;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.accepted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status.rejected,
+.status.closed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748b;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.bargain-chat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.start-bargaining {
+  padding: 2rem;
+  text-align: center;
+}
+
+.start-bargaining h4 {
+  margin: 0 0 1.5rem 0;
+  color: #1e293b;
+}
+
+.offer-input,
+.message-input {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.offer-input label,
+.message-input label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.offer-input input,
+.message-input textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.offer-input input:focus,
+.message-input textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.start-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.start-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.start-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.messages-container {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.message {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-end;
+}
+
+.message.buyer {
+  justify-content: flex-end;
+}
+
+.message.seller {
+  justify-content: flex-start;
+}
+
+.message-content {
+  max-width: 70%;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  position: relative;
+}
+
+.message.buyer .message-content {
+  background: #3b82f6;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message.seller .message-content {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-bottom-left-radius: 4px;
+}
+
+.message.price_offer .message-content,
+.message.counter_offer .message-content {
+  border: 2px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.message.accept_offer .message-content {
+  border: 2px solid #10b981;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.message.reject_offer .message-content {
+  border: 2px solid #ef4444;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.message-content p {
+  margin: 0 0 0.25rem 0;
+  word-wrap: break-word;
+}
+
+.price-offer {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin: 0.25rem 0;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.chat-actions {
+  padding: 1rem;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+}
+
+.offer-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.accept-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.accept-btn:hover {
+  background: #059669;
+}
+
+.reject-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reject-btn:hover {
+  background: #dc2626;
+}
+
+.message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.input-row,
+.offer-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.input-row input,
+.offer-row input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.input-row input:focus,
+.offer-row input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.input-row button,
+.offer-row button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.input-row button:hover:not(:disabled),
+.offer-row button:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.input-row button:disabled,
+.offer-row button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.offer-btn {
+  background: #f59e0b !important;
+}
+
+.offer-btn:hover:not(:disabled) {
+  background: #d97706 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bargain-chat-container {
+    width: 95%;
+    height: 90%;
+    max-height: none;
+  }
+  
+  .chat-info {
+    gap: 0.5rem;
+  }
+  
+  .product-thumbnail {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .message-content {
+    max-width: 85%;
+  }
+  
+  .input-row,
+  .offer-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .input-row button,
+  .offer-row button {
+    width: 100%;
+  }
+}

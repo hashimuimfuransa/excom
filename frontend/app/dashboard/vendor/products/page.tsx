@@ -4,7 +4,8 @@ import {
   Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, 
   FormControl, Grid, IconButton, InputLabel, MenuItem, Paper, Select, Stack, 
   TextField, Tooltip, Typography, Alert, CircularProgress, InputAdornment,
-  Card, CardMedia, CardContent, CardActions, Fab, Pagination, Divider, Avatar
+  Card, CardMedia, CardContent, CardActions, Fab, Pagination, Divider, Avatar,
+  FormControlLabel, Switch, Collapse
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -20,9 +21,11 @@ import {
   Clear as ClearIcon,
   TrendingUp,
   Inventory,
-  ArrowBack as ArrowBackIcon
+  ArrowBack as ArrowBackIcon,
+  MonetizationOn
 } from '@mui/icons-material';
 import { apiDelete, apiGet, apiPost, apiPatch } from '@utils/api';
+import { useTranslation } from 'react-i18next';
 
 interface Product { 
   _id: string; 
@@ -36,6 +39,9 @@ interface Product {
     _id: string;
     name: string;
   };
+  bargainingEnabled?: boolean;
+  minBargainPrice?: number;
+  maxBargainDiscountPercent?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -74,6 +80,7 @@ type SortBy = 'title' | 'price' | 'category' | 'createdAt';
 type SortOrder = 'asc' | 'desc';
 
 export default function VendorProductsPage() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -86,6 +93,9 @@ export default function VendorProductsPage() {
   const [images, setImages] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [error, setError] = useState('');
+  const [bargainingEnabled, setBargainingEnabled] = useState(false);
+  const [minBargainPrice, setMinBargainPrice] = useState<number | ''>('');
+  const [maxBargainDiscountPercent, setMaxBargainDiscountPercent] = useState<number | ''>(20);
   
   // Store management
   const [stores, setStores] = useState<Store[]>([]);
@@ -179,6 +189,9 @@ export default function VendorProductsPage() {
     setCategory('');
     setSelectedStore('');
     setImages([]);
+    setBargainingEnabled(false);
+    setMinBargainPrice('');
+    setMaxBargainDiscountPercent(20);
     setError('');
     setOpen(true);
   }
@@ -192,6 +205,9 @@ export default function VendorProductsPage() {
     setCategory(p.category || '');
     setSelectedStore(p.store?._id || '');
     setImages(p.images || []);
+    setBargainingEnabled(p.bargainingEnabled || false);
+    setMinBargainPrice(p.minBargainPrice || '');
+    setMaxBargainDiscountPercent(p.maxBargainDiscountPercent || 20);
     setError('');
     setOpen(true);
   }
@@ -243,8 +259,20 @@ export default function VendorProductsPage() {
 
   async function saveProduct() {
     if (!title.trim() || !price || !category || images.length === 0) {
-      setError('Please fill in all required fields (title, price, category) and add at least one image');
+      setError(t('products.requiredFields'));
       return;
+    }
+
+    // Validate bargaining settings
+    if (bargainingEnabled) {
+      if (minBargainPrice && Number(minBargainPrice) >= Number(price)) {
+        setError('Minimum bargain price must be less than the product price');
+        return;
+      }
+      if (maxBargainDiscountPercent && (Number(maxBargainDiscountPercent) < 0 || Number(maxBargainDiscountPercent) > 100)) {
+        setError('Discount percentage must be between 0 and 100');
+        return;
+      }
     }
 
     const body = { 
@@ -254,7 +282,10 @@ export default function VendorProductsPage() {
       description: description.trim(), 
       category, 
       images,
-      store: selectedStore || undefined
+      store: selectedStore || undefined,
+      bargainingEnabled,
+      minBargainPrice: minBargainPrice ? Number(minBargainPrice) : undefined,
+      maxBargainDiscountPercent: maxBargainDiscountPercent ? Number(maxBargainDiscountPercent) : undefined
     };
     try {
       if (!editing) {
@@ -267,7 +298,7 @@ export default function VendorProductsPage() {
       setOpen(false);
     } catch (err) {
       console.error('Save product error:', err);
-      setError('Failed to save product. Please try again.');
+      setError(t('products.failedToSave'));
     }
   }
 
@@ -309,30 +340,38 @@ export default function VendorProductsPage() {
                     {product.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {product.description || 'No description'}
+                    {product.description || t('products.noDescription')}
                   </Typography>
                   <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                     <Chip label={`${product.price} ${product.currency}`} color="primary" size="small" />
                     {product.category && (
-                      <Chip label={product.category} variant="outlined" size="small" />
+                      <Chip label={t(`categories.${product.category}`)} variant="outlined" size="small" />
                     )}
                     {product.store && (
-                      <Chip label={`Store: ${product.store.name}`} color="secondary" size="small" />
+                      <Chip label={`${t('products.store')}: ${product.store.name}`} color="secondary" size="small" />
+                    )}
+                    {product.bargainingEnabled && (
+                      <Chip 
+                        label={t('products.bargainEnabled')} 
+                        color="warning" 
+                        size="small" 
+                        icon={<MonetizationOn fontSize="small" />}
+                      />
                     )}
                     {product.createdAt && (
                       <Typography variant="caption" color="text.secondary">
-                        Created {new Date(product.createdAt).toLocaleDateString()}
+                        {t('products.created')} {new Date(product.createdAt).toLocaleDateString()}
                       </Typography>
                     )}
                   </Stack>
                 </Box>
                 <Stack direction="row">
-                  <Tooltip title="Edit">
+                  <Tooltip title={t('common.edit')}>
                     <IconButton onClick={() => startEdit(product)} color="primary">
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Delete">
+                  <Tooltip title={t('common.delete')}>
                     <IconButton onClick={() => remove(product._id)} color="error">
                       <DeleteIcon />
                     </IconButton>
@@ -374,7 +413,7 @@ export default function VendorProductsPage() {
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden'
           }}>
-            {product.description || 'No description'}
+            {product.description || t('products.noDescription')}
           </Typography>
           <Stack direction="row" spacing={1} sx={{ mb: 1 }} flexWrap="wrap">
             <Chip 
@@ -384,22 +423,30 @@ export default function VendorProductsPage() {
             />
             {product.category && (
               <Chip 
-                label={product.category} 
+                label={t(`categories.${product.category}`)} 
                 variant="outlined" 
                 size="small" 
               />
             )}
             {product.store && (
               <Chip 
-                label={`Store: ${product.store.name}`} 
+                label={`${t('products.store')}: ${product.store.name}`} 
                 color="secondary" 
                 size="small" 
+              />
+            )}
+            {product.bargainingEnabled && (
+              <Chip 
+                label={t('products.bargainEnabled')} 
+                color="warning" 
+                size="small" 
+                icon={<MonetizationOn fontSize="small" />}
               />
             )}
           </Stack>
           {product.createdAt && (
             <Typography variant="caption" color="text.secondary">
-              Created {new Date(product.createdAt).toLocaleDateString()}
+              {t('products.created')} {new Date(product.createdAt).toLocaleDateString()}
             </Typography>
           )}
         </CardContent>
@@ -410,15 +457,15 @@ export default function VendorProductsPage() {
             href={`/product/${product._id}`}
             target="_blank"
           >
-            View
+            {t('common.view')}
           </Button>
           <Stack direction="row">
-            <Tooltip title="Edit">
+            <Tooltip title={t('common.edit')}>
               <IconButton size="small" onClick={() => startEdit(product)} color="primary">
                 <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Delete">
+            <Tooltip title={t('common.delete')}>
               <IconButton size="small" onClick={() => remove(product._id)} color="error">
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -462,7 +509,7 @@ export default function VendorProductsPage() {
                 fontSize: { xs: '1.5rem', sm: '2.125rem' }
               }}
             >
-              My Products
+              {t('products.myProducts')}
             </Typography>
             <Typography 
               variant="body1" 
@@ -472,7 +519,7 @@ export default function VendorProductsPage() {
                 fontSize: { xs: '0.875rem', sm: '1rem' }
               }}
             >
-              Manage your product inventory and listings
+              {t('products.manageInventory')}
             </Typography>
           </Box>
         </Stack>
@@ -498,7 +545,7 @@ export default function VendorProductsPage() {
             </Avatar>
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                Total Products
+                {t('products.totalProducts')}
               </Typography>
               <Typography variant="h6" fontWeight={700}>
                 {items.length}
@@ -531,7 +578,7 @@ export default function VendorProductsPage() {
               variant="body1"
               sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
             >
-              Add Product
+              {t('products.addProduct')}
             </Typography>
           </Fab>
         </Stack>
@@ -549,7 +596,7 @@ export default function VendorProductsPage() {
           <Grid item xs={12} sm={12} md={4}>
             <TextField
               fullWidth
-              placeholder="Search products..."
+              placeholder={t('products.searchProducts')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               size="small"
@@ -565,14 +612,14 @@ export default function VendorProductsPage() {
           </Grid>
           <Grid item xs={6} sm={4} md={2}>
             <FormControl fullWidth size="small">
-              <InputLabel>Store</InputLabel>
+              <InputLabel>{t('products.store')}</InputLabel>
               <Select
                 value={storeFilter}
-                label="Store"
+                label={t('products.store')}
                 onChange={(e) => setStoreFilter(e.target.value)}
                 sx={{ borderRadius: 2 }}
               >
-                <MenuItem value="">All Stores</MenuItem>
+                <MenuItem value="">{t('products.allStores')}</MenuItem>
                 {stores.map((store) => (
                   <MenuItem key={store._id} value={store._id}>
                     {store.name}
@@ -583,17 +630,17 @@ export default function VendorProductsPage() {
           </Grid>
           <Grid item xs={6} sm={4} md={2}>
             <FormControl fullWidth size="small">
-              <InputLabel>Category</InputLabel>
+              <InputLabel>{t('products.category')}</InputLabel>
               <Select
                 value={selectedCategory}
-                label="Category"
+                label={t('products.category')}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 sx={{ borderRadius: 2 }}
               >
-                <MenuItem value="">All Categories</MenuItem>
+                <MenuItem value="">{t('products.allCategories')}</MenuItem>
                 {categories.map((cat) => (
                   <MenuItem key={cat} value={cat}>
-                    {cat}
+                    {t(`categories.${cat}`)}
                   </MenuItem>
                 ))}
               </Select>
@@ -602,7 +649,7 @@ export default function VendorProductsPage() {
           <Grid item xs={3} sm={2} md={1}>
             <TextField
               fullWidth
-              label="Min Price"
+              label={t('products.minPrice')}
               type="number"
               value={priceRange.min}
               onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
@@ -613,7 +660,7 @@ export default function VendorProductsPage() {
           <Grid item xs={3} sm={2} md={1}>
             <TextField
               fullWidth
-              label="Max Price"
+              label={t('products.maxPrice')}
               type="number"
               value={priceRange.max}
               onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
@@ -623,10 +670,10 @@ export default function VendorProductsPage() {
           </Grid>
           <Grid item xs={6} sm={4} md={2}>
             <FormControl fullWidth size="small">
-              <InputLabel>Sort By</InputLabel>
+              <InputLabel>{t('products.sortBy')}</InputLabel>
               <Select
                 value={`${sortBy}-${sortOrder}`}
-                label="Sort By"
+                label={t('products.sortBy')}
                 onChange={(e) => {
                   const [by, order] = e.target.value.split('-');
                   setSortBy(by as SortBy);
@@ -634,13 +681,13 @@ export default function VendorProductsPage() {
                 }}
                 sx={{ borderRadius: 2 }}
               >
-                <MenuItem value="createdAt-desc">Newest First</MenuItem>
-                <MenuItem value="createdAt-asc">Oldest First</MenuItem>
-                <MenuItem value="title-asc">Name A-Z</MenuItem>
-                <MenuItem value="title-desc">Name Z-A</MenuItem>
-                <MenuItem value="price-asc">Price Low-High</MenuItem>
-                <MenuItem value="price-desc">Price High-Low</MenuItem>
-                <MenuItem value="category-asc">Category A-Z</MenuItem>
+                <MenuItem value="createdAt-desc">{t('products.newestFirst')}</MenuItem>
+                <MenuItem value="createdAt-asc">{t('products.oldestFirst')}</MenuItem>
+                <MenuItem value="title-asc">{t('products.nameAZ')}</MenuItem>
+                <MenuItem value="title-desc">{t('products.nameZA')}</MenuItem>
+                <MenuItem value="price-asc">{t('products.priceLowHigh')}</MenuItem>
+                <MenuItem value="price-desc">{t('products.priceHighLow')}</MenuItem>
+                <MenuItem value="category-asc">{t('products.categoryAZ')}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -651,7 +698,7 @@ export default function VendorProductsPage() {
               justifyContent={{ xs: 'center', sm: 'flex-start', md: 'flex-end' }}
               sx={{ mt: { xs: 1, sm: 0 } }}
             >
-              <Tooltip title="Grid View">
+              <Tooltip title={t('products.gridView')}>
                 <IconButton 
                   onClick={() => setViewMode('grid')}
                   color={viewMode === 'grid' ? 'primary' : 'default'}
@@ -660,7 +707,7 @@ export default function VendorProductsPage() {
                   <GridViewIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="List View">
+              <Tooltip title={t('products.listView')}>
                 <IconButton 
                   onClick={() => setViewMode('list')}
                   color={viewMode === 'list' ? 'primary' : 'default'}
@@ -669,7 +716,7 @@ export default function VendorProductsPage() {
                   <ListViewIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Clear Filters">
+              <Tooltip title={t('products.clearFilters')}>
                 <IconButton 
                   onClick={clearFilters} 
                   color="error"
@@ -686,32 +733,32 @@ export default function VendorProductsPage() {
         {(searchQuery || selectedCategory || storeFilter || priceRange.min || priceRange.max) && (
           <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
             <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'center' }}>
-              Active filters:
+              {t('products.activeFilters')}
             </Typography>
             {searchQuery && (
               <Chip 
-                label={`Search: "${searchQuery}"`} 
+                label={`${t('products.searchFilter')} "${searchQuery}"`} 
                 size="small" 
                 onDelete={() => setSearchQuery('')} 
               />
             )}
             {storeFilter && (
               <Chip 
-                label={`Store: ${stores.find(s => s._id === storeFilter)?.name || storeFilter}`} 
+                label={`${t('products.storeFilter')} ${stores.find(s => s._id === storeFilter)?.name || storeFilter}`} 
                 size="small" 
                 onDelete={() => setStoreFilter('')} 
               />
             )}
             {selectedCategory && (
               <Chip 
-                label={`Category: ${selectedCategory}`} 
+                label={`${t('products.categoryFilter')} ${t(`categories.${selectedCategory}`)}`} 
                 size="small" 
                 onDelete={() => setSelectedCategory('')} 
               />
             )}
             {(priceRange.min || priceRange.max) && (
               <Chip 
-                label={`Price: ${priceRange.min || '0'} - ${priceRange.max || '∞'}`} 
+                label={`${t('products.priceFilter')} ${priceRange.min || '0'} - ${priceRange.max || '∞'}`} 
                 size="small" 
                 onDelete={() => setPriceRange({ min: '', max: '' })} 
               />
@@ -729,7 +776,7 @@ export default function VendorProductsPage() {
         spacing={{ xs: 1, sm: 0 }}
       >
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-          Showing {paginatedItems.length} of {filteredAndSortedItems.length} products
+          {t('products.showing')} {paginatedItems.length} {t('products.of')} {filteredAndSortedItems.length} {t('products.noProducts')}
         </Typography>
         {totalPages > 1 && (
           <Pagination
@@ -770,12 +817,12 @@ export default function VendorProductsPage() {
             gutterBottom
             sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
           >
-            {items.length === 0 ? 'No products yet' : 'No products match your filters'}
+            {items.length === 0 ? t('products.noProductsYet') : t('products.noMatchingProducts')}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             {items.length === 0 
-              ? 'Create your first product to get started selling'
-              : 'Try adjusting your search criteria or clear filters'
+              ? t('products.createFirstProduct')
+              : t('products.adjustSearchCriteria')
             }
           </Typography>
           {items.length === 0 ? (
@@ -785,7 +832,7 @@ export default function VendorProductsPage() {
               onClick={startCreate}
               size="medium"
             >
-              Add Your First Product
+              {t('products.addFirstProduct')}
             </Button>
           ) : (
             <Button 
@@ -793,7 +840,7 @@ export default function VendorProductsPage() {
               onClick={clearFilters}
               size="medium"
             >
-              Clear Filters
+              {t('products.clearFilters')}
             </Button>
           )}
         </Paper>
@@ -864,7 +911,7 @@ export default function VendorProductsPage() {
               fontWeight={700}
               sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
             >
-              {editing ? 'Edit Product' : 'Add New Product'}
+              {editing ? t('products.editProduct') : t('products.addProduct')}
             </Typography>
           </Stack>
         </DialogTitle>
@@ -876,7 +923,7 @@ export default function VendorProductsPage() {
           )}
           <Stack spacing={{ xs: 2, sm: 3 }} mt={1}>
             <TextField 
-              label="Product Title" 
+              label={t('products.productTitle')} 
               value={title} 
               onChange={(e) => setTitle(e.target.value)} 
               fullWidth 
@@ -887,7 +934,7 @@ export default function VendorProductsPage() {
             
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField 
-                label="Price" 
+                label={t('products.price')} 
                 type="number" 
                 value={price} 
                 onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))} 
@@ -898,7 +945,7 @@ export default function VendorProductsPage() {
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
               <TextField 
-                label="Currency" 
+                label={t('products.currency')} 
                 value={currency} 
                 onChange={(e) => setCurrency(e.target.value)} 
                 size="small"
@@ -910,26 +957,26 @@ export default function VendorProductsPage() {
             </Stack>
 
             <FormControl fullWidth required>
-              <InputLabel>Category</InputLabel>
+              <InputLabel>{t('products.category')}</InputLabel>
               <Select
                 value={category}
-                label="Category"
+                label={t('products.category')}
                 onChange={(e) => setCategory(e.target.value)}
                 sx={{ borderRadius: 2 }}
               >
                 {categories.map((cat) => (
                   <MenuItem key={cat} value={cat}>
-                    {cat}
+                    {t(`categories.${cat}`)}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             <FormControl fullWidth>
-              <InputLabel>Store (Optional)</InputLabel>
+              <InputLabel>{t('products.store')} (Optional)</InputLabel>
               <Select
                 value={selectedStore}
-                label="Store (Optional)"
+                label={`${t('products.store')} (Optional)`}
                 onChange={(e) => setSelectedStore(e.target.value)}
                 sx={{ borderRadius: 2 }}
               >
@@ -937,14 +984,14 @@ export default function VendorProductsPage() {
                 {stores.filter(store => store.approved).map((store) => (
                   <MenuItem key={store._id} value={store._id}>
                     {store.name}
-                    {!store.approved && " (Pending Approval)"}
+                    {!store.approved && ` (${t('common.pending')})`}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
             
             <TextField 
-              label="Description" 
+              label={t('products.productDescription')} 
               value={description} 
               onChange={(e) => setDescription(e.target.value)} 
               multiline 
@@ -952,10 +999,57 @@ export default function VendorProductsPage() {
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
             />
 
+            {/* Bargaining Settings */}
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                {t('products.bargainPrice')}
+              </Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={bargainingEnabled}
+                    onChange={(e) => setBargainingEnabled(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label={t('products.bargainEnabled')}
+                sx={{ mb: 2 }}
+              />
+              <Collapse in={bargainingEnabled}>
+                <Stack spacing={2}>
+                  <TextField
+                    label={t('products.minimumPrice')}
+                    type="number"
+                    value={minBargainPrice}
+                    onChange={(e) => setMinBargainPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                    fullWidth
+                    size="small"
+                    inputProps={{ min: 0, step: 0.01 }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    helperText={t('products.minimumPriceHelper')}
+                  />
+                  <TextField
+                    label={t('products.maxDiscount')}
+                    type="number"
+                    value={maxBargainDiscountPercent}
+                    onChange={(e) => setMaxBargainDiscountPercent(e.target.value === '' ? '' : Number(e.target.value))}
+                    fullWidth
+                    size="small"
+                    inputProps={{ min: 0, max: 100, step: 1 }}
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">%</InputAdornment>
+                    }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    helperText={t('products.maxDiscountHelper')}
+                  />
+                </Stack>
+              </Collapse>
+            </Box>
+
             {/* Image Upload Section */}
             <Box>
               <Typography variant="h6" gutterBottom>
-                Product Images *
+                {t('products.images')} *
               </Typography>
               <Button
                 variant="outlined"
@@ -965,7 +1059,7 @@ export default function VendorProductsPage() {
                 fullWidth
                 sx={{ mb: 2, borderRadius: 2, borderStyle: 'dashed' }}
               >
-                {uploadingImages ? 'Uploading...' : 'Upload Images'}
+                {uploadingImages ? t('common.loading') : t('products.uploadImages')}
                 <input
                   type="file"
                   hidden
@@ -1037,7 +1131,7 @@ export default function VendorProductsPage() {
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button onClick={() => setOpen(false)} sx={{ borderRadius: 2 }}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button 
             onClick={saveProduct} 
@@ -1045,10 +1139,45 @@ export default function VendorProductsPage() {
             disabled={uploadingImages}
             sx={{ borderRadius: 2 }}
           >
-            {editing ? 'Update Product' : 'Create Product'}
+            {editing ? t('common.update') : t('common.create')}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Floating Bargaining Button */}
+      <Fab
+        href="/dashboard/vendor/bargaining"
+        color="warning"
+        aria-label="bargaining hub"
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          bgcolor: '#ff9800',
+          color: 'white',
+          '&:hover': {
+            bgcolor: '#f57f17',
+            transform: 'scale(1.1)'
+          },
+          transition: 'all 0.3s ease',
+          zIndex: 1000,
+          animation: 'pulse 3s infinite',
+          '@keyframes pulse': {
+            '0%': {
+              boxShadow: '0 4px 12px rgba(255, 152, 0, 0.4)',
+            },
+            '50%': {
+              boxShadow: '0 6px 20px rgba(255, 152, 0, 0.8)',
+              transform: 'scale(1.05)',
+            },
+            '100%': {
+              boxShadow: '0 4px 12px rgba(255, 152, 0, 0.4)',
+            }
+          }
+        }}
+      >
+        <MonetizationOn />
+      </Fab>
     </Container>
   );
 }

@@ -31,8 +31,10 @@ import {
   Tab,
   Alert,
   CircularProgress,
-  Snackbar
+  Snackbar,
+  Fab
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import {
   ShoppingCart as ShoppingCartIcon,
   FavoriteBorder as FavoriteIcon,
@@ -44,11 +46,16 @@ import {
   AssignmentReturn as ReturnIcon,
   Add as AddIcon,
   Remove as RemoveIcon,
-  Star as StarIcon
+  Star as StarIcon,
+  Chat as ChatIcon,
+  MonetizationOn as BargainIcon,
+  Badge as BadgeIcon
 } from '@mui/icons-material';
 import { apiGet } from '@utils/api';
 import { addToCart } from '@utils/cart';
 import NextLink from 'next/link';
+import BargainChat from '@components/BargainChat';
+import { useAuth } from '@utils/auth';
 
 interface Product {
   _id: string;
@@ -61,6 +68,9 @@ interface Product {
   seller: string;
   store?: string;
   createdAt?: string;
+  bargainingEnabled?: boolean;
+  minBargainPrice?: number;
+  maxBargainDiscountPercent?: number;
 }
 
 interface Store {
@@ -71,6 +81,8 @@ interface Store {
 }
 
 export default function ProductPage() {
+  const { t } = useTranslation();
+  const { user, token } = useAuth();
   const params = useParams();
   const router = useRouter();
   const productId = params.id as string;
@@ -87,11 +99,20 @@ export default function ProductPage() {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+  const [bargainChatOpen, setBargainChatOpen] = useState(false);
+  const [existingChatId, setExistingChatId] = useState<string | null>(null);
 
   // Fetch product data
   useEffect(() => {
     fetchProduct();
   }, [productId]);
+
+  // Check for existing bargain chat
+  useEffect(() => {
+    if (product && user && product.bargainingEnabled) {
+      checkExistingBargainChat();
+    }
+  }, [product, user]);
 
   const fetchProduct = async () => {
     try {
@@ -113,7 +134,7 @@ export default function ProductPage() {
       fetchRelatedProducts();
     } catch (error) {
       console.error('Failed to fetch product:', error);
-      setSnackbar({ open: true, message: 'Product not found', severity: 'error' });
+      setSnackbar({ open: true, message: t('productDetails.notFound'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -147,13 +168,13 @@ export default function ProductPage() {
       addToCart(cartItem);
       setSnackbar({ 
         open: true, 
-        message: `${product.title} added to cart!`, 
+        message: t('productDetails.addedToCart', { productName: product.title }), 
         severity: 'success' 
       });
     } catch (error) {
       setSnackbar({ 
         open: true, 
-        message: 'Failed to add to cart', 
+        message: t('productDetails.failedToAddToCart'), 
         severity: 'error' 
       });
     } finally {
@@ -167,6 +188,43 @@ export default function ProductPage() {
       router.push('/cart');
     });
   }, [product, handleAddToCart, router]);
+
+  const checkExistingBargainChat = async () => {
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bargain/my-chats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const existingChat = data.chats.find((chat: any) => 
+          chat.product._id === productId && chat.status === 'active'
+        );
+        if (existingChat) {
+          setExistingChatId(existingChat._id);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking existing bargain chat:', error);
+    }
+  };
+
+  const handleStartBargaining = () => {
+    if (!user) {
+      router.push('/auth/signin');
+      return;
+    }
+    setBargainChatOpen(true);
+  };
+
+  const canUserBargain = () => {
+    return product?.bargainingEnabled && user && user._id !== product?.seller;
+  };
 
   const ProductImageGallery = () => {
     if (!product?.images?.length) return null;
@@ -306,12 +364,12 @@ export default function ProductPage() {
   if (!product) {
     return (
       <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-        <Typography variant="h5" gutterBottom>Product Not Found</Typography>
+        <Typography variant="h5" gutterBottom>{t('productDetails.notFound')}</Typography>
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          The product you're looking for doesn't exist or has been removed.
+          {t('productDetails.notFoundMessage')}
         </Typography>
         <Button variant="contained" onClick={() => router.push('/')} sx={{ mt: 2 }}>
-          Go Home
+          {t('productDetails.goHome')}
         </Button>
       </Container>
     );
@@ -322,10 +380,10 @@ export default function ProductPage() {
       {/* Breadcrumbs */}
       <Breadcrumbs sx={{ mb: 3 }}>
         <MLink component={NextLink} href="/" underline="hover" color="inherit">
-          Home
+          {t('productDetails.home')}
         </MLink>
         <MLink component={NextLink} href="/product" underline="hover" color="inherit">
-          Products
+          {t('productDetails.products')}
         </MLink>
         <Typography color="text.primary">{product.category}</Typography>
         <Typography color="text.primary">{product.title}</Typography>
@@ -357,12 +415,28 @@ export default function ProductPage() {
 
               {/* Price */}
               <Box>
-                <Typography variant="h3" color="primary.main" fontWeight={900}>
-                  ${product.price.toFixed(2)}
-                </Typography>
+                <Box display="flex" alignItems="center" gap={2} mb={1}>
+                  <Typography variant="h3" color="primary.main" fontWeight={900}>
+                    ${product.price.toFixed(2)}
+                  </Typography>
+                  {product.bargainingEnabled && (
+                    <Chip 
+                      icon={<BargainIcon />}
+                      label={t('products.bargainEnabled')} 
+                      size="small" 
+                      color="warning" 
+                      variant="filled"
+                    />
+                  )}
+                </Box>
                 <Typography variant="body2" color="text.secondary">
                   {product.currency || 'USD'}
                 </Typography>
+                {product.bargainingEnabled && product.minBargainPrice && (
+                  <Typography variant="caption" color="warning.main" sx={{ display: 'block', mt: 0.5 }}>
+                    {t('products.minimumPrice')}: ${product.minBargainPrice.toFixed(2)}
+                  </Typography>
+                )}
               </Box>
 
               {/* Store Info */}
@@ -387,7 +461,7 @@ export default function ProductPage() {
                       </Typography>
                       {store.owner && (
                         <Typography variant="body2" color="text.secondary">
-                          by {store.owner.name}
+                          {t('productDetails.by')} {store.owner.name}
                         </Typography>
                       )}
                     </Box>
@@ -397,7 +471,7 @@ export default function ProductPage() {
                       variant="outlined"
                       size="small"
                     >
-                      Visit Store
+                      {t('productDetails.visitStore')}
                     </Button>
                   </Stack>
                 </Paper>
@@ -406,7 +480,7 @@ export default function ProductPage() {
               {/* Quantity Selector */}
               <Box>
                 <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                  Quantity
+                  {t('productDetails.quantity')}
                 </Typography>
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <IconButton 
@@ -438,6 +512,51 @@ export default function ProductPage() {
                 </Stack>
               </Box>
 
+              {/* Bargaining Section - Super Visible */}
+              {canUserBargain() && (
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: 'warning.50', 
+                    border: '2px dashed', 
+                    borderColor: 'warning.main',
+                    borderRadius: 3,
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%)'
+                  }}
+                >
+                  <Stack spacing={1}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <BargainIcon sx={{ color: 'warning.main' }} />
+                      <Typography variant="subtitle1" fontWeight={700} color="warning.main">
+                        🔥 {t('products.bargainEnabled')} - {t('products.startBargaining')}!
+                      </Typography>
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">
+                      💬 Chat with the seller to negotiate a better price for this product!
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      startIcon={existingChatId ? <ChatIcon /> : <BargainIcon />}
+                      onClick={handleStartBargaining}
+                      sx={{ 
+                        bgcolor: 'warning.main',
+                        '&:hover': { bgcolor: 'warning.dark' },
+                        fontWeight: 'bold',
+                        py: 1.5,
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                          '0%': { boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)' },
+                          '50%': { boxShadow: '0 6px 20px rgba(245, 158, 11, 0.7)' },
+                          '100%': { boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)' }
+                        }
+                      }}
+                    >
+                      💬 {existingChatId ? t('products.bargainChat') : t('products.startBargaining')}
+                    </Button>
+                  </Stack>
+                </Paper>
+              )}
+
               {/* Action Buttons */}
               <Stack spacing={2}>
                 <Button
@@ -448,7 +567,7 @@ export default function ProductPage() {
                   disabled={addingToCart}
                   sx={{ borderRadius: 2, py: 1.5 }}
                 >
-                  {addingToCart ? 'Adding...' : 'Add to Cart'}
+                  {addingToCart ? t('productDetails.adding') : t('productDetails.addToCart')}
                 </Button>
                 
                 <Button
@@ -457,8 +576,10 @@ export default function ProductPage() {
                   onClick={handleBuyNow}
                   sx={{ borderRadius: 2, py: 1.5 }}
                 >
-                  Buy Now
+                  {t('productDetails.buyNow')}
                 </Button>
+
+
                 
                 <Stack direction="row" spacing={1}>
                   <Button
@@ -466,14 +587,14 @@ export default function ProductPage() {
                     startIcon={<FavoriteIcon />}
                     sx={{ flex: 1 }}
                   >
-                    Save
+                    {t('productDetails.save')}
                   </Button>
                   <Button
                     variant="text"
                     startIcon={<ShareIcon />}
                     sx={{ flex: 1 }}
                   >
-                    Share
+                    {t('productDetails.share')}
                   </Button>
                 </Stack>
               </Stack>
@@ -484,25 +605,25 @@ export default function ProductPage() {
                   <Grid item xs={6}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <ShippingIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">Free Shipping</Typography>
+                      <Typography variant="caption">{t('productDetails.freeShipping')}</Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={6}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <SecurityIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">Secure Payment</Typography>
+                      <Typography variant="caption">{t('productDetails.securePayment')}</Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={6}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <ReturnIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">Easy Returns</Typography>
+                      <Typography variant="caption">{t('productDetails.easyReturns')}</Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={6}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <StarIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">Quality Assured</Typography>
+                      <Typography variant="caption">{t('productDetails.qualityAssured')}</Typography>
                     </Stack>
                   </Grid>
                 </Grid>
@@ -515,16 +636,16 @@ export default function ProductPage() {
       {/* Product Details Tabs */}
       <Paper sx={{ mt: 4, borderRadius: 3 }}>
         <Tabs value={tabValue} onChange={(_, value) => setTabValue(value)} sx={{ px: 2 }}>
-          <Tab label="Description" />
-          <Tab label="Specifications" />
-          <Tab label="Reviews" />
+          <Tab label={t('productDetails.description')} />
+          <Tab label={t('productDetails.specifications')} />
+          <Tab label={t('productDetails.reviews')} />
         </Tabs>
         
         <Box sx={{ p: 3 }}>
           {tabValue === 0 && (
             <Box>
               <Typography variant="h6" gutterBottom>
-                Product Description
+                {t('productDetails.productDescription')}
               </Typography>
               <Typography variant="body1" color="text.secondary" lineHeight={1.8}>
                 {product.description}
@@ -535,19 +656,19 @@ export default function ProductPage() {
           {tabValue === 1 && (
             <Box>
               <Typography variant="h6" gutterBottom>
-                Specifications
+                {t('productDetails.specifications')}
               </Typography>
               <Stack spacing={1}>
                 <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">Category:</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('productDetails.category')}:</Typography>
                   <Typography variant="body2" fontWeight={600}>{product.category}</Typography>
                 </Stack>
                 <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">Price:</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('productDetails.price')}:</Typography>
                   <Typography variant="body2" fontWeight={600}>${product.price.toFixed(2)}</Typography>
                 </Stack>
                 <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">Currency:</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('productDetails.currency')}:</Typography>
                   <Typography variant="body2" fontWeight={600}>{product.currency || 'USD'}</Typography>
                 </Stack>
               </Stack>
@@ -557,10 +678,10 @@ export default function ProductPage() {
           {tabValue === 2 && (
             <Box>
               <Typography variant="h6" gutterBottom>
-                Customer Reviews
+                {t('productDetails.customerReviews')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                No reviews yet. Be the first to review this product!
+                {t('productDetails.noReviews')}
               </Typography>
             </Box>
           )}
@@ -570,7 +691,7 @@ export default function ProductPage() {
       {/* Related Products */}
       <Box mt={6}>
         <Typography variant="h5" fontWeight={700} gutterBottom>
-          Related Products
+          {t('productDetails.relatedProducts')}
         </Typography>
         
         {relatedLoading ? (
@@ -593,7 +714,7 @@ export default function ProductPage() {
           </Grid>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            No related products found.
+            {t('productDetails.noRelatedProducts')}
           </Typography>
         )}
       </Box>
@@ -659,6 +780,48 @@ export default function ProductPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {/* Floating Bargain Button for Mobile */}
+      {canUserBargain() && (
+        <Fab
+          color="warning"
+          onClick={handleStartBargaining}
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            right: 20,
+            zIndex: 1000,
+            display: { xs: 'flex', md: 'none' }, // Show only on mobile
+            bgcolor: 'warning.main',
+            '&:hover': {
+              bgcolor: 'warning.dark',
+              transform: 'scale(1.1)'
+            },
+            animation: 'bounce 2s infinite',
+            '@keyframes bounce': {
+              '0%, 20%, 50%, 80%, 100%': {
+                transform: 'translateY(0)'
+              },
+              '40%': {
+                transform: 'translateY(-10px)'
+              },
+              '60%': {
+                transform: 'translateY(-5px)'
+              }
+            }
+          }}
+        >
+          {existingChatId ? <ChatIcon /> : <BargainIcon />}
+        </Fab>
+      )}
+
+      {/* Bargain Chat */}
+      <BargainChat
+        isOpen={bargainChatOpen}
+        onClose={() => setBargainChatOpen(false)}
+        productId={!existingChatId ? productId : undefined}
+        chatId={existingChatId || undefined}
+      />
     </Container>
   );
 }

@@ -16,6 +16,7 @@ import {
   CardMedia,
   Skeleton
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowBackIos as ArrowBackIcon,
   ArrowForwardIos as ArrowForwardIcon,
@@ -301,6 +302,7 @@ export default function CategorySlider() {
   const [scrollDirection, setScrollDirection] = useState<'right' | 'left'>('right');
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation('common');
 
   // Fetch categories from API with fallback to mock data
   useEffect(() => {
@@ -479,14 +481,14 @@ export default function CategorySlider() {
                     textShadow: '0 2px 4px rgba(99, 102, 241, 0.3)'
                   }}
                 >
-                  🎮 Shop by Category
+                  🎮 {t('home.shopByCategory')}
                 </Typography>
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   <Chip
-                    label="SMOOTH FLOW"
+                    label={t('home.smoothFlow')}
                     size="small"
                     sx={{
                       bgcolor: '#6366f1',
@@ -498,7 +500,7 @@ export default function CategorySlider() {
                 </motion.div>
               </Stack>
               <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                ⚡ Experience smooth back-and-forth scrolling • Modern design • Engaging visuals
+                ⚡ {t('home.categoryDescription')}
               </Typography>
             </Box>
             <Button
@@ -522,7 +524,7 @@ export default function CategorySlider() {
                 }
               }}
             >
-              🚀 View All
+              🚀 {t('home.viewAll')}
             </Button>
           </Stack>
         </Box>

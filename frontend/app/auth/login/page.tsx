@@ -5,6 +5,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import NextLink from 'next/link';
 import { apiPost } from '@utils/api';
+import { useAuth } from '@utils/auth.tsx';
 import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
 
@@ -21,7 +23,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { token } = await apiPost<{ token: string }>("/auth/login", { email, password });
-      localStorage.setItem('excom_token', token);
+      await login(token);
       
       // Check if there's a redirect parameter
       if (redirect) {

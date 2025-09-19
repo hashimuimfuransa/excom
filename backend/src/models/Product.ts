@@ -10,6 +10,9 @@ export interface IProduct extends Document {
   store?: Types.ObjectId; // Reference to the store
   category: string;
   source?: 'local' | 'amazon' | 'ebay' | 'alibaba' | 'shopify';
+  bargainingEnabled?: boolean;
+  minBargainPrice?: number;
+  maxBargainDiscountPercent?: number;
 }
 
 const ProductSchema = new Schema<IProduct>({
@@ -21,7 +24,10 @@ const ProductSchema = new Schema<IProduct>({
   seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   store: { type: Schema.Types.ObjectId, ref: 'Store' }, // Optional store reference
   category: { type: String, required: true },
-  source: { type: String, default: 'local' }
+  source: { type: String, default: 'local' },
+  bargainingEnabled: { type: Boolean, default: false },
+  minBargainPrice: { type: Number },
+  maxBargainDiscountPercent: { type: Number, default: 20 }
 }, { timestamps: true });
 
 export default mongoose.model<IProduct>('Product', ProductSchema);

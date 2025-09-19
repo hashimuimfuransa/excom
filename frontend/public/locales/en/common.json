@@ -1,0 +1,229 @@
+{
+  "app": {
+    "title": "Excom – Universal Marketplace",
+    "description": "AI-powered marketplace for products, rentals, services, and more.",
+    "tagline": "Discover products, rentals, hotels, and services in one place."
+  },
+  "navigation": {
+    "collections": "Collections",
+    "vendors": "Vendors",
+    "viewVendors": "View Vendors", 
+    "products": "Products",
+    "login": "Login",
+    "register": "Register",
+    "join": "Join",
+    "adminDashboard": "Admin Dashboard",
+    "vendorDashboard": "Vendor Dashboard",
+    "myOrders": "My Orders",
+    "logout": "Logout",
+    "cart": "Cart"
+  },
+  "user": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "user": "User"
+  },
+  "language": {
+    "english": "English",
+    "kinyarwanda": "Kinyarwanda",
+    "changeLanguage": "Change Language"
+  },
+  "actions": {
+    "menu": "Menu",
+    "close": "Close",
+    "search": "Search",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "viewAll": "View All",
+    "approve": "Approve",
+    "reject": "Reject",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "view": "View",
+    "update": "Update",
+    "create": "Create",
+    "back": "Back"
+  },
+  "pages": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
+  "products": {
+    "newArrivals": "New Arrivals",
+    "topPicks": "Top Picks",
+    "viewAll": "View All",
+    "quickView": "Quick View",
+    "addToCart": "Add to Cart",
+    "freeShipping": "Free Shipping",
+    "demo": "Demo",
+    "new": "NEW",
+    "price": "Price",
+    "description": "Description",
+    "availability": "Availability",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock"
+  },
+  "categories": {
+    "electronics": "Electronics",
+    "fashion": "Fashion",
+    "gaming": "Gaming",
+    "mobile": "Mobile & Tech",
+    "home": "Home & Garden",
+    "sports": "Sports & Fitness",
+    "books": "Books & Media",
+    "beauty": "Beauty & Care",
+    "audio": "Music & Audio",
+    "computers": "Computers",
+    "kitchen": "Kitchen & Dining",
+    "pets": "Pets & Animals",
+    "toys": "Toys & Games",
+    "automotive": "Automotive",
+    "health": "Health & Wellness"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Dashboard Overview",
+    "statistics": "Statistics",
+    "analytics": "Analytics",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "users": "Users",
+    "stores": "Stores",
+    "products": "Products",
+    "orders": "Orders",
+    "earnings": "Earnings",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "totalUsers": "Total Users",
+    "totalStores": "Total Stores",
+    "activeStores": "Active Stores",
+    "pendingStores": "Pending Stores",
+    "totalProducts": "Total Products",
+    "pendingReviews": "Pending Reviews",
+    "recentActivity": "Recent Activity",
+    "storeApplications": "Store Applications",
+    "quickActions": "Quick Actions",
+    "manageUsers": "Manage Users",
+    "manageStores": "Manage Stores",
+    "viewAnalytics": "View Analytics",
+    "platformSettings": "Platform Settings"
+  },
+  "vendor": {
+    "dashboard": "Vendor Dashboard",
+    "myStore": "My Store",
+    "products": "My Products",
+    "orders": "Orders",
+    "payouts": "Payouts",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "addProduct": "Add Product",
+    "manageProducts": "Manage Products",
+    "orderHistory": "Order History",
+    "earnings": "Earnings",
+    "totalSales": "Total Sales",
+    "pendingOrders": "Pending Orders",
+    "completedOrders": "Completed Orders"
+  },
+  "orders": {
+    "title": "Orders",
+    "myOrders": "My Orders",
+    "orderHistory": "Order History",
+    "orderDetails": "Order Details",
+    "orderNumber": "Order Number",
+    "orderDate": "Order Date",
+    "orderStatus": "Order Status",
+    "totalAmount": "Total Amount",
+    "shippingAddress": "Shipping Address",
+    "paymentMethod": "Payment Method",
+    "trackOrder": "Track Order"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shippingInfo": "Shipping Information",
+    "paymentInfo": "Payment Information",
+    "orderSummary": "Order Summary",
+    "placeOrder": "Place Order",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax"
+  },
+  "home": {
+    "questTitle": "What's Your Next Quest?",
+    "questSubtitle": "Discover epic deals • Unlock exclusive items • Level up your shopping game",
+    "popularQuests": "Popular Quests:",
+    "shopByCategory": "Shop by Category",
+    "epicCollections": "Epic Collections",
+    "customerTestimonials": "What Our Customers Say",
+    "testimonialSubtitle": "Don't just take our word for it - hear from our satisfied customers",
+    "flashDeals": "Flash Deals",
+    "flashDealsSubtitle": "Limited time offers - Don't miss out!",
+    "newsletter": "Stay Updated with Latest Deals",
+    "newsletterSubtitle": "Subscribe to our newsletter and never miss out on exclusive offers and new arrivals",
+    "shopAllDeals": "Shop All Deals",
+    "subscribe": "Subscribe",
+    "privacyNote": "We respect your privacy. Unsubscribe at any time."
+  },
+  "testimonials": {
+    "person1": {
+      "name": "Uwimana Clarisse",
+      "role": "Small Business Owner",
+      "text": "Excom has revolutionized how I manage my retail business. The platform connects me with quality suppliers and helps me reach more customers than ever before!"
+    },
+    "person2": {
+      "name": "Nshimiyimana Jean-Baptiste",
+      "role": "Tech Entrepreneur",
+      "text": "As a tech enthusiast, I love how Excom seamlessly integrates modern e-commerce features. The vendor network is incredibly reliable and diverse."
+    },
+    "person3": {
+      "name": "Murekatete Grace",
+      "role": "Online Shopper",
+      "text": "Shopping on Excom is always a delightful experience. Fast delivery, secure payments, and excellent customer service - everything I need in one platform!"
+    }
+  },
+  "deals": {
+    "electronicsTitle": "Electronics Sale",
+    "fashionTitle": "Fashion Week",
+    "homeTitle": "Home Essentials", 
+    "sportsTitle": "Sports Gear",
+    "saveUpTo": "Save up to",
+    "todayOnly": "today only"
+  },
+  "forms": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "fullName": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phoneNumber": "Phone Number",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "required": "Required"
+  },
+  "messages": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "tryAgain": "Try Again",
+    "somethingWentWrong": "Something went wrong",
+    "pleaseWait": "Please wait"
+  }
+}

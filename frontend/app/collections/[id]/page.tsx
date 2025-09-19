@@ -55,6 +55,7 @@ import { useParams, useRouter } from 'next/navigation';
 import NextLink from 'next/link';
 import { apiGet, apiPost } from '@utils/api';
 import { getMainImage, hasRealImages } from '@utils/imageHelpers';
+import { useTranslation } from 'react-i18next';
 
 interface Collection {
   _id: string;
@@ -131,6 +132,7 @@ interface BookingData {
 export default function CollectionDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [collection, setCollection] = useState<Collection | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
@@ -313,7 +315,7 @@ export default function CollectionDetailPage() {
           startIcon={<ArrowBack />} 
           sx={{ mb: 3 }}
         >
-          Back to Collections
+          {t('collectionsPage.actions.back')}
         </Button>
 
         {/* Main Image and Gallery */}
@@ -347,7 +349,7 @@ export default function CollectionDetailPage() {
             {/* Stock Photo Indicator */}
             {!isRealImage && (
               <Chip
-                label="Stock Photo"
+                label={t('collectionsPage.imageStatus.stockPhoto')}
                 size="small"
                 sx={{
                   position: 'absolute',
@@ -366,7 +368,7 @@ export default function CollectionDetailPage() {
             {collection.rating && (
               <Chip
                 icon={<Star sx={{ fontSize: 18 }} />}
-                label={`${collection.rating.toFixed(1)} (${collection.totalRatings || 0} reviews)`}
+                label={`${collection.rating.toFixed(1)} (${collection.totalRatings || 0} ${t('collectionsPage.details.reviews')})`}
                 sx={{
                   position: 'absolute',
                   top: 16,
@@ -427,7 +429,7 @@ export default function CollectionDetailPage() {
                   <Stack direction="row" alignItems="center" spacing={0.5}>
                     <Rating value={collection.rating} readOnly precision={0.1} size="small" />
                     <Typography variant="body2">
-                      ({collection.totalRatings || 0} reviews)
+                      ({collection.totalRatings || 0} {t('collectionsPage.details.reviews')})
                     </Typography>
                   </Stack>
                 )}
@@ -450,7 +452,7 @@ export default function CollectionDetailPage() {
             {collection.description && (
               <Box mb={3}>
                 <Typography variant="h5" fontWeight={700} gutterBottom>
-                  About
+                  {t('collectionsPage.details.about')}
                 </Typography>
                 <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
                   {collection.description}
@@ -462,14 +464,14 @@ export default function CollectionDetailPage() {
             {collection.type === 'real-estate' && (
               <Paper elevation={1} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
                 <Typography variant="h6" fontWeight={700} gutterBottom>
-                  Property Details
+                  {t('collectionsPage.details.propertyDetails')}
                 </Typography>
                 <Grid container spacing={2}>
                   {collection.propertyType && (
                     <Grid item xs={6} sm={3}>
                       <Stack alignItems="center" spacing={1}>
                         <HomeWork color="primary" />
-                        <Typography variant="body2" color="text.secondary">Type</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('collectionsPage.details.type')}</Typography>
                         <Typography variant="body1" fontWeight={600} textTransform="capitalize">
                           {collection.propertyType}
                         </Typography>
@@ -480,7 +482,7 @@ export default function CollectionDetailPage() {
                     <Grid item xs={6} sm={3}>
                       <Stack alignItems="center" spacing={1}>
                         <Bed color="primary" />
-                        <Typography variant="body2" color="text.secondary">Bedrooms</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('collectionsPage.details.bedrooms')}</Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {collection.bedrooms}
                         </Typography>
@@ -491,7 +493,7 @@ export default function CollectionDetailPage() {
                     <Grid item xs={6} sm={3}>
                       <Stack alignItems="center" spacing={1}>
                         <Bathtub color="primary" />
-                        <Typography variant="body2" color="text.secondary">Bathrooms</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('collectionsPage.details.bathrooms')}</Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {collection.bathrooms}
                         </Typography>
@@ -502,9 +504,9 @@ export default function CollectionDetailPage() {
                     <Grid item xs={6} sm={3}>
                       <Stack alignItems="center" spacing={1}>
                         <SquareFoot color="primary" />
-                        <Typography variant="body2" color="text.secondary">Area</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('collectionsPage.details.area')}</Typography>
                         <Typography variant="body1" fontWeight={600}>
-                          {collection.area} sq ft
+                          {collection.area} {t('collectionsPage.details.sqft')}
                         </Typography>
                       </Stack>
                     </Grid>

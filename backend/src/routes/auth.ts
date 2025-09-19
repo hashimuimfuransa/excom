@@ -28,8 +28,16 @@ router.post('/login', async (req, res) => {
 
 // Get current user info from token
 router.get('/me', requireAuth, async (req: AuthRequest, res) => {
-  const user = await User.findById(req.user!.sub).select('name email role');
+  const user = await User.findById(req.user!.sub).select('name firstName lastName email role phone avatar');
   if (!user) return res.status(404).json({ message: 'User not found' });
+  
+  // Split name into firstName and lastName if they don't exist
+  if (!user.firstName && !user.lastName && user.name) {
+    const nameParts = user.name.split(' ');
+    user.firstName = nameParts[0] || '';
+    user.lastName = nameParts.slice(1).join(' ') || '';
+  }
+  
   res.json(user);
 });
 

@@ -68,6 +68,7 @@ import NextLink from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
 import { apiGet, apiPost } from '@utils/api';
+import { useTranslation } from 'react-i18next';
 
 interface Collection {
   _id: string;
@@ -134,6 +135,7 @@ interface BookingData {
 
 export default function CollectionsPage() {
   const theme = useTheme();
+  const { t } = useTranslation('common');
   const [collections, setCollections] = useState<Collection[] | null>(null);
   const [filteredCollections, setFilteredCollections] = useState<Collection[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
@@ -298,7 +300,7 @@ export default function CollectionsPage() {
     try {
       // Validate required fields
       if (!bookingData.customerInfo.name || !bookingData.customerInfo.email) {
-        alert('Please fill in your name and email');
+        alert(t('collectionsPage.booking.validationError'));
         setBookingLoading(false);
         return;
       }
@@ -336,7 +338,7 @@ export default function CollectionsPage() {
       addBookingToCart(bookingCartItem);
       
       setBookingDialogOpen(false);
-      alert('Booking added to cart! Go to cart to complete your booking.');
+      alert(t('collectionsPage.booking.successMessage'));
       
       // Reset form
       setBookingData(prev => ({
@@ -358,7 +360,7 @@ export default function CollectionsPage() {
       
     } catch (error) {
       console.error('Failed to add booking to cart:', error);
-      alert('Failed to add booking to cart. Please try again.');
+      alert(t('collectionsPage.booking.errorMessage'));
     } finally {
       setBookingLoading(false);
     }
@@ -440,10 +442,10 @@ export default function CollectionsPage() {
                   mb: 2
                 }}
               >
-                Discover Premium Collections
+                {t('collectionsPage.title')}
               </Typography>
               <Typography variant="h5" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
-                Explore handpicked hotels, restaurants, real estate, and services with interactive maps and professional insights
+                {t('collectionsPage.description')}
               </Typography>
               
               {/* Featured Stats */}
@@ -453,7 +455,7 @@ export default function CollectionsPage() {
                     {collections?.length || 0}+
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Premium Locations
+                    {t('collectionsPage.stats.premiumLocations')}
                   </Typography>
                 </Box>
                 <Box textAlign="center">
@@ -461,7 +463,7 @@ export default function CollectionsPage() {
                     4.8★
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Average Rating
+                    {t('collectionsPage.stats.averageRating')}
                   </Typography>
                 </Box>
                 <Box textAlign="center">
@@ -469,7 +471,7 @@ export default function CollectionsPage() {
                     24/7
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Support Available
+                    {t('collectionsPage.stats.supportAvailable')}
                   </Typography>
                 </Box>
               </Stack>
@@ -486,16 +488,19 @@ export default function CollectionsPage() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <Paper 
-            elevation={8} 
+            elevation={12} 
             sx={{ 
-              p: 4, 
+              p: { xs: 2, md: 4 }, 
               mb: 4, 
-              borderRadius: 4,
+              borderRadius: { xs: 2, md: 4 },
               background: theme.palette.mode === 'dark' 
-                ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
-                : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.1)'
+                ? 'linear-gradient(135deg, rgba(25,118,210,0.08) 0%, rgba(156,39,176,0.05) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,245,255,0.9) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(25,118,210,0.1)'}`,
+              boxShadow: theme.palette.mode === 'dark' 
+                ? '0 20px 40px rgba(0,0,0,0.4)' 
+                : '0 20px 40px rgba(25,118,210,0.15)'
             }}
           >
             <Grid container spacing={3} alignItems="center">
@@ -503,21 +508,34 @@ export default function CollectionsPage() {
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
-                  placeholder="Search locations, amenities, or descriptions..."
+                  placeholder={t('collectionsPage.search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Search sx={{ color: 'primary.main' }} />
+                        <Search sx={{ color: 'primary.main', fontSize: 22 }} />
                       </InputAdornment>
                     ),
                   }}
                   sx={{ 
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 3,
+                      borderRadius: { xs: 2, md: 3 },
+                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,1)',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(25,118,210,0.2)'
+                      },
                       '&:hover fieldset': {
                         borderColor: 'primary.main',
+                        borderWidth: '2px'
+                      },
+                      '&.Mui-focused': {
+                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,1)',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 8px 20px rgba(25,118,210,0.25)'
                       }
                     }
                   }}
@@ -527,18 +545,33 @@ export default function CollectionsPage() {
               {/* Filters Row 1 */}
               <Grid item xs={6} md={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Category</InputLabel>
+                  <InputLabel sx={{ color: 'text.primary', fontWeight: 500 }}>
+                    {t('collectionsPage.filters.category')}
+                  </InputLabel>
                   <Select
                     value={typeFilter}
-                    label="Category"
+                    label={t('collectionsPage.filters.category')}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    sx={{ borderRadius: 3 }}
+                    sx={{ 
+                      borderRadius: { xs: 2, md: 3 },
+                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,1)',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(156,39,176,0.2)'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'secondary.main',
+                        borderWidth: '2px'
+                      }
+                    }}
                   >
-                    <MenuItem value="">All Categories</MenuItem>
-                    <MenuItem value="hotel">🏨 Hotels</MenuItem>
-                    <MenuItem value="restaurant">🍽️ Restaurants</MenuItem>
-                    <MenuItem value="real-estate">🏢 Real Estate</MenuItem>
-                    <MenuItem value="service">🔧 Services</MenuItem>
+                    <MenuItem value="">{t('collectionsPage.filters.allCategories')}</MenuItem>
+                    <MenuItem value="hotel">🏨 {t('collectionsPage.types.hotels')}</MenuItem>
+                    <MenuItem value="restaurant">🍽️ {t('collectionsPage.types.restaurants')}</MenuItem>
+                    <MenuItem value="real-estate">🏢 {t('collectionsPage.types.realEstate')}</MenuItem>
+                    <MenuItem value="service">🔧 {t('collectionsPage.types.services')}</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -546,30 +579,60 @@ export default function CollectionsPage() {
               <Grid item xs={6} md={2}>
                 <TextField
                   fullWidth
-                  placeholder="City or Area"
+                  placeholder={t('collectionsPage.search.cityPlaceholder')}
                   value={cityFilter}
                   onChange={(e) => setCityFilter(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOn sx={{ color: 'secondary.main' }} />
+                        <LocationOn sx={{ color: 'secondary.main', fontSize: 20 }} />
                       </InputAdornment>
                     ),
                   }}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+                  sx={{ 
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: { xs: 2, md: 3 },
+                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,1)',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(156,39,176,0.2)'
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'secondary.main',
+                        borderWidth: '2px'
+                      }
+                    }
+                  }}
                 />
               </Grid>
 
               <Grid item xs={6} md={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Min Rating</InputLabel>
+                  <InputLabel sx={{ color: 'text.primary', fontWeight: 500 }}>
+                    {t('collectionsPage.filters.minRating')}
+                  </InputLabel>
                   <Select
                     value={ratingFilter}
-                    label="Min Rating"
+                    label={t('collectionsPage.filters.minRating')}
                     onChange={(e) => setRatingFilter(e.target.value)}
-                    sx={{ borderRadius: 3 }}
+                    sx={{ 
+                      borderRadius: { xs: 2, md: 3 },
+                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,1)',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(255,193,7,0.2)'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#ffc107',
+                        borderWidth: '2px'
+                      }
+                    }}
                   >
-                    <MenuItem value="">Any Rating</MenuItem>
+                    <MenuItem value="">{t('collectionsPage.filters.anyRating')}</MenuItem>
                     <MenuItem value="4.5">4.5+ ⭐⭐⭐⭐⭐</MenuItem>
                     <MenuItem value="4">4+ ⭐⭐⭐⭐</MenuItem>
                     <MenuItem value="3.5">3.5+ ⭐⭐⭐</MenuItem>
@@ -580,18 +643,18 @@ export default function CollectionsPage() {
 
               <Grid item xs={6} md={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Sort By</InputLabel>
+                  <InputLabel>{t('collectionsPage.filters.sortBy')}</InputLabel>
                   <Select
                     value={sortBy}
-                    label="Sort By"
+                    label={t('collectionsPage.filters.sortBy')}
                     onChange={(e) => setSortBy(e.target.value)}
                     sx={{ borderRadius: 3 }}
                   >
-                    <MenuItem value="featured">🔥 Featured</MenuItem>
-                    <MenuItem value="rating">⭐ Highest Rated</MenuItem>
-                    <MenuItem value="price-low">💰 Price: Low to High</MenuItem>
-                    <MenuItem value="price-high">💎 Price: High to Low</MenuItem>
-                    {userLocation && <MenuItem value="distance">📍 Nearest First</MenuItem>}
+                    <MenuItem value="featured">🔥 {t('collectionsPage.sorting.featured')}</MenuItem>
+                    <MenuItem value="rating">⭐ {t('collectionsPage.sorting.highestRated')}</MenuItem>
+                    <MenuItem value="price-low">💰 {t('collectionsPage.sorting.priceLowHigh')}</MenuItem>
+                    <MenuItem value="price-high">💎 {t('collectionsPage.sorting.priceHighLow')}</MenuItem>
+                    {userLocation && <MenuItem value="distance">📍 {t('collectionsPage.sorting.nearestFirst')}</MenuItem>}
                   </Select>
                 </FormControl>
               </Grid>
@@ -602,14 +665,14 @@ export default function CollectionsPage() {
               <Grid container spacing={2} alignItems="center">
                 <Grid item xs={12} sm={2}>
                   <Typography variant="subtitle1" fontWeight={600}>
-                    Price Range:
+                    {t('collectionsPage.filters.priceRange')}:
                   </Typography>
                 </Grid>
                 <Grid item xs={6} sm={2}>
                   <TextField
                     fullWidth
                     type="number"
-                    placeholder="Min"
+                    placeholder={t('collectionsPage.filters.min')}
                     value={priceFilter.min}
                     onChange={(e) => setPriceFilter(prev => ({ ...prev, min: e.target.value }))}
                     size="small"
@@ -620,7 +683,7 @@ export default function CollectionsPage() {
                   <TextField
                     fullWidth
                     type="number"
-                    placeholder="Max"
+                    placeholder={t('collectionsPage.filters.max')}
                     value={priceFilter.max}
                     onChange={(e) => setPriceFilter(prev => ({ ...prev, max: e.target.value }))}
                     size="small"
@@ -630,7 +693,7 @@ export default function CollectionsPage() {
                 <Grid item xs={12} sm={6}>
                   <Stack direction="row" spacing={2} justifyContent="flex-end">
                     {userLocation && (
-                      <Tooltip title="Get my location">
+                      <Tooltip title={t('collectionsPage.map.getMyLocation')}>
                         <IconButton 
                           onClick={getUserLocation}
                           color="primary"
@@ -650,10 +713,10 @@ export default function CollectionsPage() {
                       onChange={handleViewModeChange}
                       sx={{ borderRadius: 3 }}
                     >
-                      <ToggleButton value="grid" aria-label="grid view">
+                      <ToggleButton value="grid" aria-label={t('collectionsPage.viewModes.gridView')}>
                         <GridView />
                       </ToggleButton>
-                      <ToggleButton value="map" aria-label="map view">
+                      <ToggleButton value="map" aria-label={t('collectionsPage.viewModes.mapView')}>
                         <MapIcon />
                       </ToggleButton>
                     </ToggleButtonGroup>
@@ -674,19 +737,19 @@ export default function CollectionsPage() {
             <Box>
               <Typography variant="h4" fontWeight={700}>
                 <Badge badgeContent={filteredCollections.length} color="primary" max={999}>
-                  <span>Discover Collections</span>
+                  <span>{t('collectionsPage.results.title')}</span>
                 </Badge>
               </Typography>
               <Typography variant="body1" color="text.secondary" mt={1}>
                 {filteredCollections.length === 0 
-                  ? "No matches found - try adjusting your filters"
-                  : `${filteredCollections.length} premium location${filteredCollections.length !== 1 ? 's' : ''} available`
+                  ? t('collectionsPage.results.noResults')
+                  : t('collectionsPage.results.found', { count: filteredCollections.length })
                 }
               </Typography>
             </Box>
             <Chip
               icon={<TrendingUp />}
-              label="Premium Quality"
+              label={t('collectionsPage.results.premiumQuality')}
               color="success"
               variant="outlined"
               sx={{ fontWeight: 600 }}
@@ -723,6 +786,7 @@ export default function CollectionsPage() {
                         transition={{ duration: 0.4, delay: index * 0.1 }}
                       >
                         <Card 
+                          elevation={theme.palette.mode === 'dark' ? 8 : 4}
                           sx={{ 
                             borderRadius: 4, 
                             overflow: 'hidden',
@@ -732,9 +796,16 @@ export default function CollectionsPage() {
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                             cursor: 'pointer',
                             position: 'relative',
+                            backgroundColor: theme.palette.mode === 'dark' 
+                              ? 'rgba(30, 41, 59, 0.8)'
+                              : 'background.paper',
+                            backdropFilter: 'blur(20px)',
+                            border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
                             '&:hover': {
                               transform: 'translateY(-8px) scale(1.02)',
-                              boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                              boxShadow: theme.palette.mode === 'dark' 
+                                ? '0 20px 40px rgba(0,0,0,0.4)' 
+                                : '0 20px 40px rgba(0,0,0,0.1)',
                             },
                             '&:before': {
                               content: '""',
@@ -743,7 +814,7 @@ export default function CollectionsPage() {
                               left: 0,
                               right: 0,
                               bottom: 0,
-                              background: `linear-gradient(45deg, ${typeColor}08, transparent)`,
+                              background: `linear-gradient(45deg, ${typeColor}${theme.palette.mode === 'dark' ? '15' : '08'}, transparent)`,
                               opacity: 0,
                               transition: 'opacity 0.3s ease',
                               zIndex: 1,
@@ -773,7 +844,7 @@ export default function CollectionsPage() {
                               {/* Image Status Indicator */}
                               {!hasRealImages && (
                                 <Chip
-                                  label="Stock Photo"
+                                  label={t('collectionsPage.imageStatus.stockPhoto')}
                                   size="small"
                                   sx={{
                                     position: 'absolute',
@@ -790,7 +861,7 @@ export default function CollectionsPage() {
                               {hasRealImages && collection.images.length > 1 && (
                                 <Chip
                                   icon={<ViewList sx={{ fontSize: 14 }} />}
-                                  label={`+${collection.images.length - 1} photos`}
+                                  label={t('collectionsPage.imageStatus.photos', { count: collection.images.length - 1 })}
                                   size="small"
                                   sx={{
                                     position: 'absolute',
@@ -812,7 +883,9 @@ export default function CollectionsPage() {
                                 left: 0,
                                 right: 0,
                                 height: '50%',
-                                background: 'linear-gradient(transparent, rgba(0,0,0,0.6))',
+                                background: theme.palette.mode === 'dark' 
+                                  ? 'linear-gradient(transparent, rgba(0,0,0,0.8))'
+                                  : 'linear-gradient(transparent, rgba(0,0,0,0.6))',
                                 zIndex: 1
                               }}
                             />
@@ -830,25 +903,33 @@ export default function CollectionsPage() {
                             >
                               <Chip
                                 icon={getTypeIcon(collection.type)}
-                                label={collection.type.replace('-', ' ').toUpperCase()}
+                                label={t(`collectionsPage.types.${collection.type.replace('-', '')}`)}
                                 size="small"
                                 sx={{
                                   backgroundColor: typeColor,
                                   color: 'white',
                                   fontWeight: 700,
                                   textTransform: 'capitalize',
-                                  backdropFilter: 'blur(10px)'
+                                  backdropFilter: 'blur(10px)',
+                                  border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.2)' : 'none',
+                                  boxShadow: theme.palette.mode === 'dark' 
+                                    ? `0 2px 8px ${typeColor}40` 
+                                    : `0 2px 8px ${typeColor}30`
                                 }}
                               />
                               {collection.amenities?.includes('verified') && (
                                 <Chip
                                   icon={<Verified sx={{ fontSize: 14 }} />}
-                                  label="Verified"
+                                  label={t('collectionsPage.verification.verified')}
                                   size="small"
                                   sx={{
                                     backgroundColor: '#4CAF50',
                                     color: 'white',
-                                    fontWeight: 600
+                                    fontWeight: 600,
+                                    border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.2)' : 'none',
+                                    boxShadow: theme.palette.mode === 'dark' 
+                                      ? '0 2px 8px rgba(76,175,80,0.4)' 
+                                      : '0 2px 8px rgba(76,175,80,0.3)'
                                   }}
                                 />
                               )}
@@ -863,7 +944,7 @@ export default function CollectionsPage() {
                                 zIndex: 2
                               }}
                             >
-                              <Tooltip title={favorites.has(collection._id) ? "Remove from favorites" : "Add to favorites"}>
+                              <Tooltip title={favorites.has(collection._id) ? t('collectionsPage.favorites.removeFromFavorites') : t('collectionsPage.favorites.addToFavorites')}>
                                 <IconButton
                                   size="small"
                                   onClick={(e) => {
@@ -871,11 +952,19 @@ export default function CollectionsPage() {
                                     toggleFavorite(collection._id);
                                   }}
                                   sx={{
-                                    backgroundColor: 'rgba(255,255,255,0.9)',
-                                    color: favorites.has(collection._id) ? 'error.main' : 'text.secondary',
+                                    backgroundColor: theme.palette.mode === 'dark' 
+                                      ? 'rgba(255,255,255,0.15)'
+                                      : 'rgba(255,255,255,0.9)',
+                                    color: favorites.has(collection._id) ? 'error.main' : 
+                                      theme.palette.mode === 'dark' ? 'white' : 'text.secondary',
+                                    backdropFilter: 'blur(10px)',
+                                    border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.2)' : 'none',
                                     '&:hover': {
-                                      backgroundColor: 'white',
-                                      color: 'error.main'
+                                      backgroundColor: theme.palette.mode === 'dark' 
+                                        ? 'rgba(255,255,255,0.25)'
+                                        : 'white',
+                                      color: 'error.main',
+                                      transform: 'scale(1.1)'
                                     }
                                   }}
                                 >
@@ -905,7 +994,8 @@ export default function CollectionsPage() {
                                       backgroundColor: 'rgba(255, 215, 0, 0.9)',
                                       color: 'black',
                                       fontWeight: 700,
-                                      backdropFilter: 'blur(10px)'
+                                      backdropFilter: 'blur(10px)',
+                                      border: theme.palette.mode === 'dark' ? '1px solid rgba(255,215,0,0.3)' : 'none'
                                     }}
                                   />
                                 )}
@@ -917,9 +1007,13 @@ export default function CollectionsPage() {
                                     label={`${distance.toFixed(1)}km`}
                                     size="small"
                                     sx={{
-                                      backgroundColor: 'rgba(255,255,255,0.9)',
-                                      color: 'text.primary',
-                                      fontWeight: 600
+                                      backgroundColor: theme.palette.mode === 'dark' 
+                                        ? 'rgba(255,255,255,0.15)'
+                                        : 'rgba(255,255,255,0.9)',
+                                      color: theme.palette.mode === 'dark' ? 'white' : 'text.primary',
+                                      fontWeight: 600,
+                                      backdropFilter: 'blur(10px)',
+                                      border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.2)' : 'none'
                                     }}
                                   />
                                 )}
@@ -950,8 +1044,18 @@ export default function CollectionsPage() {
 
                             {/* Location with Enhanced Styling */}
                             <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-                              <LocationOn sx={{ fontSize: 20, color: 'primary.main' }} />
-                              <Typography variant="body2" color="text.primary" fontWeight={500}>
+                              <LocationOn sx={{ 
+                                fontSize: 20, 
+                                color: theme.palette.mode === 'dark' ? 'primary.light' : 'primary.main' 
+                              }} />
+                              <Typography 
+                                variant="body2" 
+                                color={theme.palette.mode === 'dark' ? 'text.primary' : 'text.primary'} 
+                                fontWeight={500}
+                                sx={{
+                                  opacity: theme.palette.mode === 'dark' ? 0.9 : 1
+                                }}
+                              >
                                 {collection.location.address}
                               </Typography>
                             </Stack>
@@ -959,10 +1063,25 @@ export default function CollectionsPage() {
                             {/* Price with Enhanced Styling */}
                             {collection.price && (
                               <Box mb={2}>
-                                <Typography variant="h5" color="primary" fontWeight={900}>
+                                <Typography 
+                                  variant="h5" 
+                                  color={theme.palette.mode === 'dark' ? 'primary.light' : 'primary.main'}
+                                  fontWeight={900}
+                                  sx={{
+                                    textShadow: theme.palette.mode === 'dark' ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
+                                  }}
+                                >
                                   ${collection.price.toLocaleString()}
                                   {collection.priceType && collection.priceType !== 'fixed' && (
-                                    <Typography component="span" variant="body1" color="text.secondary" fontWeight={500}>
+                                    <Typography 
+                                      component="span" 
+                                      variant="body1" 
+                                      color="text.secondary" 
+                                      fontWeight={500}
+                                      sx={{
+                                        opacity: theme.palette.mode === 'dark' ? 0.8 : 1
+                                      }}
+                                    >
                                       /{collection.priceType.replace('per-', '')}
                                     </Typography>
                                   )}
@@ -974,7 +1093,7 @@ export default function CollectionsPage() {
                             {collection.amenities && collection.amenities.length > 0 && (
                               <Box mb={2}>
                                 <Typography variant="subtitle2" color="text.secondary" mb={1}>
-                                  Features:
+                                  {t('collectionsPage.amenities.features')}:
                                 </Typography>
                                 <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', gap: 0.5 }}>
                                   {collection.amenities.slice(0, 4).map((amenity, index) => (
@@ -1011,19 +1130,19 @@ export default function CollectionsPage() {
                             <Box mb={2}>
                               <Stack direction="row" spacing={1} alignItems="center">
                                 <Typography variant="caption" color="text.secondary">
-                                  Images:
+                                  {t('collectionsPage.imageStatus.images')}:
                                 </Typography>
                                 {hasRealImages ? (
                                   <Chip
                                     icon={<CheckCircle sx={{ fontSize: 14 }} />}
-                                    label={`${collection.images.length} uploaded`}
+                                    label={t('collectionsPage.imageStatus.uploaded', { count: collection.images.length })}
                                     size="small"
                                     color="success"
                                     sx={{ fontSize: '0.7rem', height: 20 }}
                                   />
                                 ) : (
                                   <Chip
-                                    label="Using stock photo"
+                                    label={t('collectionsPage.imageStatus.usingStock')}
                                     size="small"
                                     variant="outlined"
                                     sx={{ 
@@ -1057,7 +1176,7 @@ export default function CollectionsPage() {
                                     }
                                   }}
                                 >
-                                  Explore
+                                  {t('collectionsPage.actions.explore')}
                                 </Button>
                                 
                                 <Button
@@ -1078,7 +1197,7 @@ export default function CollectionsPage() {
                                     }
                                   }}
                                 >
-                                  Book
+                                  {t('collectionsPage.actions.book')}
                                 </Button>
                               </Stack>
                             </CardActions>
@@ -1128,7 +1247,7 @@ export default function CollectionsPage() {
                     {userLocation && (
                       <Marker
                         position={userLocation}
-                        title="Your Location"
+                        title={t('collectionsPage.map.yourLocation')}
                       />
                     )}
 
@@ -1183,7 +1302,7 @@ export default function CollectionsPage() {
                                   <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                                     <Star sx={{ fontSize: 16, color: '#FFD700' }} />
                                     <Typography variant="body2">
-                                      {collection.rating.toFixed(1)} ({collection.totalRatings || 0} reviews)
+                                      {collection.rating.toFixed(1)} ({collection.totalRatings || 0} {t('collectionsPage.reviews')})
                                     </Typography>
                                   </Stack>
                                 )}
@@ -1205,7 +1324,7 @@ export default function CollectionsPage() {
                                     href={`/collections/${collection._id}`}
                                     sx={{ borderRadius: 2 }}
                                   >
-                                    View Details
+                                    {t('collectionsPage.actions.viewDetails')}
                                   </Button>
                                   <Button
                                     variant="contained"
@@ -1213,7 +1332,7 @@ export default function CollectionsPage() {
                                     onClick={() => handleBookCollection(collection)}
                                     sx={{ borderRadius: 2 }}
                                   >
-                                    Book Now
+                                    {t('collectionsPage.actions.bookNow')}
                                   </Button>
                                 </Stack>
                               </>
@@ -1235,7 +1354,7 @@ export default function CollectionsPage() {
                   }}
                 >
                   <Stack spacing={1}>
-                    <Tooltip title="Recenter on your location">
+                    <Tooltip title={t('collectionsPage.map.recenterLocation')}>
                       <Fab
                         size="small"
                         color="primary"
@@ -1245,7 +1364,7 @@ export default function CollectionsPage() {
                         <MyLocation />
                       </Fab>
                     </Tooltip>
-                    <Tooltip title="Switch to grid view">
+                    <Tooltip title={t('collectionsPage.map.switchToGrid')}>
                       <Fab
                         size="small"
                         color="secondary"
@@ -1280,11 +1399,10 @@ export default function CollectionsPage() {
             >
               <MapIcon sx={{ fontSize: 120, color: 'text.disabled', mb: 3, opacity: 0.5 }} />
               <Typography variant="h4" fontWeight={700} gutterBottom color="text.primary">
-                No matches found
+                {t('collectionsPage.emptyState.title')}
               </Typography>
               <Typography variant="h6" color="text.secondary" mb={3} sx={{ maxWidth: 500, mx: 'auto' }}>
-                We couldn't find any collections matching your current filters. 
-                Try adjusting your search criteria to discover amazing places.
+                {t('collectionsPage.emptyState.description')}
               </Typography>
               <Stack direction="row" spacing={2} justifyContent="center" flexWrap="wrap">
                 <Button
@@ -1299,7 +1417,7 @@ export default function CollectionsPage() {
                   }}
                   sx={{ borderRadius: 3, fontWeight: 600 }}
                 >
-                  Clear All Filters
+                  {t('collectionsPage.emptyState.clearFilters')}
                 </Button>
                 <Button
                   variant="contained"
@@ -1308,7 +1426,7 @@ export default function CollectionsPage() {
                   startIcon={<MapIcon />}
                   sx={{ borderRadius: 3, fontWeight: 600 }}
                 >
-                  Explore Map View
+                  {t('collectionsPage.emptyState.exploreMap')}
                 </Button>
               </Stack>
             </Box>
@@ -1325,10 +1443,10 @@ export default function CollectionsPage() {
       >
         <DialogTitle>
           <Typography variant="h5" fontWeight={700}>
-            Book {selectedCollection?.title}
+            {t('collectionsPage.booking.title', { title: selectedCollection?.title || '' })}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Complete your booking details
+            {t('collectionsPage.booking.subtitle')}
           </Typography>
         </DialogTitle>
         
@@ -1370,7 +1488,7 @@ export default function CollectionsPage() {
                 <Grid item xs={6}>
                   <TextField
                     fullWidth
-                    label="Check-in Date"
+                    label={t('collectionsPage.booking.checkInDate')}
                     type="date"
                     value={bookingData.checkIn || ''}
                     onChange={(e) => setBookingData(prev => ({ ...prev, checkIn: e.target.value }))}
@@ -1380,7 +1498,7 @@ export default function CollectionsPage() {
                 <Grid item xs={6}>
                   <TextField
                     fullWidth
-                    label="Check-out Date"
+                    label={t('collectionsPage.booking.checkOutDate')}
                     type="date"
                     value={bookingData.checkOut || ''}
                     onChange={(e) => setBookingData(prev => ({ ...prev, checkOut: e.target.value }))}
@@ -1394,15 +1512,15 @@ export default function CollectionsPage() {
             {selectedCollection?.roomTypes && selectedCollection.roomTypes.length > 0 && (
               <Grid item xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel>Room Type</InputLabel>
+                  <InputLabel>{t('collectionsPage.booking.roomType')}</InputLabel>
                   <Select
                     value={bookingData.roomType || ''}
-                    label="Room Type"
+                    label={t('collectionsPage.booking.roomType')}
                     onChange={(e) => setBookingData(prev => ({ ...prev, roomType: e.target.value }))}
                   >
                     {selectedCollection.roomTypes.map((room, index) => (
                       <MenuItem key={index} value={room.name}>
-                        {room.name} - ${room.price}/night (Capacity: {room.capacity})
+                        {room.name} - ${room.price}/{t('collectionsPage.booking.perNight')} ({t('collectionsPage.booking.capacity')}: {room.capacity})
                       </MenuItem>
                     ))}
                   </Select>
@@ -1414,7 +1532,7 @@ export default function CollectionsPage() {
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label="Number of Guests"
+                label={t('collectionsPage.booking.numberOfGuests')}
                 type="number"
                 value={bookingData.guests}
                 onChange={(e) => setBookingData(prev => ({ ...prev, guests: parseInt(e.target.value) || 1 }))}
@@ -1425,7 +1543,7 @@ export default function CollectionsPage() {
             <Grid item xs={12}>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6" gutterBottom>
-                Contact Information
+                {t('collectionsPage.booking.contactInformation')}
               </Typography>
             </Grid>
 
@@ -1433,7 +1551,7 @@ export default function CollectionsPage() {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Full Name"
+                label={t('collectionsPage.booking.fullName')}
                 value={bookingData.customerInfo.name}
                 onChange={(e) => setBookingData(prev => ({
                   ...prev,
@@ -1446,7 +1564,7 @@ export default function CollectionsPage() {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('collectionsPage.booking.email')}
                 type="email"
                 value={bookingData.customerInfo.email}
                 onChange={(e) => setBookingData(prev => ({
@@ -1460,7 +1578,7 @@ export default function CollectionsPage() {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Phone Number"
+                label={t('collectionsPage.booking.phone')}
                 value={bookingData.customerInfo.phone}
                 onChange={(e) => setBookingData(prev => ({
                   ...prev,
@@ -1474,12 +1592,12 @@ export default function CollectionsPage() {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Special Requests"
+                label={t('collectionsPage.booking.specialRequests')}
                 multiline
                 rows={3}
                 value={bookingData.specialRequests || ''}
                 onChange={(e) => setBookingData(prev => ({ ...prev, specialRequests: e.target.value }))}
-                placeholder="Any special requirements or requests..."
+                placeholder={t('collectionsPage.booking.enterRequests')}
               />
             </Grid>
           </Grid>
@@ -1487,7 +1605,7 @@ export default function CollectionsPage() {
 
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setBookingDialogOpen(false)}>
-            Cancel
+            {t('collectionsPage.booking.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -1505,7 +1623,7 @@ export default function CollectionsPage() {
             {bookingLoading ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
-              'Add to Cart'
+              t('actions.addToCart')
             )}
           </Button>
         </DialogActions>

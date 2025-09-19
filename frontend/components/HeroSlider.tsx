@@ -4,6 +4,7 @@ import { Box, IconButton, Stack, Typography, Button, Skeleton, Chip } from '@mui
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import NextLink from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { apiGet } from '@utils/api';
 import { getMainImage, hasRealImages } from '@utils/imageHelpers';
 
@@ -38,6 +39,7 @@ interface SlideItem extends Product {
 export default function HeroSlider() {
   const [index, setIndex] = useState(0);
   const [items, setItems] = useState<SlideItem[] | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     let alive = true;
@@ -101,9 +103,9 @@ export default function HeroSlider() {
   }
 
   const slides = items.length > 0 ? items : [
-    { _id: 'placeholder-1', title: 'Discover exceptional collections', images: [], price: 0, type: 'collection' as const },
-    { _id: 'placeholder-2', title: 'Book stays that inspire', images: [], price: 0, type: 'collection' as const },
-    { _id: 'placeholder-3', title: 'Products reimagined', images: [], price: 0, type: 'product' as const },
+    { _id: 'placeholder-1', title: t('home.heroDiscoverExceptional'), images: [], price: 0, type: 'collection' as const },
+    { _id: 'placeholder-2', title: t('home.heroBookStays'), images: [], price: 0, type: 'collection' as const },
+    { _id: 'placeholder-3', title: t('home.heroProductsReimagined'), images: [], price: 0, type: 'product' as const },
   ];
 
   const current = slides[index];
@@ -122,9 +124,9 @@ export default function HeroSlider() {
     
     if (current.type === 'collection' && current.priceType) {
       const priceTypeDisplay = current.priceType.replace('-', ' ');
-      return `From $${current.price.toFixed(2)} ${priceTypeDisplay}`;
+      return `${t('home.heroFrom')} $${current.price.toFixed(2)} ${priceTypeDisplay}`;
     }
-    return `From $${current.price.toFixed(2)}`;
+    return `${t('home.heroFrom')} $${current.price.toFixed(2)}`;
   };
 
   const getLocationDisplay = () => {
@@ -151,7 +153,7 @@ export default function HeroSlider() {
       {/* Stock Photo Indicator */}
       {!isRealImage && (
         <Chip
-          label="Stock Photo"
+          label={t('home.heroStockPhoto')}
           size="small"
           sx={{
             position: 'absolute',
@@ -182,10 +184,10 @@ export default function HeroSlider() {
             component={NextLink}
             href={getActionHref()}
           >
-            {current.type === 'collection' ? 'Explore' : 'Shop Now'}
+            {current.type === 'collection' ? t('home.heroExplore') : t('home.heroShopNow')}
           </Button>
           <Button variant="outlined" color="inherit" component={NextLink} href={current.type === 'collection' ? '/collections' : '/product'}>
-            {current.type === 'collection' ? 'Browse Collections' : 'Browse All'}
+            {current.type === 'collection' ? t('home.heroBrowseCollections') : t('home.heroBrowseAll')}
           </Button>
         </Stack>
       </Stack>

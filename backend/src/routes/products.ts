@@ -93,7 +93,19 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
     return res.status(403).json({ message: 'Seller or admin role required' });
   }
 
-  const { title, description, images = [], price, currency = 'USD', category, source = 'local', store } = req.body || {};
+  const { 
+    title, 
+    description, 
+    images = [], 
+    price, 
+    currency = 'USD', 
+    category, 
+    source = 'local', 
+    store,
+    bargainingEnabled = false,
+    minBargainPrice,
+    maxBargainDiscountPercent = 20
+  } = req.body || {};
 
   if (!title || !description || typeof price !== 'number' || !category) {
     return res.status(400).json({ message: 'title, description, price, and category are required' });
@@ -126,6 +138,9 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
     source,
     seller: req.user!.sub,
     store: store || undefined,
+    bargainingEnabled,
+    minBargainPrice: minBargainPrice || undefined,
+    maxBargainDiscountPercent
   });
 
   res.status(201).json(doc);
@@ -147,7 +162,19 @@ router.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
     return res.status(404).json({ message: 'Product not found or does not belong to you' });
   }
 
-  const { title, description, images, price, currency, category, source, store } = req.body || {};
+  const { 
+    title, 
+    description, 
+    images, 
+    price, 
+    currency, 
+    category, 
+    source, 
+    store,
+    bargainingEnabled,
+    minBargainPrice,
+    maxBargainDiscountPercent
+  } = req.body || {};
 
   // If store is provided, verify it belongs to the seller
   if (store) {
@@ -168,6 +195,9 @@ router.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
   if (category !== undefined) updateData.category = category;
   if (source !== undefined) updateData.source = source;
   if (store !== undefined) updateData.store = store;
+  if (bargainingEnabled !== undefined) updateData.bargainingEnabled = bargainingEnabled;
+  if (minBargainPrice !== undefined) updateData.minBargainPrice = minBargainPrice;
+  if (maxBargainDiscountPercent !== undefined) updateData.maxBargainDiscountPercent = maxBargainDiscountPercent;
 
   const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true });
   res.json(updatedProduct);

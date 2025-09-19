@@ -1,5 +1,8 @@
 import React from 'react';
 import ThemeProviderClient from '../components/ThemeProviderClient';
+import I18nProvider from '../components/I18nProvider';
+import { AuthProvider } from '@utils/auth.tsx';
+import { NotificationProvider } from '@contexts/NotificationContext';
 import Navbar from '../components/Navbar';
 import { CssBaseline, Box } from '@mui/material';
 import AppGlobalStyles from '../components/AppGlobalStyles';
@@ -32,12 +35,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <ThemeProviderClient>
-          <CssBaseline />
-          <AppGlobalStyles />
-          <Navbar />
-          <Box component="main" sx={{ minHeight: '100dvh' }}>
-            {children}
-          </Box>
+          <I18nProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                <CssBaseline />
+                <AppGlobalStyles />
+                <Navbar />
+                <Box component="main" sx={{ minHeight: '100dvh' }}>
+                  {children}
+                </Box>
+              </NotificationProvider>
+            </AuthProvider>
+          </I18nProvider>
         </ThemeProviderClient>
       </body>
     </html>

@@ -8,6 +8,10 @@ const nextConfig = {
   },
   experimental: {
     typedRoutes: true
+  },
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'rw'],
   }
 };
 

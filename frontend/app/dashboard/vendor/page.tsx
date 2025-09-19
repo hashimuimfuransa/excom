@@ -16,10 +16,14 @@ import {
   Schedule,
   LocalShipping,
   Analytics,
-  Edit
+  Edit,
+  Chat as ChatIcon,
+  MonetizationOn as BargainIcon
 } from '@mui/icons-material';
+import { Fab } from '@mui/material';
 import { apiGet, apiPost } from '@utils/api';
 import StoreManagement from '@components/StoreManagement';
+import { useTranslation } from 'react-i18next';
 
 interface Store { 
   _id: string; 
@@ -39,6 +43,9 @@ interface DashboardStats {
   totalOrders: number;
   totalRevenue: number;
   pendingOrders: number;
+  totalBargains: number;
+  activeBargains: number;
+  acceptedBargains: number;
   recentOrders: Array<{
     _id: string;
     total: number;
@@ -49,6 +56,7 @@ interface DashboardStats {
 }
 
 export default function VendorDashboardPage() {
+  const { t } = useTranslation();
   const [stores, setStores] = useState<Store[]>([]);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -74,6 +82,9 @@ export default function VendorDashboardPage() {
         totalOrders: 0,
         totalRevenue: 0,
         pendingOrders: 0,
+        totalBargains: 0,
+        activeBargains: 0,
+        acceptedBargains: 0,
         recentOrders: []
       } as DashboardStats))
     ]).then(([storesData, statsData]) => {
@@ -95,22 +106,22 @@ export default function VendorDashboardPage() {
       setName('');
       setDescription('');
       setCategory('');
-      setMessage('Store submitted for approval.');
+      setMessage(t('vendor.storeSubmittedApproval'));
     } catch (err: any) {
-      setMessage(err?.message || 'Failed to create store.');
+      setMessage(err?.message || t('vendor.failedToCreateStore'));
     }
   }
 
   const handleStoreCreated = (store: Store) => {
     setStores(prev => [store, ...prev]);
     setSelectedStore(store);
-    setMessage('Store created successfully and submitted for approval.');
+    setMessage(t('vendor.storeCreatedSuccessfully'));
   };
 
   const handleStoreUpdated = (updatedStore: Store) => {
     setStores(prev => prev.map(s => s._id === updatedStore._id ? updatedStore : s));
     setSelectedStore(updatedStore);
-    setMessage('Store updated successfully.');
+    setMessage(t('vendor.storeUpdatedSuccessfully'));
   };
 
   const StatCard = ({ title, value, icon, color, subtitle }: {
@@ -168,10 +179,10 @@ export default function VendorDashboardPage() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={4}>
         <Box>
           <Typography variant="h4" fontWeight={900} gutterBottom>
-            Vendor Hub
+            {t('vendor.vendorHub')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Your business command center. Track performance and grow your impact.
+            {t('vendor.trackPerformance')}
           </Typography>
         </Box>
         <Avatar sx={{ bgcolor: 'primary.main', width: 64, height: 64 }}>
@@ -191,7 +202,7 @@ export default function VendorDashboardPage() {
         border: `1px solid ${theme.palette.divider}`
       })}>
         <Typography variant="h6" fontWeight={700} gutterBottom color="white">
-          Power Tools
+          {t('vendor.powerTools')}
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={3}>
@@ -206,7 +217,7 @@ export default function VendorDashboardPage() {
                 border: '1px solid rgba(255,255,255,0.2)'
               }}
             >
-              Store Hub
+              {t('vendor.storeHub')}
             </Button>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -221,7 +232,7 @@ export default function VendorDashboardPage() {
                 border: '1px solid rgba(255,255,255,0.2)'
               }}
             >
-              My Products
+              {t('vendor.myProducts')}
             </Button>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -236,7 +247,7 @@ export default function VendorDashboardPage() {
                 border: '1px solid rgba(255,255,255,0.2)'
               }}
             >
-              Order Queue
+              {t('vendor.orderQueue')}
             </Button>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -251,7 +262,7 @@ export default function VendorDashboardPage() {
                 border: '1px solid rgba(255,255,255,0.2)'
               }}
             >
-              Earnings
+              {t('vendor.earnings')}
             </Button>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -266,7 +277,7 @@ export default function VendorDashboardPage() {
                 border: '1px solid rgba(255,255,255,0.2)'
               }}
             >
-              Collections
+              {t('vendor.collections')}
             </Button>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -281,7 +292,25 @@ export default function VendorDashboardPage() {
                 border: '1px solid rgba(255,255,255,0.2)'
               }}
             >
-              Bookings
+              {t('vendor.bookings')}
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button 
+              href="/dashboard/vendor/bargaining" 
+              variant="contained" 
+              fullWidth
+              startIcon={<BargainIcon />}
+              sx={{ 
+                bgcolor: 'rgba(255,215,0,0.3)', 
+                '&:hover': { bgcolor: 'rgba(255,215,0,0.4)' },
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,215,0,0.4)',
+                color: '#fff',
+                fontWeight: 'bold'
+              }}
+            >
+              Bargaining Hub
             </Button>
           </Grid>
         </Grid>
@@ -294,15 +323,15 @@ export default function VendorDashboardPage() {
               <StoreIcon fontSize="large" />
             </Avatar>
             <Typography variant="h5" fontWeight={700}>
-              Launch Your Store
+              {t('vendor.launchYourStore')}
             </Typography>
             <Typography color="text.secondary" maxWidth={600}>
-              Begin your entrepreneurial journey. Create your store, get approved, and start building your business with us.
+              {t('vendor.createGetApproved')}
             </Typography>
             <Box component="form" onSubmit={createStore} sx={{ width: '100%', maxWidth: 500 }}>
               <Stack spacing={3}>
                 <TextField 
-                  label="Store Name" 
+                  label={t('vendor.storeName')}
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
                   required 
@@ -311,7 +340,7 @@ export default function VendorDashboardPage() {
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 />
                 <TextField 
-                  label="Store Description" 
+                  label={t('vendor.storeDescription')}
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
                   multiline 
@@ -326,7 +355,7 @@ export default function VendorDashboardPage() {
                   size="large"
                   sx={{ borderRadius: 2, py: 1.5 }}
                 >
-                  Request Store Approval
+                  {t('vendor.requestStoreApproval')}
                 </Button>
                 {message && (
                   <Alert severity={message.includes('Failed') ? 'error' : 'success'}>
@@ -343,14 +372,14 @@ export default function VendorDashboardPage() {
           <Paper sx={{ p: 3, borderRadius: 4, border: (t) => `1px solid ${t.palette.divider}`, mb: 4 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
               <Typography variant="h6" fontWeight={700}>
-                My Stores ({stores.length})
+                {t('vendor.myStores')} ({stores.length})
               </Typography>
               <Button 
                 variant="contained" 
                 onClick={() => setCreateStoreDialogOpen(true)}
                 sx={{ borderRadius: 2 }}
               >
-                Create New Store
+                {t('vendor.createNewStore')}
               </Button>
             </Stack>
 
@@ -393,12 +422,12 @@ export default function VendorDashboardPage() {
                               {store.name}
                             </Typography>
                             <Chip 
-                              label={store.approved ? 'Active' : 'Pending'} 
+                              label={store.approved ? t('vendor.active') : t('vendor.pending')} 
                               color={store.approved ? 'success' : 'warning'}
                               size="small"
                             />
                           </Box>
-                          <Tooltip title="Edit Store">
+                          <Tooltip title={t('vendor.editStore')}>
                             <IconButton 
                               size="small" 
                               onClick={(e) => {
@@ -422,14 +451,14 @@ export default function VendorDashboardPage() {
                             {store.description}
                           </Typography>
                         )}
-                        <Stack direction="row" spacing={1}>
+                        <Stack direction="row" spacing={1} flexWrap="wrap">
                           <Button 
                             size="small" 
                             variant="outlined"
                             href={`/dashboard/vendor/products?store=${store._id}`}
                             disabled={!store.approved}
                           >
-                            Products
+                            {t('vendor.products')}
                           </Button>
                           <Button 
                             size="small" 
@@ -437,7 +466,23 @@ export default function VendorDashboardPage() {
                             href={`/dashboard/vendor/orders?store=${store._id}`}
                             disabled={!store.approved}
                           >
-                            Orders
+                            {t('vendor.orders')}
+                          </Button>
+                          <Button 
+                            size="small" 
+                            variant="outlined"
+                            href="/dashboard/vendor/bargaining"
+                            disabled={!store.approved}
+                            sx={{ 
+                              color: 'warning.main',
+                              borderColor: 'warning.main',
+                              '&:hover': {
+                                borderColor: 'warning.dark',
+                                bgcolor: 'warning.light'
+                              }
+                            }}
+                          >
+                            {t('products.bargainHistory')}
                           </Button>
                         </Stack>
                       </Stack>
@@ -449,7 +494,7 @@ export default function VendorDashboardPage() {
 
             {selectedStore && !selectedStore.approved && (
               <Alert severity="info" sx={{ mt: 3 }}>
-                Store "{selectedStore.name}" is pending approval. You'll be notified once an admin reviews and approves your store.
+                {t('vendor.storePendingApproval', { storeName: selectedStore.name })}
               </Alert>
             )}
           </Paper>
@@ -460,50 +505,174 @@ export default function VendorDashboardPage() {
               <Grid container spacing={3} mb={4}>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Total Products"
+                    title={t('vendor.totalProducts')}
                     value={stats.totalProducts}
                     icon={<Inventory />}
                     color="#1976d2"
-                    subtitle="Active listings"
+                    subtitle={t('vendor.activeListings')}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Total Orders"
+                    title={t('admin.totalOrders')}
                     value={stats.totalOrders}
                     icon={<ShoppingCart />}
                     color="#2e7d32"
-                    subtitle="All time"
+                    subtitle={t('vendor.allTime')}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Revenue"
+                    title="Total Bargains"
+                    value={stats.totalBargains || 0}
+                    icon={<BargainIcon />}
+                    color="#ff9800"
+                    subtitle={`${stats.activeBargains || 0} active, ${stats.acceptedBargains || 0} accepted`}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <StatCard
+                    title={t('vendor.revenue')}
                     value={`$${stats.totalRevenue.toLocaleString()}`}
                     icon={<TrendingUp />}
                     color="#ed6c02"
-                    subtitle="Total earnings"
+                    subtitle={t('vendor.totalEarnings')}
+                  />
+                </Grid>
+              </Grid>
+
+              {/* Second Row of Stats */}
+              <Grid container spacing={3} mb={4}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <StatCard
+                    title={t('vendor.pendingOrders')}
+                    value={stats.pendingOrders}
+                    icon={<LocalShipping />}
+                    color="#9c27b0"
+                    subtitle={t('vendor.needAttention')}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Pending Orders"
-                    value={stats.pendingOrders}
-                    icon={<LocalShipping />}
-                    color="#9c27b0"
-                    subtitle="Need attention"
+                    title="Active Bargains"
+                    value={stats.activeBargains || 0}
+                    icon={<ChatIcon />}
+                    color="#4caf50"
+                    subtitle="Ongoing negotiations"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <StatCard
+                    title="Accepted Bargains"
+                    value={stats.acceptedBargains || 0}
+                    icon={<CheckCircle />}
+                    color="#2196f3"
+                    subtitle="Successful deals"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <StatCard
+                    title="Bargain Success Rate"
+                    value={stats.totalBargains ? `${Math.round((stats.acceptedBargains || 0) / stats.totalBargains * 100)}%` : '0%'}
+                    icon={<TrendingUp />}
+                    color="#00bcd4"
+                    subtitle="Negotiation efficiency"
                   />
                 </Grid>
               </Grid>
+
+              {/* Quick Actions */}
+              <Paper sx={{ p: 3, borderRadius: 4, border: (t) => `1px solid ${t.palette.divider}`, mb: 4 }}>
+                <Typography variant="h6" fontWeight={700} gutterBottom>
+                  {t('admin.quickActions')}
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<Inventory />}
+                      href="/dashboard/vendor/products"
+                      sx={{ 
+                        borderRadius: 2, 
+                        py: 1.5,
+                        flexDirection: 'column',
+                        height: '80px',
+                        '& .MuiButton-startIcon': { marginRight: 0, marginBottom: 1 }
+                      }}
+                    >
+                      {t('vendor.manageProducts')}
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<ShoppingCart />}
+                      href="/dashboard/vendor/orders"
+                      sx={{ 
+                        borderRadius: 2, 
+                        py: 1.5,
+                        flexDirection: 'column',
+                        height: '80px',
+                        '& .MuiButton-startIcon': { marginRight: 0, marginBottom: 1 }
+                      }}
+                    >
+                      {t('vendor.ordersManagement')}
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<BargainIcon />}
+                      href="/dashboard/vendor/bargaining"
+                      sx={{ 
+                        borderRadius: 2, 
+                        py: 1.5,
+                        flexDirection: 'column',
+                        height: '80px',
+                        color: 'warning.main',
+                        borderColor: 'warning.main',
+                        '&:hover': {
+                          borderColor: 'warning.dark',
+                          bgcolor: 'warning.light',
+                          color: 'warning.dark'
+                        },
+                        '& .MuiButton-startIcon': { marginRight: 0, marginBottom: 1 }
+                      }}
+                    >
+                      {t('products.bargainHistory')}
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<Analytics />}
+                      href="/dashboard/vendor/analytics"
+                      sx={{ 
+                        borderRadius: 2, 
+                        py: 1.5,
+                        flexDirection: 'column',
+                        height: '80px',
+                        '& .MuiButton-startIcon': { marginRight: 0, marginBottom: 1 }
+                      }}
+                    >
+                      {t('vendor.analytics')}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Paper>
 
               {/* Recent Orders */}
               <Paper sx={{ p: 3, borderRadius: 4, border: (t) => `1px solid ${t.palette.divider}` }}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
                   <Typography variant="h6" fontWeight={700}>
-                    Recent Orders
+                    {t('vendor.recentOrders')}
                   </Typography>
                   <Button href="/dashboard/vendor/orders" variant="outlined" size="small">
-                    View All
+                    {t('vendor.viewAll')}
                   </Button>
                 </Stack>
                 <Stack divider={<Divider />} spacing={2}>
@@ -553,6 +722,38 @@ export default function VendorDashboardPage() {
         store={editingStore}
         onStoreUpdated={handleStoreUpdated}
       />
+
+      {/* Floating Bargain Chat Button */}
+      <Fab
+        color="warning"
+        href="/dashboard/vendor/bargaining"
+        sx={{
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
+          zIndex: 1000,
+          bgcolor: 'warning.main',
+          '&:hover': {
+            bgcolor: 'warning.dark',
+            transform: 'scale(1.1)'
+          },
+          animation: 'pulse 3s infinite',
+          '@keyframes pulse': {
+            '0%': {
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)',
+            },
+            '50%': {
+              boxShadow: '0 6px 20px rgba(245, 158, 11, 0.8)',
+              transform: 'scale(1.05)',
+            },
+            '100%': {
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)',
+            }
+          }
+        }}
+      >
+        <ChatIcon />
+      </Fab>
     </Container>
   );
 }

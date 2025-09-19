@@ -26,6 +26,7 @@ import {
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import { apiGet, apiPatch } from '@utils/api';
+import { useTranslation } from 'react-i18next';
 
 interface OrderItem {
   _id: string;
@@ -69,6 +70,7 @@ const statusIcons = {
 };
 
 export default function VendorOrdersPage() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -196,7 +198,7 @@ export default function VendorOrdersPage() {
   if (loading) {
     return (
       <Container sx={{ py: 4 }}>
-        <Typography>Loading orders...</Typography>
+        <Typography>{t('vendor.loadingOrders')}</Typography>
       </Container>
     );
   }
@@ -234,7 +236,7 @@ export default function VendorOrdersPage() {
                 fontSize: { xs: '1.5rem', sm: '2.125rem' }
               }}
             >
-              Orders Management
+              {t('vendor.ordersManagement')}
             </Typography>
             <Typography 
               variant="body1" 
@@ -244,7 +246,7 @@ export default function VendorOrdersPage() {
                 fontSize: { xs: '0.875rem', sm: '1rem' }
               }}
             >
-              Track and manage your customer orders
+              {t('vendor.trackAndManageOrders')}
             </Typography>
           </Box>
         </Stack>
@@ -261,7 +263,7 @@ export default function VendorOrdersPage() {
             variant="body1"
             sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
           >
-            Export Orders
+            {t('vendor.exportOrders')}
           </Typography>
         </Button>
       </Stack>
@@ -270,7 +272,7 @@ export default function VendorOrdersPage() {
       <Grid container spacing={{ xs: 2, sm: 3 }} mb={{ xs: 3, sm: 4 }}>
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <StatCard
-            title="Total Orders"
+            title={t('vendor.totalOrders')}
             value={orderStats.total}
             color="#1976d2"
             icon={<ShoppingCart />}
@@ -278,7 +280,7 @@ export default function VendorOrdersPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <StatCard
-            title="Pending"
+            title={t('actions.pending')}
             value={orderStats.pending}
             color="#ed6c02"
             icon={<PendingIcon />}
@@ -286,7 +288,7 @@ export default function VendorOrdersPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <StatCard
-            title="Processing"
+            title={t('vendor.processing')}
             value={orderStats.processing}
             color="#0288d1"
             icon={<AccessTime />}
@@ -294,7 +296,7 @@ export default function VendorOrdersPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <StatCard
-            title="Shipped"
+            title={t('vendor.shipped')}
             value={orderStats.shipped}
             color="#9c27b0"
             icon={<ShippingIcon />}
@@ -302,7 +304,7 @@ export default function VendorOrdersPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <StatCard
-            title="Delivered"
+            title={t('vendor.delivered')}
             value={orderStats.delivered}
             color="#2e7d32"
             icon={<CompletedIcon />}
@@ -310,9 +312,9 @@ export default function VendorOrdersPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <StatCard
-            title="Revenue"
+            title={t('vendor.revenue')}
             value={`$${orderStats.totalRevenue.toFixed(2)}`}
-            subtitle="Delivered orders"
+            subtitle={t('vendor.deliveredOrders')}
             color="#2e7d32"
             icon={<TrendingUp />}
           />
@@ -331,7 +333,7 @@ export default function VendorOrdersPage() {
           <Grid item xs={12} sm={12} md={4}>
             <TextField
               fullWidth
-              placeholder="Search orders, customers, products..."
+              placeholder={t('vendor.searchOrders')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               size="small"
@@ -347,26 +349,26 @@ export default function VendorOrdersPage() {
           </Grid>
           <Grid item xs={6} sm={4} md={2}>
             <FormControl fullWidth size="small">
-              <InputLabel>Status</InputLabel>
+              <InputLabel>{t('vendor.status')}</InputLabel>
               <Select
                 value={statusFilter}
-                label="Status"
+                label={t('vendor.status')}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 sx={{ borderRadius: 2 }}
               >
-                <MenuItem value="all">All Status</MenuItem>
-                <MenuItem value="pending">Pending</MenuItem>
-                <MenuItem value="processing">Processing</MenuItem>
-                <MenuItem value="shipped">Shipped</MenuItem>
-                <MenuItem value="delivered">Delivered</MenuItem>
-                <MenuItem value="cancelled">Cancelled</MenuItem>
+                <MenuItem value="all">{t('vendor.allStatus')}</MenuItem>
+                <MenuItem value="pending">{t('actions.pending')}</MenuItem>
+                <MenuItem value="processing">{t('vendor.processing')}</MenuItem>
+                <MenuItem value="shipped">{t('vendor.shipped')}</MenuItem>
+                <MenuItem value="delivered">{t('vendor.delivered')}</MenuItem>
+                <MenuItem value="cancelled">{t('vendor.cancelled')}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={3} md={2}>
             <TextField
               fullWidth
-              label="From Date"
+              label={t('vendor.fromDate')}
               type="date"
               value={dateRange.from}
               onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
@@ -377,7 +379,7 @@ export default function VendorOrdersPage() {
           <Grid item xs={12} sm={3} md={2}>
             <TextField
               fullWidth
-              label="To Date"
+              label={t('vendor.toDate')}
               type="date"
               value={dateRange.to}
               onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
@@ -396,7 +398,7 @@ export default function VendorOrdersPage() {
               }}
               sx={{ borderRadius: 2 }}
             >
-              Clear Filters
+              {t('vendor.clearFilters')}
             </Button>
           </Grid>
         </Grid>

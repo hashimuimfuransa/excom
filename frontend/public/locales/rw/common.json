@@ -1,0 +1,229 @@
+{
+  "app": {
+    "title": "Excom – Isoko Rusange",
+    "description": "Isoko rifite ubwenge bw'ikoranabuhanga mu bicuruzwa, ubukode, na serivisi.",
+    "tagline": "Shakisha ibicuruzwa, ubukode, amazu y'abashyitsi, na serivisi ahantu hamwe."
+  },
+  "navigation": {
+    "collections": "Ikusanyirize",
+    "vendors": "Abacuruzi",
+    "viewVendors": "Reba Abacuruzi",
+    "products": "Ibicuruzwa",
+    "login": "Kwinjira",
+    "register": "Kwandikisha",
+    "join": "Kwinjira",
+    "adminDashboard": "Ibikubiye bya Admin",
+    "vendorDashboard": "Ibikubiye by'Umucuruzi",
+    "myOrders": "Amatungo Yanjye",
+    "logout": "Gusohoka",
+    "cart": "Agasanduku"
+  },
+  "user": {
+    "name": "Amazina",
+    "email": "Imeyili",
+    "role": "Uruhare",
+    "user": "Umukoresha"
+  },
+  "language": {
+    "english": "Icyongereza",
+    "kinyarwanda": "Ikinyarwanda",
+    "changeLanguage": "Hindura Ururimi"
+  },
+  "actions": {
+    "menu": "Urutonde",
+    "close": "Gufunga",
+    "search": "Gushakisha",
+    "add": "Kongeraho",
+    "edit": "Guhindura",
+    "delete": "Gusiba",
+    "save": "Kubika",
+    "cancel": "Kuraguza",
+    "submit": "Kohereza",
+    "loading": "Gupakiranya...",
+    "viewAll": "Reba Byose",
+    "approve": "Kwemeza",
+    "reject": "Kwanga",
+    "pending": "Bitegereje",
+    "confirmed": "Byemejwe",
+    "cancelled": "Biraguwe",
+    "view": "Kureba",
+    "update": "Kuvugurura",
+    "create": "Gukora",
+    "back": "Gusubira"
+  },
+  "pages": {
+    "home": "Ahabanze",
+    "about": "Ibyerekeye",
+    "contact": "Tuvugishe",
+    "terms": "Amabwiriza yo Gukoresha",
+    "privacy": "Amategeko y'Ibanga"
+  },
+  "products": {
+    "newArrivals": "Ibicuruzwa Bishya",
+    "topPicks": "Ibicuruzwa Byiza",
+    "viewAll": "Reba Byose",
+    "quickView": "Reba Vuba",
+    "addToCart": "Shyira mu Gasanduku",
+    "freeShipping": "Kohereza Ubuntu",
+    "demo": "Icyegeranyo",
+    "new": "GISHYA",
+    "price": "Igiciro",
+    "description": "Ibisobanuro",
+    "availability": "Kuboneka",
+    "inStock": "Biraboneka",
+    "outOfStock": "Ntibiboneka"
+  },
+  "categories": {
+    "electronics": "Ibyuma by'Amashanyarazi",
+    "fashion": "Imyambaro",
+    "gaming": "Imikino",
+    "mobile": "Telefoni na Tekinoroji",
+    "home": "Inzu na Bustani",
+    "sports": "Siporo na Ubwiyunge",
+    "books": "Ibitabo na Itangazamakuru",
+    "beauty": "Ubwiza na Kwihangana",
+    "audio": "Umuziki na Amajwi",
+    "computers": "Mudasobwa",
+    "kitchen": "Igikoni na Kurya",
+    "pets": "Inyamaswa n'Inyamabere",
+    "toys": "Ibikinisho n'Imikino",
+    "automotive": "Imodoka n'Ibikoresho",
+    "health": "Ubuzima n'Ubwiyunge"
+  },
+  "dashboard": {
+    "title": "Ibikubiye",
+    "overview": "Ibicuruzwa Rusange",
+    "statistics": "Imibare",
+    "analytics": "Isesengura",
+    "reports": "Raporo",
+    "settings": "Igenamiterere"
+  },
+  "admin": {
+    "dashboard": "Ibikubiye bya Admin",
+    "users": "Abakoresha",
+    "stores": "Amaduka",
+    "products": "Ibicuruzwa",
+    "orders": "Amatungo",
+    "earnings": "Amafaranga Yinjijwe",
+    "analytics": "Isesengura",
+    "settings": "Igenamiterere",
+    "totalUsers": "Abakoresha bose",
+    "totalStores": "Amaduka yose",
+    "activeStores": "Amaduka akora",
+    "pendingStores": "Amaduka ategereje kwemezwa",
+    "totalProducts": "Ibicuruzwa byose",
+    "pendingReviews": "Ibyategereje gusuzumwa",
+    "recentActivity": "Ibikorwa bya vuba",
+    "storeApplications": "Amasaba ya Duka",
+    "quickActions": "Ibikorwa byihuse",
+    "manageUsers": "Gucunga Abakoresha",
+    "manageStores": "Gucunga Amaduka",
+    "viewAnalytics": "Kureba Isesengura",
+    "platformSettings": "Igenamiterere rya Sisitemu"
+  },
+  "vendor": {
+    "dashboard": "Ibikubiye by'Umucuruzi",
+    "myStore": "Iduka ryanjye",
+    "products": "Ibicuruzwa byanjye",
+    "orders": "Amatungo",
+    "payouts": "Kwishyurwa",
+    "analytics": "Isesengura",
+    "settings": "Igenamiterere",
+    "addProduct": "Kongeraho Igicuruzwa",
+    "manageProducts": "Gucunga Ibicuruzwa",
+    "orderHistory": "Amateka y'Amatungo",
+    "earnings": "Amafaranga Yinjijwe",
+    "totalSales": "Igurisha ryose",
+    "pendingOrders": "Amatungo ategereje",
+    "completedOrders": "Amatungo yarangiye"
+  },
+  "orders": {
+    "title": "Amatungo",
+    "myOrders": "Amatungo yanjye",
+    "orderHistory": "Amateka y'Amatungo",
+    "orderDetails": "Amakuru y'Itungo",
+    "orderNumber": "Nimero y'Itungo",
+    "orderDate": "Italiki y'Itungo",
+    "orderStatus": "Uko Itungo rimeze",
+    "totalAmount": "Ikiguzi cyose",
+    "shippingAddress": "Aderesi y'ohereza",
+    "paymentMethod": "Uburyo bwo kwishyura",
+    "trackOrder": "Gukurikirana Itungo"
+  },
+  "checkout": {
+    "title": "Kwishyura",
+    "shippingInfo": "Amakuru yo Kohereza",
+    "paymentInfo": "Amakuru yo Kwishyura",
+    "orderSummary": "Incamake y'Itungo",
+    "placeOrder": "Gushyira Itungo",
+    "total": "Igiciro cyose",
+    "subtotal": "Agiciro gatoya",
+    "shipping": "Kohereza",
+    "tax": "Umusoro"
+  },
+  "home": {
+    "questTitle": "Ni iyihe ntego ukurikira?",
+    "questSubtitle": "Shakisha amahirwe meza • Fungura ibintu bidasanzwe • Zamura urwego rw'ubucuruzi bwawe",
+    "popularQuests": "Intego Zizwi:",
+    "shopByCategory": "Gura ukurikije Icyiciro",
+    "epicCollections": "Ikusanyirize Nkomeramahanga",
+    "customerTestimonials": "Icyo Abakiriya Bacu Bavuga",
+    "testimonialSubtitle": "Ntutwumve gusa - wumve n'indi mibanire yacu ishimye",
+    "flashDeals": "Amahirwe y'Umwanya Muto",
+    "flashDealsSubtitle": "Amahirwe y'igihe gito - Ntubibuze!",
+    "newsletter": "Komeza Uherekezwa n'Amahirwe Mashya",
+    "newsletterSubtitle": "Kwandikisha kuri newsletter yacu kugira ngo udabuze amahirwe yihariye n'ibicuruzwa bishya",
+    "shopAllDeals": "Gura Amahirwe Yose",
+    "subscribe": "Kwandikisha",
+    "privacyNote": "Tubaha ubwoba bwawe. Kuraguza kwandikwa igihe icyose."
+  },
+  "testimonials": {
+    "person1": {
+      "name": "Uwimana Clarisse",
+      "role": "Nyir'Ubucuruzi Bucye",
+      "text": "Excom yahinduje uburyo ncuruza. Urubuga runguhanamwo n'abaterankunga b'ireme kandi runtabaza abakiriya benshi kuruta mbere!"
+    },
+    "person2": {
+      "name": "Nshimiyimana Jean-Baptiste", 
+      "role": "Rwiyemezamirimo wa Tekinoroji",
+      "text": "Nk'umukunzi wa tekinoroji, nkunda uburyo Excom ihuza neza ibikoresho bigezweho byo gucuruza. Urusobe rw'abacuruzi ni rwizewe kandi rutandukanye."
+    },
+    "person3": {
+      "name": "Murekatete Grace",
+      "role": "Umuguzi wa Interineti",
+      "text": "Kugura kuri Excom ni ubunyangamugayo buhora bushimishije. Kohereza byihuse, kwishyura biticanye, na serivisi nziza - byose bikenewe ahantu hamwe!"
+    }
+  },
+  "deals": {
+    "electronicsTitle": "Kugurisha Ibyuma by'Amashanyarazi",
+    "fashionTitle": "Icyumweru cy'Imyambaro",
+    "homeTitle": "Ibikenewe mu Rugo",
+    "sportsTitle": "Ibikoresho bya Siporo", 
+    "saveUpTo": "Kwikorera kugera",
+    "todayOnly": "uyu munsi gusa"
+  },
+  "forms": {
+    "firstName": "Izina Ryambere",
+    "lastName": "Irihimbere",
+    "fullName": "Amazina Yose",
+    "email": "Imeyili",
+    "password": "Ijambo Ryibanga",
+    "confirmPassword": "Emeza Ijambo Ryibanga",
+    "phoneNumber": "Nimero ya Telefoni",
+    "address": "Aderesi",
+    "city": "Umujyi",
+    "country": "Igihugu",
+    "required": "Birakenewe"
+  },
+  "messages": {
+    "success": "Byagenze neza",
+    "error": "Ikosa ryabaye",
+    "warning": "Umuburo",
+    "info": "Amakuru",
+    "loading": "Gupakiranya...",
+    "noData": "Nta makuru aboneka",
+    "tryAgain": "Gerageza nanone",
+    "somethingWentWrong": "Ikindi kintu kibaye",
+    "pleaseWait": "Nyamuneka tegereza"
+  }
+}

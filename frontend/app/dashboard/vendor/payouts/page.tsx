@@ -24,6 +24,7 @@ import {
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import { apiGet, apiPost, apiPatch } from '@utils/api';
+import { useTranslation } from 'react-i18next';
 
 interface PayoutAccount {
   _id: string;
@@ -70,6 +71,7 @@ const accountTypeIcons = {
 };
 
 export default function VendorPayoutsPage() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<PayoutStats | null>(null);
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
   const [payoutAccounts, setPayoutAccounts] = useState<PayoutAccount[]>([]);
