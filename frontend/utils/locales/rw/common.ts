@@ -17,7 +17,8 @@ export default {
     "myOrders": "ibyo natumije",
     "profile": "Umwirondoro",
     "logout": "Gusohoka",
-    "cart": "Agasanduku"
+    "cart": "Agasanduku",
+    "bargaining": "Guciririkanya"
   },
   "user": {
     "name": "Amazina",
@@ -319,7 +320,177 @@ export default {
     "setAsDefault": "Gushyiraho nk'ibyanze",
     "defaultAccount": "Konti y'ibanze",
     "verified": "Byemejwe",
-    "unverified": "Ntibemejwe"
+    "unverified": "Ntibemejwe",
+    "bargainingHub": "Urubuga rwo Guciririkanya",
+    "totalBargains": "Ibiganiro byose byo Guciririkanya",
+    "activeBargains": "Ibiganiro bikora byo Guciririkanya",
+    "acceptedBargains": "Ibiganiro byemewe byo Guciririkanya",
+    "bargainSuccessRate": "Igipimo cyo Gutsinda mu Biganiro",
+    "ongoingNegotiations": "Ibiganiro bikomeje",
+    "successfulDeals": "Amasezerano yashinze",
+    "negotiationEfficiency": "Ubushobozi bwo Guciririkanya",
+    "quickActions": "Ibikorwa byihuse"
+  },
+  "bargaining": {
+    "title": "Guciririkanya",
+    "myBargains": "Ibiganiro Byanjye byo Guciririkanya",
+    "noBargains": "Nta biganiro byo guciririkanya",
+    "startFirstBargain": "Tangira ikiganiro cyawe cya mbere cyo guciririkanya",
+    "loading": "Gupakira ibiganiro...",
+    "error": "Ikibazo mu gutangiza ikiganiro",
+    "activeBargains": "Ibiganiro Bikora",
+    "completedBargains": "Ibiganiro Byarangiye",
+    "rejectedBargains": "Ibiganiro Byangwe"
+  },
+  "productDetails": {
+    "home": "Ahabanza",
+    "products": "Ibicuruzwa", 
+    "notFound": "Igicuruzwa ntigibonetse",
+    "notFoundMessage": "Igicuruzwa usaba ntigibonetse cyangwa gisibwe",
+    "goHome": "Subira ahabanza",
+    "addedToCart": "{{productName}} yongerewe mu gasanduku",
+    "failedToAddToCart": "Byanze kongera igicuruzwa mu gasanduku",
+    "adding": "Konyegerwa...",
+    "addToCart": "Shyira mu Gasanduku",
+    "buyNow": "Gura Nonaha",
+    "save": "Kubika",
+    "share": "Gusangira",
+    "visitStore": "Sura Iduka",
+    "by": "na",
+    "quantity": "Ingano",
+    "description": "Ibisobanuro",
+    "specifications": "Ibiranga",
+    "reviews": "Ibitekerezo",
+    "customerReviews": "Ibitekerezo by'Abakiriya",
+    "noReviews": "Nta bitekerezo",
+    "productDescription": "Ibisobanuro by'Igicuruzwa",
+    "category": "Icyiciro",
+    "price": "Ikiguzi",
+    "currency": "Ifaranga",
+    "relatedProducts": "Ibicuruzwa Bijyanye",
+    "noRelatedProducts": "Nta bicuruzwa bijyanye",
+    "freeShipping": "Kohereza Kubuntu",
+    "securePayment": "Kwishyura Kwizewe", 
+    "easyReturns": "Gusubiza Byoroshye",
+    "qualityAssured": "Ubwiza Bwizewe",
+    "shipping": "Kohereza",
+    
+    // Wishlist - Urutonde rw'ibikunda
+    "addToWishlist": "Shyira mu Rutonde rw'Ibikunda",
+    "removeFromWishlist": "Kuraho mu Rutonde rw'Ibikunda", 
+    "wishlisted": "Bikunda",
+    
+    // Compare - Kugereranya
+    "compare": "Gereranya",
+    "comparing": "Biragereranywa",
+    "addToCompare": "Ongeraho mu Kugereranya",
+    "removeFromCompare": "Kuraho mu Kugereranya",
+    
+    // Notifications - Amakuru
+    "notify": "Nkumenyeshe",
+    "notifying": "Uzamenyeshwa",
+    "notifyEnabled": "Uzamenyeshwa igihe bigarutse",
+    "notifyDisabled": "Uzamenyeshwa igihe bigarutse",
+    
+    // Sharing - Gusangira
+    "shareProduct": "Sangira Igicuruzwa",
+    "shareOn": "Sangira kuri",
+    "copyLink": "Kopi Umurongo",
+    "linkCopied": "Umurongo wakopewe!",
+    
+    // Floating Chat - Ikiganiro Kizemba
+    "continueChat": "Komeza Ikiganiro",
+    "startBargaining": "Tangira Guciririkanya",
+    
+    // Bargaining Section - Igice cyo Guciririkanya
+    "specialOffer": "ICYIFUZO CYIHARIYE - CIRIRIKANYA NONAHA!",
+    "bargainFeatures": "Vugana n'umucuruzi ku buryo butaziguye • Kubona ibiciro byiza • Gusubizwa vuba",
+    "whyNegotiate": "Kubera iki ukwiye guciririkanya?",
+    "saveMoney": "Kuzigama amafaranga menshi",
+    "personalService": "Serivisi yihariye",
+    "quickResponses": "Gusubizwa vuba",
+    "bestDeals": "Amasezerano meza cyane",
+    "startBargainingNow": "Tangira Guciririkanya Nonaha!",
+    "continueNegotiation": "Komeza Guciririkanya",
+    "activeNegotiation": "Ufite ikiganiro cyo guciririkanya gikora kuri iki gicuruzwa",
+    
+    // Delivery - Kohereza
+    "deliveryOptions": "Amahitamo yo Kohereza",
+    "chooseDeliveryOption": "Hitamo Uburyo bwo Kohereza",
+    "standardShipping": "Ibisanzwe (Iminsi 3-5)",
+    "expressShipping": "Byihuse (Iminsi 1-2)",
+    "overnightShipping": "Mu Ijoro",
+    "freeDelivery": "Kubuntu",
+    "fastDelivery": "$5.99",
+    "overnightDelivery": "$12.99",
+    
+    // Stock - Ibicuruzwa byaboneka
+    "stockStatus": "Uko Ibicuruzwa Bimeze",
+    "inStock": "Biraboneka",
+    "outOfStock": "Ntibiraboneka",
+    "available": "Biraboneka",
+    "units": "uduce",
+    "highStock": "Byinshi Biraboneka",
+    "limitedStock": "Bike Biraboneka", 
+    "lowStock": "Bike Cyane Biraboneka",
+    
+    // Guarantees - Amasezerano
+    "productGuarantees": "Amasezerano y'Igicuruzwa",
+    "freeReturns30Days": "Gusubiza kubuntu mu minsi 30",
+    "securePackaging": "Gufungura neza kwemejwe",
+    "qualityVerified": "Ubwiza bwemejwe",
+    "moneyBackGuarantee": "Isezerano ryo gusubiza amafaranga",
+    
+    // Actions - Ibikorwa
+    "quickActions": "Ibikorwa byihuse",
+    
+    // Additional product page translations
+    "viewProduct": "Kureba Igicuruzwa",
+    "productImages": "Amashusho y'Igicuruzwa",
+    "zoomImage": "Kwagura Ishusho",
+    "closeZoom": "Gufunga Kwagura",
+    "previousImage": "Ishusho Ibanziriza",
+    "nextImage": "Ishusho Ikurikira",
+    "selectImage": "Hitamo Ishusho",
+    "productTabs": "Amakuru y'Igicuruzwa",
+    "similarProducts": "Ibicuruzwa bisa n'ibi",
+    "recentlyViewed": "Bya vuba byarebwe",
+    "frequentlyBought": "Bikunze kugurwa hamwe",
+    "customerSupport": "Gufasha Abakiriya",
+    "seller": "Umucuruzi",
+    "brand": "Ikimenyetso",
+    "model": "Ubwoko",
+    "sku": "SKU",
+    "weight": "Uburemere",
+    "dimensions": "Ibipimo",
+    "warranty": "Ubwishingizi",
+    "condition": "Uko bimeze",
+    "features": "Ibiranga",
+    "productRating": "Amanota y'Igicuruzwa",
+    "averageRating": "Amanota rusange",
+    "totalReviews": "Ibitekerezo byose",
+    "writeReview": "Andika Igitekerezo",
+    "readAllReviews": "Soma Ibitekerezo byose",
+    "helpfulReview": "Igitekerezo cyafasha",
+    "reportReview": "Menyesha Igitekerezo",
+    "sortReviews": "Gutondekanya Ibitekerezo",
+    "filterReviews": "Gutondekanya Ibitekerezo",
+    "mostRecent": "Ibya vuba",
+    "mostHelpful": "Byafasha cyane",
+    "highestRated": "Amanota maremare",
+    "lowestRated": "Amanota makigufi",
+    
+    // Product page UI elements that were missing
+    "premium": "YIHARIYE",
+    "negotiable": "Biraciririkanywa", 
+    "reviews": "ibitekerezo",
+    "views": "kureba",
+    "peopleViewingThis": "abantu barabona iki",
+    "usd": "USD",
+    "bestPriceGuaranteed": "Ikiguzi Cyiza Cyizewe",
+    "min": "Gito:",
+    "fastDelivery": "Kohereza Byihuse",
+    "soldThisMonth": "byagurishijwe uku kwezi"
   },
   "orders": {
     "title": "Ibyatumijwe",
@@ -736,40 +907,7 @@ export default {
     "rating": "Igipimo"
   },
 
-  // Product Details Page - Kinyarwanda
-  "productDetails": {
-    "title": "Amakuru y'Igicuruzwa",
-    "home": "Ahabanza",
-    "products": "Ibicuruzwa",
-    "notFound": "Igicuruzwa Ntikibonetse",
-    "notFoundMessage": "Igicuruzwa ushakisha nticyaboneka cyangwa cyarakuweho.",
-    "goHome": "Gusubira Ahabanza",
-    "quantity": "Ingano",
-    "addToCart": "Shyira mu Gasanduku",
-    "adding": "Gushyira...",
-    "buyNow": "Gura Ubu",
-    "save": "Kubika",
-    "share": "Gusangira",
-    "freeShipping": "Kohereza Kubuntu",
-    "securePayment": "Kwishyura Birinzwe",
-    "easyReturns": "Gusubiza Byoroshye",
-    "qualityAssured": "Ubwiza Bwemejwe",
-    "visitStore": "Sura Iduka",
-    "by": "na",
-    "description": "Ibisobanuro",
-    "specifications": "Ibipimo",
-    "reviews": "Ibitekerezo",
-    "productDescription": "Ibisobanuro by'Igicuruzwa",
-    "customerReviews": "Ibitekerezo by'Abakiriya",
-    "noReviews": "Nta bitekerezo ubu. Wowe ba wa mbere gutanga ibitekerezo kuri iki gicuruzwa!",
-    "relatedProducts": "Ibicuruzwa Bijyane",
-    "noRelatedProducts": "Nta bicuruzwa bijyane byabonetse.",
-    "category": "Icyiciro",
-    "price": "Ikiguzi",
-    "currency": "Amafaranga",
-    "addedToCart": "{{productName}} yashyizwe mu gasanduku!",
-    "failedToAddToCart": "Byanze gushyira mu gasanduku"
-  },
+
 
   // Cart Page - Kinyarwanda  
   "cart": {

@@ -17,7 +17,8 @@ export default {
     "myOrders": "My Orders",
     "profile": "Profile",
     "logout": "Logout",
-    "cart": "Cart"
+    "cart": "Cart",
+    "bargaining": "Bargaining"
   },
   "user": {
     "name": "Name",
@@ -400,7 +401,178 @@ export default {
     "setAsDefault": "Set as default",
     "defaultAccount": "Default account",
     "verified": "Verified",
-    "unverified": "Unverified"
+    "unverified": "Unverified",
+    "bargainingHub": "Bargaining Hub",
+    "totalBargains": "Total Bargains",
+    "activeBargains": "Active Bargains",
+    "acceptedBargains": "Accepted Bargains",
+    "bargainSuccessRate": "Bargain Success Rate",
+    "ongoingNegotiations": "Ongoing negotiations",
+    "successfulDeals": "Successful deals",
+    "negotiationEfficiency": "Negotiation efficiency",
+    "quickActions": "Quick Actions"
+  },
+  "bargaining": {
+    "title": "Bargaining",
+    "myBargains": "My Bargains",
+    "noBargains": "No bargaining chats",
+    "startFirstBargain": "Start your first bargaining chat",
+    "loading": "Loading bargains...",
+    "error": "Error loading bargain chat",
+    "activeBargains": "Active Bargains",
+    "completedBargains": "Completed Bargains",
+    "rejectedBargains": "Rejected Bargains"
+  },
+  "productDetails": {
+    "home": "Home",
+    "products": "Products", 
+    "notFound": "Product not found",
+    "notFoundMessage": "The product you're looking for was not found or has been removed",
+    "goHome": "Go Home",
+    "addedToCart": "{{productName}} added to cart",
+    "failedToAddToCart": "Failed to add product to cart",
+    "adding": "Adding...",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "save": "Save",
+    "share": "Share",
+    "visitStore": "Visit Store",
+    "by": "by",
+    "quantity": "Quantity",
+    "description": "Description",
+    "specifications": "Specifications",
+    "reviews": "Reviews",
+    "customerReviews": "Customer Reviews",
+    "noReviews": "No reviews yet",
+    "productDescription": "Product Description",
+    "category": "Category",
+    "price": "Price",
+    "currency": "Currency",
+    "relatedProducts": "Related Products",
+    "noRelatedProducts": "No related products",
+    "freeShipping": "Free Shipping",
+    "securePayment": "Secure Payment",
+    "easyReturns": "Easy Returns",
+    "qualityAssured": "Quality Assured",
+    "shipping": "Shipping",
+    
+    // Wishlist
+    "addToWishlist": "Add to Wishlist",
+    "removeFromWishlist": "Remove from Wishlist",
+    "wishlisted": "Wishlisted",
+    
+    // Compare
+    "compare": "Compare",
+    "comparing": "Comparing",
+    "addToCompare": "Add to Compare",
+    "removeFromCompare": "Remove from Compare",
+    
+    // Notifications
+    "notify": "Notify Me",
+    "notifying": "Will Notify",
+    "notifyEnabled": "Get notified when back in stock",
+    "notifyDisabled": "You'll be notified when back in stock",
+    
+    // Sharing
+    "shareProduct": "Share Product",
+    "shareOn": "Share on",
+    "copyLink": "Copy Link",
+    
+    "linkCopied": "Link copied to clipboard!",
+    
+    // Floating Chat
+    "continueChat": "Continue Chat",
+    "startBargaining": "Start Bargaining",
+    
+    // Bargaining Section
+    "specialOffer": "SPECIAL OFFER - NEGOTIATE NOW!",
+    "bargainFeatures": "Chat directly with seller • Get better prices • Instant responses",
+    "whyNegotiate": "Why negotiate?",
+    "saveMoney": "Save more money",
+    "personalService": "Personal service",
+    "quickResponses": "Quick responses",
+    "bestDeals": "Best deals",
+    "startBargainingNow": "Start Bargaining Now!",
+    "continueNegotiation": "Continue Negotiation",
+    "activeNegotiation": "You have an active negotiation for this product",
+    
+    // Delivery
+    "deliveryOptions": "Delivery Options",
+    "chooseDeliveryOption": "Choose Delivery Option",
+    "standardShipping": "Standard (3-5 days)",
+    "expressShipping": "Express (1-2 days)",
+    "overnightShipping": "Overnight",
+    "freeDelivery": "Free",
+    "fastDelivery": "$5.99",
+    "overnightDelivery": "$12.99",
+    
+    // Stock
+    "stockStatus": "Stock Status",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "available": "Available",
+    "units": "units",
+    "highStock": "High Stock",
+    "limitedStock": "Limited Stock",
+    "lowStock": "Low Stock",
+    
+    // Guarantees
+    "productGuarantees": "Product Guarantees",
+    "freeReturns30Days": "Free returns within 30 days",
+    "securePackaging": "Secure packaging guaranteed",
+    "qualityVerified": "Quality verified",
+    "moneyBackGuarantee": "Money back guarantee",
+    
+    // Actions
+    "quickActions": "Quick Actions",
+    
+    // Additional product page translations
+    "viewProduct": "View Product",
+    "productImages": "Product Images",
+    "zoomImage": "Zoom Image",
+    "closeZoom": "Close Zoom",
+    "previousImage": "Previous Image",
+    "nextImage": "Next Image",
+    "selectImage": "Select Image",
+    "productTabs": "Product Information",
+    "similarProducts": "Similar Products",
+    "recentlyViewed": "Recently Viewed",
+    "frequentlyBought": "Frequently Bought Together",
+    "customerSupport": "Customer Support",
+    "seller": "Seller",
+    "brand": "Brand",
+    "model": "Model",
+    "sku": "SKU",
+    "weight": "Weight",
+    "dimensions": "Dimensions",
+    "warranty": "Warranty",
+    "condition": "Condition",
+    "features": "Features",
+    "productRating": "Product Rating",
+    "averageRating": "Average Rating",
+    "totalReviews": "Total Reviews",
+    "writeReview": "Write a Review",
+    "readAllReviews": "Read All Reviews",
+    "helpfulReview": "Helpful Review",
+    "reportReview": "Report Review",
+    "sortReviews": "Sort Reviews",
+    "filterReviews": "Filter Reviews",
+    "mostRecent": "Most Recent",
+    "mostHelpful": "Most Helpful",
+    "highestRated": "Highest Rated",
+    "lowestRated": "Lowest Rated",
+    
+    // Product page UI elements that were missing
+    "premium": "PREMIUM",
+    "negotiable": "Negotiable", 
+    "reviews": "reviews",
+    "views": "views",
+    "peopleViewingThis": "people are viewing this",
+    "usd": "USD",
+    "bestPriceGuaranteed": "Best Price Guaranteed",
+    "min": "Min:",
+    "fastDelivery": "Fast Delivery",
+    "soldThisMonth": "sold this month"
   },
   "orders": {
     "title": "Orders",
@@ -732,40 +904,7 @@ export default {
     "rating": "Rating"
   },
 
-  // Product Details Page
-  "productDetails": {
-    "title": "Product Details",
-    "home": "Home",
-    "products": "Products",
-    "notFound": "Product Not Found",
-    "notFoundMessage": "The product you're looking for doesn't exist or has been removed.",
-    "goHome": "Go Home",
-    "quantity": "Quantity",
-    "addToCart": "Add to Cart",
-    "adding": "Adding...",
-    "buyNow": "Buy Now",
-    "save": "Save",
-    "share": "Share",
-    "freeShipping": "Free Shipping",
-    "securePayment": "Secure Payment",
-    "easyReturns": "Easy Returns",
-    "qualityAssured": "Quality Assured",
-    "visitStore": "Visit Store",
-    "by": "by",
-    "description": "Description",
-    "specifications": "Specifications",
-    "reviews": "Reviews",
-    "productDescription": "Product Description",
-    "customerReviews": "Customer Reviews",
-    "noReviews": "No reviews yet. Be the first to review this product!",
-    "relatedProducts": "Related Products",
-    "noRelatedProducts": "No related products found.",
-    "category": "Category",
-    "price": "Price",
-    "currency": "Currency",
-    "addedToCart": "{{productName}} added to cart!",
-    "failedToAddToCart": "Failed to add to cart"
-  },
+
 
   // Cart Page
   "cart": {

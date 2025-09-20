@@ -310,7 +310,7 @@ export default function VendorDashboardPage() {
                 fontWeight: 'bold'
               }}
             >
-              Bargaining Hub
+              {t('vendor.bargainingHub')}
             </Button>
           </Grid>
         </Grid>
@@ -514,7 +514,7 @@ export default function VendorDashboardPage() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title={t('admin.totalOrders')}
+                    title={t('vendor.totalOrders')}
                     value={stats.totalOrders}
                     icon={<ShoppingCart />}
                     color="#2e7d32"
@@ -523,11 +523,11 @@ export default function VendorDashboardPage() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Total Bargains"
+                    title={t('vendor.totalBargains')}
                     value={stats.totalBargains || 0}
                     icon={<BargainIcon />}
                     color="#ff9800"
-                    subtitle={`${stats.activeBargains || 0} active, ${stats.acceptedBargains || 0} accepted`}
+                    subtitle={`${stats.activeBargains || 0} ${t('vendor.activeBargains').toLowerCase()}, ${stats.acceptedBargains || 0} ${t('vendor.acceptedBargains').toLowerCase()}`}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -554,29 +554,29 @@ export default function VendorDashboardPage() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Active Bargains"
+                    title={t('vendor.activeBargains')}
                     value={stats.activeBargains || 0}
                     icon={<ChatIcon />}
                     color="#4caf50"
-                    subtitle="Ongoing negotiations"
+                    subtitle={t('vendor.ongoingNegotiations')}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Accepted Bargains"
+                    title={t('vendor.acceptedBargains')}
                     value={stats.acceptedBargains || 0}
                     icon={<CheckCircle />}
                     color="#2196f3"
-                    subtitle="Successful deals"
+                    subtitle={t('vendor.successfulDeals')}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
-                    title="Bargain Success Rate"
+                    title={t('vendor.bargainSuccessRate')}
                     value={stats.totalBargains ? `${Math.round((stats.acceptedBargains || 0) / stats.totalBargains * 100)}%` : '0%'}
                     icon={<TrendingUp />}
                     color="#00bcd4"
-                    subtitle="Negotiation efficiency"
+                    subtitle={t('vendor.negotiationEfficiency')}
                   />
                 </Grid>
               </Grid>
@@ -584,7 +584,7 @@ export default function VendorDashboardPage() {
               {/* Quick Actions */}
               <Paper sx={{ p: 3, borderRadius: 4, border: (t) => `1px solid ${t.palette.divider}`, mb: 4 }}>
                 <Typography variant="h6" fontWeight={700} gutterBottom>
-                  {t('admin.quickActions')}
+                  {t('vendor.quickActions')}
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6} md={3}>

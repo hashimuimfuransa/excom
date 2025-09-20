@@ -12,9 +12,27 @@ router.get('/', async (_req, res) => {
 
 // Public: get single product by id
 router.get('/:id', async (req, res) => {
-  const item = await Product.findById(req.params.id);
-  if (!item) return res.status(404).json({ message: 'Not found' });
-  res.json(item);
+  try {
+    const productId = req.params.id;
+    
+    // Validate productId parameter
+    if (!productId || productId === 'undefined' || productId === 'null') {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+
+    // Validate ObjectId format
+    if (!productId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Invalid product ID format' });
+    }
+
+    const item = await Product.findById(productId);
+    if (!item) return res.status(404).json({ message: 'Product not found' });
+    
+    res.json(item);
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // Public: get products by store

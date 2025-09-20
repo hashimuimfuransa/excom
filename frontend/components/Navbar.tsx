@@ -37,7 +37,8 @@ import {
   Search as SearchIcon,
   Receipt as OrdersIcon,
   Favorite as FavoriteIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  MonetizationOn as BargainIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import DarkModeToggle from './DarkModeToggle';
@@ -316,6 +317,27 @@ export default function Navbar() {
                   <OrdersIcon />
                 </ListItemIcon>
                 <ListItemText primary={t('navigation.myOrders')} />
+              </ListItemButton>
+            </ListItem>
+            
+            <ListItem disablePadding>
+              <ListItemButton 
+                component={NextLink}
+                href="/bargaining"
+                onClick={() => setMobileOpen(false)}
+                sx={{ 
+                  borderRadius: 2, 
+                  mx: 2, 
+                  mb: 0.5,
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.warning.main, 0.1)
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: 'warning.main', minWidth: 40 }}>
+                  <BargainIcon />
+                </ListItemIcon>
+                <ListItemText primary={t('navigation.bargaining')} />
               </ListItemButton>
             </ListItem>
             
@@ -608,6 +630,14 @@ export default function Navbar() {
                   >
                     <OrdersIcon fontSize="small" />
                     {t('navigation.myOrders')}
+                  </MenuItem>
+                  <MenuItem 
+                    component={NextLink} 
+                    href="/bargaining"
+                    sx={{ gap: 1 }}
+                  >
+                    <BargainIcon fontSize="small" />
+                    {t('navigation.bargaining')}
                   </MenuItem>
                   <MenuItem onClick={logout} sx={{ gap: 1, color: 'error.main' }}>
                     <LogoutIcon fontSize="small" />
