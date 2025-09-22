@@ -44,6 +44,7 @@ const io = new Server(server, {
       'http://localhost:3000', 
       'http://127.0.0.1:3000',
       'https://excom-tyry.onrender.com',
+      'https://excom-ten.vercel.app',
       process.env.FRONTEND_URL || 'https://excom-tyry.onrender.com'
     ],
     credentials: true
@@ -55,6 +56,7 @@ app.use(cors({
     'http://localhost:3000', 
     'http://127.0.0.1:3000',
     'https://excom-tyry.onrender.com',
+    'https://excom-ten.vercel.app',
     process.env.FRONTEND_URL || 'https://excom-tyry.onrender.com'
   ],
   credentials: true
