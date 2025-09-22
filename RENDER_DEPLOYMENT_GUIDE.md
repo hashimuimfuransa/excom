@@ -27,6 +27,7 @@ NEXT_PUBLIC_APP_URL=https://your-frontend-url.onrender.com
 - **Build Command**: `cd frontend && npm install && npm run build`
 - **Start Command**: `cd frontend && npm start`
 - **Node Version**: 20.x
+- **Publish Directory**: Leave empty (Next.js will use the default `.next` directory)
 
 ### 3. Important Notes
 
