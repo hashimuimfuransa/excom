@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '@utils/auth';
 import { useTranslation } from 'react-i18next';
+import { addToCart } from '@utils/cart';
+import styles from './BargainChat.module.css';
 
 interface Message {
   _id: string;
@@ -55,136 +57,78 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
   const [loading, setLoading] = useState(false);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Inline styles for guaranteed visibility
-  const overlayStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999
-  };
-
-  const containerStyle: React.CSSProperties = {
-    backgroundColor: 'white',
-    width: '90%',
-    maxWidth: '600px',
-    height: '80%',
-    maxHeight: '700px',
-    borderRadius: '12px',
-    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden'
-  };
-
-  const headerStyle: React.CSSProperties = {
-    padding: '1rem',
-    borderBottom: '1px solid #e2e8f0',
-    backgroundColor: '#f8fafc',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  };
-
-  const bodyStyle: React.CSSProperties = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden'
-  };
-
-  const messagesStyle: React.CSSProperties = {
-    flex: 1,
-    padding: '1rem',
-    overflowY: 'auto',
-    backgroundColor: '#fafafa'
-  };
-
-  const messageStyle: React.CSSProperties = {
-    marginBottom: '1rem',
-    padding: '0.75rem 1rem',
-    borderRadius: '18px',
-    maxWidth: '70%',
-    wordWrap: 'break-word'
-  };
-
-  const buyerMessageStyle: React.CSSProperties = {
-    ...messageStyle,
-    backgroundColor: '#3b82f6',
-    color: 'white',
-    marginLeft: 'auto',
-    borderBottomRightRadius: '4px'
-  };
-
-  const sellerMessageStyle: React.CSSProperties = {
-    ...messageStyle,
-    backgroundColor: '#f1f5f9',
-    color: '#1e293b',
-    marginRight: 'auto',
-    borderBottomLeftRadius: '4px'
-  };
-
-  const priceOfferStyle: React.CSSProperties = {
-    ...messageStyle,
-    border: '2px solid #f59e0b',
-    backgroundColor: '#fffbeb',
-    color: '#92400e',
-    fontWeight: 'bold'
-  };
-
-  const inputStyle: React.CSSProperties = {
-    padding: '0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    fontSize: '1rem',
-    flex: 1,
-    marginRight: '0.5rem'
-  };
-
-  const buttonStyle: React.CSSProperties = {
-    backgroundColor: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    padding: '0.75rem 1.5rem',
-    borderRadius: '8px',
-    fontWeight: '500',
-    cursor: 'pointer'
-  };
-
-  const warningButtonStyle: React.CSSProperties = {
-    ...buttonStyle,
-    backgroundColor: '#f59e0b'
-  };
 
   // Initialize socket connection
   useEffect(() => {
-    if (!isOpen || !user) return;
+    if (!isOpen || !user || !token) return;
 
-    const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000');
+    setConnectionStatus('connecting');
+    const newSocket = io(process.env.NEXT_PUBLIC_API_BASE?.replace('/api', '') || 'http://localhost:4000', {
+      auth: {
+        token: token
+      }
+    });
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
       console.log('Connected to socket server');
+      setConnectionStatus('connected');
+      setError(null);
       if (chatId) {
         newSocket.emit('join-bargain-room', chatId);
       }
     });
 
+    newSocket.on('disconnect', () => {
+      console.log('Disconnected from socket server');
+      setConnectionStatus('disconnected');
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      setError('Failed to connect to chat server');
+      setConnectionStatus('disconnected');
+    });
+
     newSocket.on('new-bargain-message', (data) => {
       if (data.chatId === chatId) {
         setMessages(prev => [...prev, data.message]);
-        setChat(prev => prev ? {
-          ...prev,
-          status: data.chat.status,
-          currentOffer: data.chat.currentOffer
-        } : null);
+        setChat(prev => {
+          if (!prev) return null;
+          
+          const updatedChat = {
+            ...prev,
+            status: data.chat.status,
+            currentOffer: data.chat.currentOffer
+          };
+          
+          // If offer was accepted, add to cart
+          if (data.message.messageType === 'accept_offer' && data.chat.status === 'accepted') {
+            const cartItem = {
+              id: prev.product._id,
+              title: prev.product.title,
+              price: data.chat.currentOffer || prev.currentOffer || prev.product.price,
+              image: prev.product.images[0] || '/placeholder-product.svg',
+              quantity: 1
+            };
+            
+            try {
+              addToCart(cartItem);
+              console.log('Added accepted offer to cart:', cartItem);
+              setSuccessMessage(`Offer accepted! Added ${prev.product.title} to cart for ${formatCurrency(cartItem.price, prev.product.currency)}`);
+              setTimeout(() => setSuccessMessage(null), 5000);
+            } catch (error) {
+              console.error('Failed to add to cart:', error);
+            }
+          }
+          
+          return updatedChat;
+        });
       }
     });
 
@@ -200,7 +144,7 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
       }
       newSocket.disconnect();
     };
-  }, [isOpen, user, chatId]);
+  }, [isOpen, user, token, chatId]);
 
   // Fetch chat data
   useEffect(() => {
@@ -220,8 +164,10 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
   const fetchChatData = async () => {
     if (!chatId || !token) return;
 
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bargain/chat/${chatId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000/api'}/bargain/chat/${chatId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -232,18 +178,27 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
         const data = await response.json();
         setChat(data.chat);
         setMessages(data.chat.messages || []);
+      } else if (response.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (response.status === 404) {
+        setError('Chat not found or access denied.');
+      } else {
+        setError('Failed to load chat data.');
       }
     } catch (error) {
       console.error('Error fetching chat data:', error);
+      setError('Network error. Please check your connection.');
     }
+    setLoading(false);
   };
 
   const startBargainChat = async () => {
     if (!productId || !token || !offerAmount) return;
     
     setIsStarting(true);
+    setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bargain/start`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000/api'}/bargain/start`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -267,13 +222,15 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
         if (socket) {
           socket.emit('join-bargain-room', data.chat._id);
         }
+      } else if (response.status === 401) {
+        setError('Authentication failed. Please log in again.');
       } else {
-        const error = await response.json();
-        alert(error.message || 'Failed to start bargaining');
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to start bargaining');
       }
     } catch (error) {
       console.error('Error starting bargain chat:', error);
-      alert('Failed to start bargaining');
+      setError('Network error. Please check your connection.');
     }
     setIsStarting(false);
   };
@@ -282,8 +239,9 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
     if (!chat || !token || (!newMessage.trim() && messageType === 'text')) return;
 
     setLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bargain/chat/${chat._id}/message`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000/api'}/bargain/chat/${chat._id}/message`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -299,16 +257,48 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
       if (response.ok) {
         const data = await response.json();
         setMessages(data.chat.messages || []);
-        setChat(prev => prev ? {
-          ...prev,
-          status: data.chat.status,
-          currentOffer: data.chat.currentOffer
-        } : null);
+        setChat(prev => {
+          if (!prev) return null;
+          
+          const updatedChat = {
+            ...prev,
+            status: data.chat.status,
+            currentOffer: data.chat.currentOffer
+          };
+          
+          // If current user accepted the offer, add to cart
+          if (messageType === 'accept_offer' && data.chat.status === 'accepted') {
+            const cartItem = {
+              id: prev.product._id,
+              title: prev.product.title,
+              price: data.chat.currentOffer || prev.currentOffer || prev.product.price,
+              image: prev.product.images[0] || '/placeholder-product.svg',
+              quantity: 1
+            };
+            
+            try {
+              addToCart(cartItem);
+              console.log('Added accepted offer to cart:', cartItem);
+              setSuccessMessage(`Offer accepted! Added ${prev.product.title} to cart for ${formatCurrency(cartItem.price, prev.product.currency)}`);
+              setTimeout(() => setSuccessMessage(null), 5000);
+            } catch (error) {
+              console.error('Failed to add to cart:', error);
+            }
+          }
+          
+          return updatedChat;
+        });
         setNewMessage('');
         setOfferAmount('');
+      } else if (response.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to send message');
       }
     } catch (error) {
       console.error('Error sending message:', error);
+      setError('Network error. Please check your connection.');
     }
     setLoading(false);
   };
@@ -337,196 +327,245 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
   if (!isOpen) return null;
 
   return (
-    <div style={overlayStyle} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div style={containerStyle}>
-        <div style={headerStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div className={styles.chatInfo}>
             {chat ? (
               <>
                 <img 
-                  src={chat.product.images[0] || '/placeholder-image.jpg'} 
+                  src={chat.product.images[0] || '/placeholder-product.svg'} 
                   alt={chat.product.title}
-                  style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
+                  className={styles.productThumbnail}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder-product.svg';
+                  }}
                 />
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{chat.product.title}</h3>
-                  <p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#64748b' }}>
+                <div className={styles.productDetails}>
+                  <h3 className={styles.productTitle}>{chat.product.title}</h3>
+                  <p className={styles.originalPrice}>
                     Original: {formatCurrency(chat.product.price, chat.product.currency)}
                   </p>
                   {chat.currentOffer && (
-                    <p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#059669', fontWeight: 600 }}>
+                    <p className={styles.currentOffer}>
                       Current Offer: {formatCurrency(chat.currentOffer, chat.product.currency)}
                     </p>
                   )}
-                  <p style={{ margin: '0.25rem 0', fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: '12px', backgroundColor: '#dcfce7', color: '#166534', display: 'inline-block' }}>
-                    Status: {chat.status}
-                  </p>
+                  <span className={`${styles.status} ${styles[chat.status]}`}>
+                    {chat.status}
+                  </span>
                 </div>
               </>
             ) : (
-              <h3 style={{ margin: 0 }}>Start Bargaining</h3>
+              <h3 className={styles.startTitle}>Start Bargaining</h3>
             )}
           </div>
-          <button 
-            onClick={onClose} 
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              fontSize: '1.5rem', 
-              cursor: 'pointer',
-              padding: '0.25rem',
-              borderRadius: '4px'
-            }}
-          >
-            ×
+          <button onClick={onClose} className={styles.closeBtn}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
         </div>
 
-        <div style={bodyStyle}>
+        {/* Connection Status */}
+        {connectionStatus === 'connecting' && (
+          <div className={styles.connectionStatus}>
+            <div className={styles.spinner}></div>
+            Connecting to chat...
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className={styles.errorMessage}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            {error}
+          </div>
+        )}
+
+        {/* Success Display */}
+        {successMessage && (
+          <div className={styles.successMessage}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22,4 12,14.01 9,11.01"></polyline>
+            </svg>
+            {successMessage}
+          </div>
+        )}
+
+        {/* Body */}
+        <div className={styles.body}>
           {!chat && productId ? (
-            <div style={{ padding: '2rem', textAlign: 'center' }}>
-              <h4 style={{ marginBottom: '1.5rem' }}>Start Bargaining</h4>
-              <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Your Offer:</label>
-                <input
-                  type="number"
-                  value={offerAmount}
-                  onChange={(e) => setOfferAmount(e.target.value ? parseFloat(e.target.value) : '')}
-                  placeholder="Enter your offer amount"
-                  min="0"
-                  step="0.01"
-                  style={{ ...inputStyle, marginRight: 0, width: '100%' }}
-                />
+            <div className={styles.startBargaining}>
+              <div className={styles.startHeader}>
+                <h4>Make Your Offer</h4>
+                <p>Start negotiating with the seller</p>
               </div>
-              <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Message (optional):</label>
+              
+              <div className={styles.offerInput}>
+                <label>Your Offer Amount</label>
+                <div className={styles.inputGroup}>
+                  <span className={styles.currencySymbol}>$</span>
+                  <input
+                    type="number"
+                    value={offerAmount}
+                    onChange={(e) => setOfferAmount(e.target.value ? parseFloat(e.target.value) : '')}
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                    className={styles.offerInputField}
+                  />
+                </div>
+              </div>
+              
+              <div className={styles.messageInput}>
+                <label>Message (Optional)</label>
                 <textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Add a message with your offer..."
                   rows={3}
-                  style={{ ...inputStyle, marginRight: 0, width: '100%', height: 'auto', minHeight: '80px' }}
+                  className={styles.messageTextarea}
                 />
               </div>
+              
               <button 
                 onClick={startBargainChat} 
                 disabled={!offerAmount || isStarting}
-                style={{
-                  ...buttonStyle,
-                  opacity: (!offerAmount || isStarting) ? 0.6 : 1,
-                  cursor: (!offerAmount || isStarting) ? 'not-allowed' : 'pointer'
-                }}
+                className={`${styles.startBtn} ${(!offerAmount || isStarting) ? styles.disabled : ''}`}
               >
-                {isStarting ? 'Starting...' : 'Send Offer'}
+                {isStarting ? (
+                  <>
+                    <div className={styles.spinner}></div>
+                    Starting...
+                  </>
+                ) : (
+                  'Send Offer'
+                )}
               </button>
             </div>
           ) : (
             <>
-              <div style={messagesStyle}>
-                {messages.map((message, index) => {
-                  const isFromUser = message.senderType === getUserType();
-                  const messageStyleToUse = message.messageType.includes('offer') 
-                    ? priceOfferStyle 
-                    : isFromUser 
-                      ? buyerMessageStyle 
-                      : sellerMessageStyle;
-                  
-                  return (
-                    <div 
-                      key={message._id || index}
-                      style={{
-                        display: 'flex',
-                        justifyContent: isFromUser ? 'flex-end' : 'flex-start',
-                        marginBottom: '1rem'
-                      }}
-                    >
-                      <div style={messageStyleToUse}>
-                        <p style={{ margin: 0 }}>{message.message}</p>
-                        {message.priceOffer && (
-                          <div style={{ fontSize: '1.125rem', fontWeight: 'bold', marginTop: '0.25rem' }}>
-                            {formatCurrency(message.priceOffer, chat?.product.currency)}
-                          </div>
-                        )}
-                        <small style={{ fontSize: '0.75rem', opacity: 0.7, display: 'block', marginTop: '0.25rem' }}>
-                          {formatTimestamp(message.timestamp)}
-                        </small>
+              {/* Messages */}
+              <div className={styles.messagesContainer}>
+                {loading && !messages.length ? (
+                  <div className={styles.loadingMessages}>
+                    <div className={styles.spinner}></div>
+                    Loading messages...
+                  </div>
+                ) : (
+                  messages.map((message, index) => {
+                    const isFromUser = message.senderType === getUserType();
+                    const messageClass = `${styles.message} ${isFromUser ? styles.buyer : styles.seller} ${styles[message.messageType]}`;
+                    
+                    return (
+                      <div key={message._id || index} className={messageClass}>
+                        <div className={styles.messageContent}>
+                          <p>{message.message}</p>
+                          {message.priceOffer && (
+                            <div className={styles.priceOffer}>
+                              {formatCurrency(message.priceOffer, chat?.product.currency)}
+                            </div>
+                          )}
+                          <small className={styles.timestamp}>
+                            {formatTimestamp(message.timestamp)}
+                          </small>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Chat Actions */}
               {canMakeOffer() && (
-                <div style={{ padding: '1rem', borderTop: '1px solid #e2e8f0', backgroundColor: 'white' }}>
-                  {getUserType() === 'seller' && chat?.currentOffer && (
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', justifyContent: 'center' }}>
+                <div className={styles.chatActions}>
+                  {/* Show accept/reject buttons for both buyer and seller when there's a current offer */}
+                  {chat?.currentOffer && chat.status === 'active' && (
+                    <div className={styles.offerActions}>
                       <button 
                         onClick={() => sendMessage('accept_offer')} 
-                        style={{ 
-                          ...buttonStyle, 
-                          backgroundColor: '#10b981',
-                          padding: '0.5rem 1rem' 
-                        }}
+                        className={`${styles.acceptBtn} ${loading ? styles.disabled : ''}`}
+                        disabled={loading}
                       >
-                        Accept Offer
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="20,6 9,17 4,12"></polyline>
+                        </svg>
+                        Accept Offer ({formatCurrency(chat.currentOffer, chat.product.currency)})
                       </button>
                       <button 
                         onClick={() => sendMessage('reject_offer')} 
-                        style={{ 
-                          ...buttonStyle, 
-                          backgroundColor: '#ef4444',
-                          padding: '0.5rem 1rem' 
-                        }}
+                        className={`${styles.rejectBtn} ${loading ? styles.disabled : ''}`}
+                        disabled={loading}
                       >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                         Reject Offer
                       </button>
                     </div>
                   )}
                   
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                    <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Type a message..."
-                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                      style={inputStyle}
-                    />
-                    <button 
-                      onClick={() => sendMessage()} 
-                      disabled={loading || !newMessage.trim()}
-                      style={{
-                        ...buttonStyle,
-                        opacity: (loading || !newMessage.trim()) ? 0.6 : 1,
-                        cursor: (loading || !newMessage.trim()) ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      Send
-                    </button>
-                  </div>
-                  
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <input
-                      type="number"
-                      value={offerAmount}
-                      onChange={(e) => setOfferAmount(e.target.value ? parseFloat(e.target.value) : '')}
-                      placeholder="Counter offer amount"
-                      min="0"
-                      step="0.01"
-                      style={inputStyle}
-                    />
-                    <button 
-                      onClick={() => offerAmount && sendMessage('counter_offer', Number(offerAmount))} 
-                      disabled={loading || !offerAmount}
-                      style={{
-                        ...warningButtonStyle,
-                        opacity: (loading || !offerAmount) ? 0.6 : 1,
-                        cursor: (loading || !offerAmount) ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      Counter Offer
-                    </button>
+                  <div className={styles.messageForm}>
+                    <div className={styles.inputRow}>
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type a message..."
+                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                        className={styles.messageInput}
+                        disabled={loading}
+                      />
+                      <button 
+                        onClick={() => sendMessage()} 
+                        disabled={loading || !newMessage.trim()}
+                        className={`${styles.sendBtn} ${(loading || !newMessage.trim()) ? styles.disabled : ''}`}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="22" y1="2" x2="11" y2="13"></line>
+                          <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    <div className={styles.offerRow}>
+                      <div className={styles.inputGroup}>
+                        <span className={styles.currencySymbol}>$</span>
+                        <input
+                          type="number"
+                          value={offerAmount}
+                          onChange={(e) => setOfferAmount(e.target.value ? parseFloat(e.target.value) : '')}
+                          placeholder="Counter offer amount"
+                          min="0"
+                          step="0.01"
+                          className={styles.offerInputField}
+                          disabled={loading}
+                        />
+                      </div>
+                      <button 
+                        onClick={() => offerAmount && sendMessage('counter_offer', Number(offerAmount))} 
+                        disabled={loading || !offerAmount}
+                        className={`${styles.offerBtn} ${(loading || !offerAmount) ? styles.disabled : ''}`}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                          <path d="M2 17l10 5 10-5"></path>
+                          <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                        Counter Offer
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

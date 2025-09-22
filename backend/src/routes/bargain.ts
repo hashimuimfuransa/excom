@@ -11,18 +11,25 @@ const authenticateUser = async (req: any, res: any, next: any) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     if (!token) {
+      console.log('No token provided in bargain request');
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
-    const user = await User.findById(decoded.userId);
+    console.log('Bargain auth - Token received:', token.substring(0, 20) + '...');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev') as any;
+    console.log('Bargain auth - Decoded token:', { sub: decoded.sub, role: decoded.role });
+    
+    const user = await User.findById(decoded.sub);
     if (!user) {
+      console.log('Bargain auth - User not found for ID:', decoded.sub);
       return res.status(401).json({ message: 'Invalid token' });
     }
 
+    console.log('Bargain auth - User found:', { id: user._id, email: user.email, role: user.role });
     req.user = user;
     next();
   } catch (error) {
+    console.log('Bargain auth - Token verification failed:', error);
     return res.status(401).json({ message: 'Invalid token' });
   }
 };
@@ -32,6 +39,13 @@ router.post('/start', authenticateUser, async (req: any, res: any) => {
   try {
     const { productId, initialOffer, message } = req.body;
     const buyerId = req.user._id;
+    
+    console.log('Bargain start request:', { 
+      userId: buyerId, 
+      userRole: req.user.role, 
+      productId, 
+      initialOffer 
+    });
 
     // Check if product exists and bargaining is enabled
     const product = await Product.findById(productId).populate('seller');
@@ -199,6 +213,28 @@ router.post('/chat/:chatId/message', authenticateUser, async (req: any, res: any
     if (messageType === 'accept_offer') {
       chat.status = 'accepted';
       chat.finalPrice = chat.currentOffer;
+      
+      // Create order for the accepted offer
+      try {
+        const Order = require('../models/Order').default;
+        const order = new Order({
+          buyer: chat.buyer._id,
+          items: [{
+            product: chat.product._id,
+            quantity: 1,
+            price: chat.currentOffer,
+            vendor: chat.seller._id.toString()
+          }],
+          total: chat.currentOffer,
+          currency: chat.product.currency || 'USD',
+          status: 'pending'
+        });
+        
+        await order.save();
+        console.log('Order created for accepted bargain:', order._id);
+      } catch (orderError) {
+        console.error('Failed to create order for accepted bargain:', orderError);
+      }
     }
 
     // Handle offer rejection

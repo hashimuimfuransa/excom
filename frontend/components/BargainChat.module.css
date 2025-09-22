@@ -1,191 +1,349 @@
-.bargain-chat-overlay {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.bargain-chat-container {
+.container {
   background: white;
   width: 90%;
   max-width: 600px;
-  height: 80%;
-  max-height: 700px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  height: 85%;
+  max-height: 800px;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.bargain-chat-header {
-  padding: 1rem;
+.header {
+  padding: 1.5rem;
   border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
-.chat-info {
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+}
+
+.chatInfo {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.product-thumbnail {
+.productThumbnail {
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 2px solid #e2e8f0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
 }
 
-.chat-info h3 {
-  margin: 0 0 0.25rem 0;
+.productThumbnail:hover {
+  transform: scale(1.05);
+}
+
+.productDetails {
+  flex: 1;
+}
+
+.productTitle {
+  margin: 0 0 0.5rem 0;
   font-size: 1.1rem;
   color: #1e293b;
-}
-
-.original-price {
-  margin: 0.125rem 0;
-  font-size: 0.875rem;
-  color: #64748b;
-}
-
-.current-offer {
-  margin: 0.125rem 0;
-  font-size: 0.875rem;
-  color: #059669;
   font-weight: 600;
 }
 
-.status {
-  margin: 0.125rem 0;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
+.startTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.originalPrice {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: #64748b;
   font-weight: 500;
+}
+
+.currentOffer {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 600;
+  background: #dcfce7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.status {
+  margin: 0.25rem 0;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
   text-transform: capitalize;
+  display: inline-block;
+  letter-spacing: 0.025em;
 }
 
 .status.active {
-  background: #dcfce7;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
   color: #166534;
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
 }
 
 .status.accepted {
-  background: #dbeafe;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
   color: #1e40af;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 .status.rejected,
 .status.closed {
-  background: #fee2e2;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
   color: #991b1b;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
-.close-btn {
+.closeBtn {
   background: none;
   border: none;
-  font-size: 1.5rem;
   cursor: pointer;
   color: #64748b;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.2s;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.close-btn:hover {
+.closeBtn:hover {
   background: #f1f5f9;
   color: #334155;
+  transform: scale(1.1);
 }
 
-.bargain-chat-body {
+.connectionStatus {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.errorMessage {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #991b1b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.successMessage {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #166534;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 1px solid #e2e8f0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.body {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.start-bargaining {
+.startBargaining {
   padding: 2rem;
   text-align: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
-.start-bargaining h4 {
-  margin: 0 0 1.5rem 0;
+.startHeader {
+  margin-bottom: 2rem;
+}
+
+.startHeader h4 {
+  margin: 0 0 0.5rem 0;
   color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
-.offer-input,
-.message-input {
-  margin-bottom: 1rem;
+.startHeader p {
+  margin: 0;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.offerInput,
+.messageInput {
+  margin-bottom: 1.5rem;
   text-align: left;
 }
 
-.offer-input label,
-.message-input label {
+.offerInput label,
+.messageInput label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
   color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.offer-input input,
-.message-input textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+.inputGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currencySymbol {
+  position: absolute;
+  left: 1rem;
+  color: #64748b;
+  font-weight: 600;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  z-index: 1;
 }
 
-.offer-input input:focus,
-.message-input textarea:focus {
+.offerInputField {
+  width: 100%;
+  padding: 1rem 1rem 1rem 2.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.offerInputField:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
 }
 
-.start-btn {
-  background: #3b82f6;
+.messageTextarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.messageTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.startBtn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 160px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.start-btn:hover:not(:disabled) {
-  background: #2563eb;
+.startBtn:hover:not(.disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
-.start-btn:disabled {
+.startBtn.disabled {
   background: #9ca3af;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.messages-container {
+.messagesContainer {
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
-  background: #fafafa;
+  background: linear-gradient(135deg, #fafafa 0%, #f8fafc 100%);
+  scroll-behavior: smooth;
+}
+
+.loadingMessages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  padding: 2rem;
 }
 
 .message {
   margin-bottom: 1rem;
   display: flex;
   align-items: flex-end;
+  animation: slideIn 0.3s ease-out;
 }
 
 .message.buyer {
@@ -196,193 +354,313 @@
   justify-content: flex-start;
 }
 
-.message-content {
+.messageContent {
   max-width: 70%;
-  padding: 0.75rem 1rem;
-  border-radius: 18px;
+  padding: 0.875rem 1.125rem;
+  border-radius: 20px;
   position: relative;
-}
-
-.message.buyer .message-content {
-  background: #3b82f6;
-  color: white;
-  border-bottom-right-radius: 4px;
-}
-
-.message.seller .message-content {
-  background: #f1f5f9;
-  color: #1e293b;
-  border-bottom-left-radius: 4px;
-}
-
-.message.price_offer .message-content,
-.message.counter_offer .message-content {
-  border: 2px solid #f59e0b;
-  background: #fffbeb;
-  color: #92400e;
-}
-
-.message.accept_offer .message-content {
-  border: 2px solid #10b981;
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.message.reject_offer .message-content {
-  border: 2px solid #ef4444;
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.message-content p {
-  margin: 0 0 0.25rem 0;
   word-wrap: break-word;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.price-offer {
+.message.buyer .messageContent {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+
+.message.seller .messageContent {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: #1e293b;
+  border-bottom-left-radius: 6px;
+}
+
+.message.price_offer .messageContent,
+.message.counter_offer .messageContent {
+  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  color: #92400e;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.message.accept_offer .messageContent {
+  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  color: #047857;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.message.reject_offer .messageContent {
+  border: 2px solid #ef4444;
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+  color: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.messageContent p {
+  margin: 0 0 0.5rem 0;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+.priceOffer {
   font-weight: 700;
-  font-size: 1.125rem;
-  margin: 0.25rem 0;
+  font-size: 1.25rem;
+  margin: 0.5rem 0;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
 }
 
 .timestamp {
   font-size: 0.75rem;
   opacity: 0.7;
+  margin-top: 0.25rem;
+  display: block;
 }
 
-.chat-actions {
-  padding: 1rem;
+.chatActions {
+  padding: 1.5rem;
   border-top: 1px solid #e2e8f0;
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 }
 
-.offer-actions {
+.offerActions {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   justify-content: center;
 }
 
-.accept-btn {
-  background: #10b981;
+.acceptBtn {
+  background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-.accept-btn:hover {
-  background: #059669;
+.acceptBtn:hover:not(.disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
-.reject-btn {
-  background: #ef4444;
+.rejectBtn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-.reject-btn:hover {
-  background: #dc2626;
+.rejectBtn:hover:not(.disabled) {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
 }
 
-.message-form {
+.messageForm {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
-.input-row,
-.offer-row {
+.inputRow,
+.offerRow {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-items: center;
 }
 
-.input-row input,
-.offer-row input {
+.messageInput {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: white;
 }
 
-.input-row input:focus,
-.offer-row input:focus {
+.messageInput:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
 }
 
-.input-row button,
-.offer-row button {
-  background: #3b82f6;
+.sendBtn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.sendBtn:hover:not(.disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.offerBtn {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
-.input-row button:hover:not(:disabled),
-.offer-row button:hover:not(:disabled) {
-  background: #2563eb;
+.offerBtn:hover:not(.disabled) {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
-.input-row button:disabled,
-.offer-row button:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
+.disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.offer-btn {
-  background: #f59e0b !important;
+/* Spinner Animation */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.offer-btn:hover:not(:disabled) {
-  background: #d97706 !important;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDown {
+  from { 
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .bargain-chat-container {
+  .container {
     width: 95%;
     height: 90%;
     max-height: none;
+    border-radius: 16px;
   }
   
-  .chat-info {
-    gap: 0.5rem;
+  .header {
+    padding: 1rem;
   }
   
-  .product-thumbnail {
+  .chatInfo {
+    gap: 0.75rem;
+  }
+  
+  .productThumbnail {
     width: 50px;
     height: 50px;
   }
   
-  .message-content {
+  .messageContent {
     max-width: 85%;
   }
   
-  .input-row,
-  .offer-row {
+  .inputRow,
+  .offerRow {
     flex-direction: column;
     align-items: stretch;
   }
   
-  .input-row button,
-  .offer-row button {
+  .sendBtn,
+  .offerBtn {
     width: 100%;
+  }
+  
+  .offerActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .acceptBtn,
+  .rejectBtn {
+    width: 100%;
+  }
+  
+  .startBargaining {
+    padding: 1.5rem;
+  }
+  
+  .chatActions {
+    padding: 1rem;
   }
 }

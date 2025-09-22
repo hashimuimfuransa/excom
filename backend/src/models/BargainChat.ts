@@ -25,7 +25,19 @@ export interface IBargainChat extends Document {
 const BargainMessageSchema = new Schema<IBargainMessage>({
   sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   senderType: { type: String, enum: ['buyer', 'seller'], required: true },
-  message: { type: String, required: true },
+  message: { 
+    type: String, 
+    required: function() {
+      // Message is required for text messages, but optional for accept/reject offers
+      return this.messageType === 'text' || this.messageType === 'price_offer' || this.messageType === 'counter_offer';
+    },
+    default: function() {
+      // Provide default messages for accept/reject offers
+      if (this.messageType === 'accept_offer') return 'Offer accepted!';
+      if (this.messageType === 'reject_offer') return 'Offer rejected.';
+      return '';
+    }
+  },
   messageType: { 
     type: String, 
     enum: ['text', 'price_offer', 'counter_offer', 'accept_offer', 'reject_offer'], 
