@@ -7,9 +7,10 @@ interface User {
   firstName: string;
   lastName: string;
   name: string;
-  role: 'user' | 'seller' | 'admin';
+  role: 'user' | 'seller' | 'admin' | 'affiliate';
   avatar?: string;
   phone?: string;
+  affiliateOnboardingCompleted?: boolean;
 }
 
 interface AuthContextType {

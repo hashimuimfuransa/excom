@@ -11,7 +11,7 @@ router.post('/register', async (req, res) => {
   const exists = await User.findOne({ email });
   if (exists) return res.status(400).json({ message: 'Email already in use' });
   const passwordHash = password ? await bcrypt.hash(password, 10) : undefined;
-  const safeRole = role === 'seller' ? 'seller' : 'buyer';
+  const safeRole = ['buyer', 'seller', 'affiliate'].includes(role || '') ? role : 'buyer';
   console.log('User registration:', { email, role: safeRole });
   const user = await User.create({ name, email, passwordHash, role: safeRole });
   res.json({ id: user.id });
@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
 
 // Get current user info from token
 router.get('/me', requireAuth, async (req: AuthRequest, res) => {
-  const user = await User.findById(req.user!.sub).select('name firstName lastName email role phone avatar');
+  const user = await User.findById(req.user!.sub).select('name firstName lastName email role phone avatar affiliateOnboardingCompleted');
   if (!user) return res.status(404).json({ message: 'User not found' });
   
   // Split name into firstName and lastName if they don't exist
@@ -43,6 +43,20 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
   }
   
   res.json(user);
+});
+
+// Check affiliate onboarding status
+router.get('/affiliate-status', requireAuth, async (req: AuthRequest, res) => {
+  const user = await User.findById(req.user!.sub).select('role affiliateOnboardingCompleted');
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  
+  if (user.role !== 'affiliate') {
+    return res.status(400).json({ message: 'User is not an affiliate' });
+  }
+  
+  res.json({ 
+    affiliateOnboardingCompleted: user.affiliateOnboardingCompleted || false 
+  });
 });
 
 export default router;

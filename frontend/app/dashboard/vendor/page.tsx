@@ -18,7 +18,8 @@ import {
   Analytics,
   Edit,
   Chat as ChatIcon,
-  MonetizationOn as BargainIcon
+  MonetizationOn as BargainIcon,
+  People as AffiliateIcon
 } from '@mui/icons-material';
 import { Fab } from '@mui/material';
 import { apiGet, apiPost } from '@utils/api';
@@ -311,6 +312,24 @@ export default function VendorDashboardPage() {
               }}
             >
               {t('vendor.bargainingHub')}
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button 
+              href="/dashboard/vendor/affiliate" 
+              variant="contained" 
+              fullWidth
+              startIcon={<AffiliateIcon />}
+              sx={{ 
+                bgcolor: 'rgba(76,175,80,0.3)', 
+                '&:hover': { bgcolor: 'rgba(76,175,80,0.4)' },
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(76,175,80,0.4)',
+                color: '#fff',
+                fontWeight: 'bold'
+              }}
+            >
+              Affiliate Management
             </Button>
           </Grid>
         </Grid>
@@ -660,6 +679,30 @@ export default function VendorDashboardPage() {
                       }}
                     >
                       {t('vendor.analytics')}
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<AffiliateIcon />}
+                      href="/dashboard/vendor/affiliate"
+                      sx={{ 
+                        borderRadius: 2, 
+                        py: 1.5,
+                        flexDirection: 'column',
+                        height: '80px',
+                        color: 'success.main',
+                        borderColor: 'success.main',
+                        '&:hover': {
+                          borderColor: 'success.dark',
+                          bgcolor: 'success.light',
+                          color: 'success.dark'
+                        },
+                        '& .MuiButton-startIcon': { marginRight: 0, marginBottom: 1 }
+                      }}
+                    >
+                      Affiliate Management
                     </Button>
                   </Grid>
                 </Grid>

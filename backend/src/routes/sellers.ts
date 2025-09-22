@@ -3,6 +3,7 @@ import Product from '../models/Product';
 import Store from '../models/Store';
 import Order from '../models/Order';
 import BargainChat from '../models/BargainChat';
+import AffiliateProgram from '../models/AffiliateProgram';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
@@ -56,6 +57,47 @@ router.post('/stores', requireAuth, async (req: AuthRequest, res) => {
     approved: false,
     isActive: true
   });
+
+  // Automatically create an affiliate program for the store
+  try {
+    await AffiliateProgram.create({
+      vendor: sellerId,
+      store: doc._id,
+      isActive: true,
+      globalSettings: {
+        enabled: true,
+        defaultCommissionRate: 8, // Default 8% commission
+        defaultCommissionType: 'percentage',
+        minPayoutAmount: 50,
+        payoutFrequency: 'monthly',
+        autoApproveAffiliates: true, // Auto-approve affiliates by default
+        requireSocialMediaVerification: false
+      },
+      commissionRules: {
+        productCategories: [{
+          category: category || 'General',
+          commissionRate: 8,
+          commissionType: 'percentage'
+        }]
+      },
+      requirements: {
+        minFollowers: 100,
+        minEngagementRate: 2.0,
+        requiredPlatforms: ['instagram'],
+        contentGuidelines: 'Promote products authentically and follow FTC guidelines'
+      },
+      terms: {
+        commissionStructure: 'Percentage-based commission on all sales',
+        paymentTerms: 'Monthly payouts via bank transfer or PayPal',
+        contentRequirements: 'Must disclose affiliate relationship in all promotional content',
+        prohibitedPractices: 'No spam, misleading claims, or unauthorized use of brand assets'
+      }
+    });
+  } catch (error) {
+    console.error('Error creating affiliate program:', error);
+    // Don't fail store creation if affiliate program creation fails
+  }
+
   const withOwner = await Store.findById(doc._id).populate('owner', 'name email role');
   res.status(201).json(withOwner);
 });
@@ -258,6 +300,71 @@ router.get('/public/stores/:id', async (req: AuthRequest, res) => {
     res.json(store);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch store' });
+  }
+});
+
+// Public endpoint to create affiliate programs for existing stores (for setup)
+router.post('/create-affiliate-programs', async (req, res) => {
+  try {
+
+    // Find all stores without affiliate programs
+    const stores = await Store.find({ approved: true, isActive: true });
+    const createdPrograms = [];
+
+    for (const store of stores) {
+      // Check if affiliate program already exists
+      const existingProgram = await AffiliateProgram.findOne({ store: store._id });
+      if (existingProgram) continue;
+
+      // Create affiliate program for this store
+      const program = await AffiliateProgram.create({
+        vendor: store.owner,
+        store: store._id,
+        isActive: true,
+        globalSettings: {
+          enabled: true,
+          defaultCommissionRate: 8,
+          defaultCommissionType: 'percentage',
+          minPayoutAmount: 50,
+          payoutFrequency: 'monthly',
+          autoApproveAffiliates: true,
+          requireSocialMediaVerification: false
+        },
+        commissionRules: {
+          productCategories: [{
+            category: store.category || 'General',
+            commissionRate: 8,
+            commissionType: 'percentage'
+          }]
+        },
+        requirements: {
+          minFollowers: 100,
+          minEngagementRate: 2.0,
+          requiredPlatforms: ['instagram'],
+          contentGuidelines: 'Promote products authentically and follow FTC guidelines'
+        },
+        terms: {
+          commissionStructure: 'Percentage-based commission on all sales',
+          paymentTerms: 'Monthly payouts via bank transfer or PayPal',
+          contentRequirements: 'Must disclose affiliate relationship in all promotional content',
+          prohibitedPractices: 'No spam, misleading claims, or unauthorized use of brand assets'
+        }
+      });
+
+      createdPrograms.push({
+        storeId: store._id,
+        storeName: store.name,
+        programId: program._id
+      });
+    }
+
+    res.json({
+      message: `Created ${createdPrograms.length} affiliate programs`,
+      createdPrograms
+    });
+  } catch (error) {
+    console.error('Error creating affiliate programs:', error);
+    res.status(500).json({ message: 'Failed to create affiliate programs' });
   }
 });
 

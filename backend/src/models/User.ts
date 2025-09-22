@@ -8,7 +8,7 @@ export interface IUser extends Document {
   passwordHash?: string;
   oauthProvider?: 'google' | 'facebook' | 'apple';
   oauthId?: string;
-  role: 'buyer' | 'seller' | 'admin';
+  role: 'buyer' | 'seller' | 'admin' | 'affiliate';
   phone?: string;
   dateOfBirth?: Date;
   gender?: 'male' | 'female' | 'other';
@@ -17,6 +17,7 @@ export interface IUser extends Document {
   address?: string;
   zipCode?: string;
   avatar?: string;
+  affiliateOnboardingCompleted?: boolean;
   preferences?: {
     language: string;
     currency: string;
@@ -36,7 +37,7 @@ const UserSchema = new Schema<IUser>({
   passwordHash: String,
   oauthProvider: String,
   oauthId: String,
-  role: { type: String, enum: ['buyer', 'seller', 'admin'], default: 'buyer' },
+  role: { type: String, enum: ['buyer', 'seller', 'admin', 'affiliate'], default: 'buyer' },
   phone: String,
   dateOfBirth: Date,
   gender: { type: String, enum: ['male', 'female', 'other'] },
@@ -45,6 +46,7 @@ const UserSchema = new Schema<IUser>({
   address: String,
   zipCode: String,
   avatar: String,
+  affiliateOnboardingCompleted: { type: Boolean, default: false },
   preferences: {
     language: { type: String, default: 'en' },
     currency: { type: String, default: 'USD' },

@@ -27,7 +27,8 @@ import {
   Settings,
   AttachMoney,
   Logout,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Group as AffiliateIcon
 } from '@mui/icons-material';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -71,6 +72,11 @@ const menuItems = [
     text: 'Earnings',
     icon: <AttachMoney />,
     path: '/dashboard/admin/earnings'
+  },
+  {
+    text: 'Affiliate Management',
+    icon: <AffiliateIcon />,
+    path: '/dashboard/admin/affiliate'
   },
   {
     text: 'Analytics',

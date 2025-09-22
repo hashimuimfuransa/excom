@@ -23,6 +23,11 @@ import bookingsRoutes from './routes/bookings';
 import categoriesRoutes from './routes/categories';
 import usersRoutes from './routes/users';
 import bargainRoutes from './routes/bargain';
+import affiliateRoutes from './routes/affiliate';
+import vendorAffiliateRoutes from './routes/vendor-affiliate';
+import adminAffiliateRoutes from './routes/admin-affiliate';
+import affiliateAiRoutes from './routes/affiliate-ai';
+import affiliateGamificationRoutes from './routes/affiliate-gamification';
 
 console.log('Environment variables loaded:', {
   PORT: process.env.PORT,
@@ -64,6 +69,11 @@ app.use('/api/bookings', bookingsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/bargain', bargainRoutes);
+app.use('/api/affiliate', affiliateRoutes);
+app.use('/api/vendor-affiliate', vendorAffiliateRoutes);
+app.use('/api/admin/affiliate', adminAffiliateRoutes);
+app.use('/api/affiliate-ai', affiliateAiRoutes);
+app.use('/api/affiliate-gamification', affiliateGamificationRoutes);
 
 const PORT = process.env.PORT || 4000;
 
