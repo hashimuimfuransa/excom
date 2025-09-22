@@ -22,12 +22,12 @@ export async function geminiChat(message: string, context?: any) {
 
     // Create product catalog for AI
     const productCatalog = allProducts.map(p => ({
-      id: p._id.toString(),
+      id: (p._id as any).toString(),
       title: p.title,
       description: p.description,
       price: p.price,
       category: p.category,
-      seller: p.seller?.name || 'ExCom Seller',
+      seller: (p.seller as any)?.name || 'ExCom Seller',
       keywords: `${p.title} ${p.description} ${p.category}`.toLowerCase()
     }));
 
@@ -138,9 +138,9 @@ export async function geminiSmartSearch(query: string, userId?: string) {
         
         // Analyze user's purchase patterns
         const purchasedItems = recentOrders.flatMap(order => order.items);
-        userPreferences.categories = [...new Set(purchasedItems.map(item => item.product.category))];
+        userPreferences.categories = Array.from(new Set(purchasedItems.map(item => (item.product as any).category)));
         
-        const prices = purchasedItems.map(item => item.product.price);
+        const prices = purchasedItems.map(item => (item.product as any).price);
         if (prices.length > 0) {
           userPreferences.priceRange = {
             min: Math.min(...prices),
@@ -148,7 +148,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
           };
         }
         
-        userPreferences.brands = [...new Set(purchasedItems.map(item => item.product.seller?.name).filter(Boolean))];
+        userPreferences.brands = Array.from(new Set(purchasedItems.map(item => (item.product as any).seller?.name).filter(Boolean)));
         
         userContext = `User Profile: ${user?.name || 'Anonymous'}
         Purchase History: ${purchasedItems.length} items bought
@@ -156,7 +156,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
         Price Range Preference: $${userPreferences.priceRange.min} - $${userPreferences.priceRange.max}
         Favorite Brands: ${userPreferences.brands.join(', ') || 'No brand preference'}
         Recent Purchases: ${purchasedItems.slice(0, 5).map(item => 
-          `${item.product.title} ($${item.product.price}) - ${item.product.category}`
+          `${(item.product as any).title} ($${(item.product as any).price}) - ${(item.product as any).category}`
         ).join('; ')}`;
       } catch (error) {
         console.error('Error getting user context:', error);
@@ -166,12 +166,12 @@ export async function geminiSmartSearch(query: string, userId?: string) {
 
     // Create comprehensive product context with more details
     const productContext = products.map(p => ({
-      id: p._id.toString(),
+      id: (p._id as any).toString(),
       title: p.title,
       description: p.description,
       price: p.price,
       category: p.category,
-      seller: p.seller?.name || 'Unknown',
+      seller: (p.seller as any)?.name || 'Unknown',
       keywords: `${p.title} ${p.description} ${p.category}`.toLowerCase(),
       // Add derived attributes for better matching
       priceCategory: p.price < 50 ? 'budget' : p.price < 200 ? 'mid-range' : 'premium'
@@ -252,7 +252,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
       
       // Validate that all recommended products exist
       const validRecommendations = parsedResult.recommendations.filter((rec: any) => 
-        products.some(p => p._id.toString() === rec.productId)
+        products.some(p => (p._id as any).toString() === rec.productId)
       );
       
       console.log(`AI Search: Generated ${validRecommendations.length} valid recommendations`);
@@ -273,7 +273,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
         const productText = `${p.title} ${p.description} ${p.category}`.toLowerCase();
         return searchTerms.some(term => productText.includes(term));
       }).slice(0, 8).map(p => ({
-        productId: p._id.toString(),
+        productId: (p._id as any).toString(),
         relevanceScore: 0.7,
         reason: `Product matches your search for "${query}"`
       }));
@@ -283,7 +283,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
         recommendations: fallbackResults,
         suggestions: [query, ...query.split(' ')],
         priceRange: { min: 0, max: 1000, recommended: "Based on available products" },
-        categories: [...new Set(products.slice(0, 20).map(p => p.category))],
+        categories: Array.from(new Set(products.slice(0, 20).map(p => p.category))),
         searchTips: ["Try more specific keywords", "Include brand names", "Specify your budget"],
         totalProductsSearched: products.length,
         fallbackUsed: true
@@ -298,7 +298,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
     return {
       intent: "Product search",
       recommendations: fallbackProducts.map(p => ({
-        productId: p._id.toString(),
+        productId: (p._id as any).toString(),
         relevanceScore: 0.5,
         reason: "Recommended product from our catalog"
       })),
@@ -342,16 +342,16 @@ export async function geminiRecommend(userId?: string) {
         const purchasedItems = recentOrders.flatMap(order => order.items);
         
         if (purchasedItems.length > 0) {
-          userProfile.categories = [...new Set(purchasedItems.map(item => item.product.category))];
-          const prices = purchasedItems.map(item => item.product.price);
+          userProfile.categories = Array.from(new Set(purchasedItems.map(item => (item.product as any).category)));
+          const prices = purchasedItems.map(item => (item.product as any).price);
           userProfile.avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
           userProfile.totalSpent = prices.reduce((sum, price) => sum + price, 0);
-          userProfile.preferredBrands = [...new Set(purchasedItems.map(item => item.product.seller?.name).filter(Boolean))];
+          userProfile.preferredBrands = Array.from(new Set(purchasedItems.map(item => (item.product as any).seller?.name).filter(Boolean)));
           userProfile.recentActivity = purchasedItems.slice(0, 10).map(item => ({
-            title: item.product.title,
-            category: item.product.category,
-            price: item.product.price,
-            description: item.product.description.substring(0, 100)
+            title: (item.product as any).title,
+            category: (item.product as any).category,
+            price: (item.product as any).price,
+            description: (item.product as any).description.substring(0, 100)
           }));
         }
         
@@ -378,14 +378,14 @@ export async function geminiRecommend(userId?: string) {
 
     // Create comprehensive product catalog
     const productCatalog = allProducts.map(p => ({
-      id: p._id.toString(),
+      id: (p._id as any).toString(),
       title: p.title,
       description: p.description,
       price: p.price,
       category: p.category,
-      seller: p.seller?.name || 'Unknown',
+      seller: (p.seller as any)?.name || 'Unknown',
       priceRange: p.price < 50 ? 'budget' : p.price < 200 ? 'mid-range' : 'premium',
-      keywords: `${p.title} ${p.description} ${p.category} ${p.seller?.name || ''}`.toLowerCase()
+      keywords: `${p.title} ${p.description} ${p.category} ${(p.seller as any)?.name || ''}`.toLowerCase()
     }));
 
     const recommendPrompt = `You are an advanced AI recommendation engine with deep learning capabilities. Analyze user behavior and product catalog to generate highly personalized product recommendations.
@@ -461,7 +461,7 @@ export async function geminiRecommend(userId?: string) {
       
       // Validate and fetch actual product data
       const validRecommendations = parsed.recommendations.filter((rec: any) => 
-        allProducts.some(p => p._id.toString() === rec.productId)
+        allProducts.some(p => (p._id as any).toString() === rec.productId)
       );
       
       const recommendedProducts = await Promise.all(
@@ -540,12 +540,12 @@ export async function geminiCompareProducts(productIds: string[]) {
     }
 
     const productData = products.map(p => ({
-      id: p._id,
+      id: (p._id as any),
       title: p.title,
       description: p.description,
       price: p.price,
       category: p.category,
-      seller: p.seller?.name
+      seller: (p.seller as any)?.name
     }));
 
     const comparePrompt = `You are a product comparison expert. Compare these products objectively and help users make informed decisions.
