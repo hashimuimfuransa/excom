@@ -55,8 +55,8 @@ function VendorSelectionSection({ selectedVendor, onVendorSelect }: VendorSelect
         if (searchTerm) params.append('search', searchTerm);
         if (selectedCategory) params.append('category', selectedCategory);
         
-        const data = await apiGet(`/affiliate/vendors?${params.toString()}`);
-        setVendors(data.vendors);
+        const data = await apiGet<{ vendors: Vendor[] }>(`/affiliate/vendors?${params.toString()}`);
+        setVendors(data.vendors || []);
       } catch (error) {
         console.error('Error fetching vendors:', error);
         setVendors([]);
