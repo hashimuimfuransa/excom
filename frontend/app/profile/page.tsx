@@ -47,7 +47,7 @@ import {
   TrendingUp as StatsIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@utils/auth.tsx';
+import { useAuth } from '@utils/auth';
 import { apiGet, apiPatch } from '@utils/api';
 
 interface UserProfile {

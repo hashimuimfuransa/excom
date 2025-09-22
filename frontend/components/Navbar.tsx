@@ -46,7 +46,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import NextLink from 'next/link';
 import { useCart } from '@utils/cart';
 import { useWishlist } from '@utils/wishlist';
-import { useAuth } from '@utils/auth.tsx';
+import { useAuth } from '@utils/auth';
 
 export default function Navbar() {
   const { user, logout: authLogout } = useAuth();

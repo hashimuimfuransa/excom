@@ -199,13 +199,13 @@ export default function CollectionDetailPage() {
       const bookingCartItem = {
         id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: 'booking' as const,
-        collectionId: collection?.id || '',
+        collectionId: collection?._id || '',
         title: `${collection?.title} - ${bookingData.roomType || 'Booking'}`,
         price: totalAmount,
-        image: collection?.images?.[0] || collection?.image,
+        image: collection?.images?.[0],
         bookingData: {
           ...bookingData,
-          collectionId: collection?.id
+          collectionId: collection?._id
         },
         createdAt: new Date().toISOString()
       };

@@ -148,10 +148,10 @@ export default function CartPage() {
                 alt={item.title}
                 sx={{ 
                   objectFit: 'cover',
-                  filter: hasRealImages([item.image]) ? 'none' : 'brightness(0.9) sepia(0.1)'
+                  filter: hasRealImages([item.image].filter(Boolean) as string[]) ? 'none' : 'brightness(0.9) sepia(0.1)'
                 }}
               />
-              {!hasRealImages([item.image]) && (
+              {!hasRealImages([item.image].filter(Boolean) as string[]) && (
                 <Chip
                   label="Stock"
                   size="small"
@@ -243,10 +243,10 @@ export default function CartPage() {
                 alt={item.title}
                 sx={{ 
                   objectFit: 'cover',
-                  filter: hasRealImages([item.image]) ? 'none' : 'brightness(0.9) sepia(0.1)'
+                  filter: hasRealImages([item.image].filter(Boolean) as string[]) ? 'none' : 'brightness(0.9) sepia(0.1)'
                 }}
               />
-              {!hasRealImages([item.image]) && (
+              {!hasRealImages([item.image].filter(Boolean) as string[]) && (
                 <Chip
                   label="Stock"
                   size="small"

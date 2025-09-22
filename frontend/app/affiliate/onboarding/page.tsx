@@ -596,7 +596,9 @@ export default function AffiliateOnboardingPage() {
       }
     `;
     document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
   const [error, setError] = useState<string | null>(null);
   
@@ -675,7 +677,7 @@ export default function AffiliateOnboardingPage() {
     try {
       const response = await apiPost("/affiliate/register", {
         ...formData,
-        userId: user?.id
+        userId: user?._id
       });
       
       if (response) {

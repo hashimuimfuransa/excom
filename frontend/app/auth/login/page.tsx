@@ -11,7 +11,7 @@ import {
 } from '@mui/icons-material';
 import NextLink from 'next/link';
 import { apiPost } from '@utils/api';
-import { useAuth } from '@utils/auth.tsx';
+import { useAuth } from '@utils/auth';
 import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {

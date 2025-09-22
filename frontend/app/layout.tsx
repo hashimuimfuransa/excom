@@ -1,7 +1,7 @@
 import React from 'react';
 import ThemeProviderClient from '../components/ThemeProviderClient';
 import I18nProvider from '../components/I18nProvider';
-import { AuthProvider } from '@utils/auth.tsx';
+import { AuthProvider } from '@utils/auth';
 import { NotificationProvider } from '@contexts/NotificationContext';
 import Navbar from '../components/Navbar';
 import { CssBaseline, Box } from '@mui/material';

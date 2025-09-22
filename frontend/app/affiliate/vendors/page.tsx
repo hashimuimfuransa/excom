@@ -56,8 +56,8 @@ export default function VendorSelectionPage() {
 
   const fetchVendors = async () => {
     try {
-      const response = await apiGet('/sellers');
-      setVendors(response);
+      const response = await apiGet<Vendor[]>('/sellers');
+      setVendors(response || []);
     } catch (error) {
       console.error('Error fetching vendors:', error);
     } finally {

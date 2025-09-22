@@ -387,46 +387,46 @@ export default function AIConcierge() {
             <Grid container spacing={3}>
               {recommendations.slice(0, 6).map((product) => (
                 <Grid item xs={12} sm={6} md={4} key={product._id}>
-                  <Card
-                    component={NextLink}
-                    href={`/product/${product._id}`}
-                    sx={{
-                      textDecoration: 'none',
-                      borderRadius: 3,
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 12px 40px rgba(0,0,0,0.15)'
-                      }
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={getMainImage(product.images, 'product', product._id)}
-                      alt={product.title}
-                    />
-                    <CardContent>
-                      <Typography variant="h6" fontWeight={700} mb={1} noWrap>
-                        {product.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" mb={2}>
-                        {product.description.substring(0, 80)}...
-                      </Typography>
-                      <Stack direction="row" alignItems="center" justifyContent="space-between">
-                        <Typography variant="h6" color="primary.main" fontWeight={700}>
-                          ${product.price.toFixed(2)}
+                  <NextLink href={`/product/${product._id}`} style={{ textDecoration: 'none' }}>
+                    <Card
+                      sx={{
+                        textDecoration: 'none',
+                        borderRadius: 3,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 12px 40px rgba(0,0,0,0.15)'
+                        }
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        height="200"
+                        image={getMainImage(product.images, 'product', product._id)}
+                        alt={product.title}
+                      />
+                      <CardContent>
+                        <Typography variant="h6" fontWeight={700} mb={1} noWrap>
+                          {product.title}
                         </Typography>
-                        <Chip
-                          label={product.category}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </Stack>
-                    </CardContent>
-                  </Card>
+                        <Typography variant="body2" color="text.secondary" mb={2}>
+                          {product.description.substring(0, 80)}...
+                        </Typography>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                          <Typography variant="h6" color="primary.main" fontWeight={700}>
+                            ${product.price.toFixed(2)}
+                          </Typography>
+                          <Chip
+                            label={product.category}
+                            size="small"
+                            variant="outlined"
+                          />
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </NextLink>
                 </Grid>
               ))}
             </Grid>
