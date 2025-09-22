@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  distDir: 'build',
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
@@ -15,10 +16,6 @@ const nextConfig = {
   },
   experimental: {
     typedRoutes: true
-  },
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'rw'],
   }
 };
 
