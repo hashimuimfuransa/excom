@@ -8,14 +8,14 @@ import {
   Select, MenuItem, IconButton, Tooltip, Tabs, Tab
 } from '@mui/material';
 import { 
-  Trophy, 
-  Medal, 
+  EmojiEvents, 
+  MilitaryTech, 
   Star,
   TrendingUp,
-  Users,
-  DollarSign,
-  Target,
-  EmojiEvents
+  People,
+  AttachMoney,
+  GpsFixed,
+  EmojiEvents as TrophyIcon
 } from '@mui/icons-material';
 import { apiGet } from '@utils/api';
 import { useTranslation } from 'react-i18next';
@@ -72,9 +72,9 @@ export default function AffiliateLeaderboardPage() {
   };
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy sx={{ color: 'gold', fontSize: 32 }} />;
-    if (rank === 2) return <Medal sx={{ color: 'silver', fontSize: 32 }} />;
-    if (rank === 3) return <Medal sx={{ color: '#CD7F32', fontSize: 32 }} />;
+    if (rank === 1) return <TrophyIcon sx={{ color: 'gold', fontSize: 32 }} />;
+    if (rank === 2) return <MilitaryTech sx={{ color: 'silver', fontSize: 32 }} />;
+    if (rank === 3) return <MilitaryTech sx={{ color: '#CD7F32', fontSize: 32 }} />;
     return (
       <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>
         <Typography variant="h6" fontWeight={700}>
@@ -255,7 +255,7 @@ export default function AffiliateLeaderboardPage() {
                   <Card sx={{ textAlign: 'center', p: 2 }}>
                     <CardContent>
                       <Avatar sx={{ bgcolor: 'primary.main', mx: 'auto', mb: 2 }}>
-                        <Users />
+                        <People />
                       </Avatar>
                       <Typography variant="h4" fontWeight={700}>
                         {data.totalAffiliates}
@@ -271,7 +271,7 @@ export default function AffiliateLeaderboardPage() {
                   <Card sx={{ textAlign: 'center', p: 2 }}>
                     <CardContent>
                       <Avatar sx={{ bgcolor: 'success.main', mx: 'auto', mb: 2 }}>
-                        <DollarSign />
+                        <AttachMoney />
                       </Avatar>
                       <Typography variant="h4" fontWeight={700}>
                         ${data.leaderboard.reduce((sum, entry) => sum + entry.totalEarnings, 0).toFixed(2)}
@@ -287,7 +287,7 @@ export default function AffiliateLeaderboardPage() {
                   <Card sx={{ textAlign: 'center', p: 2 }}>
                     <CardContent>
                       <Avatar sx={{ bgcolor: 'warning.main', mx: 'auto', mb: 2 }}>
-                        <Target />
+                        <GpsFixed />
                       </Avatar>
                       <Typography variant="h4" fontWeight={700}>
                         {data.leaderboard.reduce((sum, entry) => sum + entry.totalConversions, 0)}

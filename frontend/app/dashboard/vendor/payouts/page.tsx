@@ -20,7 +20,7 @@ import {
   Visibility as ViewIcon,
   AccountBalance,
   CreditCard,
-  PayPal,
+  Payment,
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import { apiGet, apiPost, apiPatch } from '@utils/api';
@@ -66,7 +66,7 @@ const statusColors = {
 
 const accountTypeIcons = {
   bank: <AccountBalance />,
-  paypal: <PayPal />,
+  paypal: <Payment />,
   stripe: <CreditCard />
 };
 

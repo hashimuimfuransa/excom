@@ -10,7 +10,7 @@ import {
 import { 
   PersonAdd,
   Instagram,
-  TikTok,
+  VideoLibrary,
   Facebook,
   Twitter,
   YouTube
@@ -157,7 +157,7 @@ export default function AffiliateRegisterPage() {
                     onChange={(e) => handleInputChange('socialMediaHandles.tiktok', e.target.value)}
                     placeholder="@yourusername"
                     InputProps={{
-                      startAdornment: <TikTok sx={{ mr: 1, color: 'text.secondary' }} />
+                      startAdornment: <VideoLibrary sx={{ mr: 1, color: 'text.secondary' }} />
                     }}
                   />
                 </Grid>
