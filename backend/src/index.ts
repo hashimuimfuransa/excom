@@ -38,27 +38,29 @@ console.log('Environment variables loaded:', {
 
 const app = express();
 const server = createServer(app);
+const allowedOrigins = [
+  'http://localhost:3000', 
+  'http://127.0.0.1:3000',
+  'https://excom-tyry.onrender.com',
+  'https://excom-ten.vercel.app',
+  process.env.FRONTEND_URL || 'https://excom-tyry.onrender.com'
+];
+
+// Add any additional origins from environment variable
+if (process.env.ADDITIONAL_ORIGINS) {
+  const additionalOrigins = process.env.ADDITIONAL_ORIGINS.split(',').map(origin => origin.trim());
+  allowedOrigins.push(...additionalOrigins);
+}
+
 const io = new Server(server, {
   cors: {
-    origin: [
-      'http://localhost:3000', 
-      'http://127.0.0.1:3000',
-      'https://excom-tyry.onrender.com',
-      'https://excom-ten.vercel.app',
-      process.env.FRONTEND_URL || 'https://excom-tyry.onrender.com'
-    ],
+    origin: allowedOrigins,
     credentials: true
   }
 });
 
 app.use(cors({
-  origin: [
-    'http://localhost:3000', 
-    'http://127.0.0.1:3000',
-    'https://excom-tyry.onrender.com',
-    'https://excom-ten.vercel.app',
-    process.env.FRONTEND_URL || 'https://excom-tyry.onrender.com'
-  ],
+  origin: allowedOrigins,
   credentials: true
 }));
 // Increase JSON payload limit to allow base64-encoded images during product creation
