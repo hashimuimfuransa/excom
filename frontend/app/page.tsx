@@ -67,7 +67,10 @@ export default function HomePage() {
         if (!alive) return;
         setProducts(list || []);
       })
-      .catch(() => setProducts([]));
+      .catch((error) => {
+        console.error('Failed to fetch products:', error);
+        setProducts([]);
+      });
     return () => {
       alive = false;
     };

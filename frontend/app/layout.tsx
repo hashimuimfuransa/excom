@@ -4,6 +4,7 @@ import I18nProvider from '../components/I18nProvider';
 import { AuthProvider } from '@utils/auth';
 import { NotificationProvider } from '@contexts/NotificationContext';
 import Navbar from '../components/Navbar';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { CssBaseline, Box } from '@mui/material';
 import AppGlobalStyles from '../components/AppGlobalStyles';
 
@@ -34,20 +35,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <ThemeProviderClient>
-          <I18nProvider>
-            <AuthProvider>
-              <NotificationProvider>
-                <CssBaseline />
-                <AppGlobalStyles />
-                <Navbar />
-                <Box component="main" sx={{ minHeight: '100dvh' }}>
-                  {children}
-                </Box>
-              </NotificationProvider>
-            </AuthProvider>
-          </I18nProvider>
-        </ThemeProviderClient>
+        <ErrorBoundary>
+          <ThemeProviderClient>
+            <I18nProvider>
+              <AuthProvider>
+                <NotificationProvider>
+                  <CssBaseline />
+                  <AppGlobalStyles />
+                  <Navbar />
+                  <Box component="main" sx={{ minHeight: '100dvh' }}>
+                    {children}
+                  </Box>
+                </NotificationProvider>
+              </AuthProvider>
+            </I18nProvider>
+          </ThemeProviderClient>
+        </ErrorBoundary>
       </body>
     </html>
   );
