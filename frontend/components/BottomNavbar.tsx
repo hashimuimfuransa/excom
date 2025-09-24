@@ -166,7 +166,7 @@ export default function BottomNavbar() {
         ariaLabel="Additional actions"
         sx={{
           position: 'fixed',
-          bottom: isSmallMobile ? 65 : 75,
+          bottom: isSmallMobile ? 120 : 140, // Moved higher to avoid conflicts with AI assistant
           right: 16,
           zIndex: 1000,
           '& .MuiFab-primary': {

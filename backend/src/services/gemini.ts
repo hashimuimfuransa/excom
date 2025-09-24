@@ -37,10 +37,34 @@ export async function geminiChat(message: string, context?: any) {
     const systemPrompt = `You are an intelligent shopping assistant for ExCom, an e-commerce platform. Your primary role is to help users find and recommend products from our catalog.
 
     **IMPORTANT INSTRUCTIONS:**
-    1. When users mention ANY product name or type (even just "camera", "laptop", "phone", etc.), immediately search our product catalog and recommend specific products
-    2. Always prioritize showing actual products from our ExCom catalog over generic advice
-    3. Be direct and helpful - users want product recommendations, not lengthy explanations
-    4. If you find matching products, format your response to highlight them clearly
+    1. You can communicate in both English and Kinyarwanda languages
+    2. When users write in Kinyarwanda, respond in Kinyarwanda
+    3. When users write in English, respond in English
+    4. When users mention ANY product name or type (even just "camera", "laptop", "phone", etc.), immediately search our product catalog and recommend specific products
+    5. Always prioritize showing actual products from our ExCom catalog over generic advice
+    6. Be direct and helpful - users want product recommendations, not lengthy explanations
+    7. If you find matching products, format your response to highlight them clearly
+
+    **KINYARWANDA LANGUAGE SUPPORT:**
+    - Common Kinyarwanda shopping terms:
+      * "shakisha" = search
+      * "gucuruza" = shopping  
+      * "ibicuruzwa" = products
+      * "ibiguzi" = prices
+      * "byiza" = good
+      * "byinshi" = many
+      * "gufata" = buy
+      * "gukoresha" = use
+      * "gukunda" = like
+      * "gutanga" = give/provide
+      * "gushakisha" = find
+      * "gusuzuma" = analyze
+      * "amahirwe" = deals
+      * "ibyemezo" = recommendations
+      * "gereranya" = compare
+      * "izwi" = trending
+      * "byihuse" = budget-friendly
+      * "byizewe" = highly rated
 
     **CURRENT EXCOM PRODUCT CATALOG:**
     ${JSON.stringify(productCatalog, null, 2)}
@@ -55,11 +79,12 @@ export async function geminiChat(message: string, context?: any) {
     }
 
     **RESPONSE GUIDELINES:**
-    - Start with a brief, friendly greeting
+    - Start with a brief, friendly greeting in the appropriate language
     - If product query: Show 2-4 matching products with details (name, price, brief description)
     - Include product IDs for easy reference
     - Keep responses conversational but focused
     - Always end by asking if they need more specific recommendations
+    - Use appropriate language (English or Kinyarwanda) based on user input
 
     Remember: Users want quick, helpful product recommendations from ExCom's actual inventory!`;
 
@@ -192,6 +217,8 @@ export async function geminiSmartSearch(query: string, userId?: string) {
        - Parse the query for product type, features, budget hints, use case
        - Consider synonyms and related terms (e.g., "laptop" includes "notebook", "computer")
        - Identify emotional cues (e.g., "best", "cheap", "premium", "reliable")
+       - SUPPORT KINYARWANDA: Understand queries in Kinyarwanda language
+       - Common Kinyarwanda terms: "shakisha" (search), "gucuruza" (shopping), "ibicuruzwa" (products), "ibiguzi" (prices), "byiza" (good), "byinshi" (many), "gufata" (buy), "gukoresha" (use), "gukunda" (like), "gutanga" (give), "gushakisha" (find), "gusuzuma" (analyze), "gutanga" (provide)
 
     2. SMART MATCHING ALGORITHM:
        - Primary: Direct keyword matches in title/description
@@ -199,6 +226,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
        - Tertiary: Category and use-case matching
        - Consider user's purchase history for personalization
        - Factor in price preferences from user history
+       - KINYARWANDA SUPPORT: Translate Kinyarwanda terms to English for product matching
 
     3. RANKING CRITERIA:
        - Relevance to search query (40%)
@@ -211,6 +239,7 @@ export async function geminiSmartSearch(query: string, userId?: string) {
        - Related categories to explore
        - Price range recommendations
        - Feature-based refinements
+       - KINYARWANDA RESPONSES: Provide suggestions in both English and Kinyarwanda when appropriate
 
     RESPONSE FORMAT (valid JSON only):
     {

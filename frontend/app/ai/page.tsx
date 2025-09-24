@@ -41,6 +41,7 @@ import { getMainImage } from '@utils/imageHelpers';
 import AiSearchBar from '@components/AiSearchBar';
 import AiChatBot from '@components/AiChatBot';
 import NextLink from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 interface Product {
   _id: string;
@@ -57,30 +58,31 @@ interface DemoSearch {
   icon: React.ReactNode;
 }
 
-const DEMO_SEARCHES: DemoSearch[] = [
+const getDemoSearches = (t: any): DemoSearch[] => [
   {
-    query: "I need a laptop for gaming under $1500",
-    description: "AI understands budget constraints and specific use cases",
+    query: t('aiPage.searchDemo.examples.gamingLaptop.query', "I need a laptop for gaming under $1500"),
+    description: t('aiPage.searchDemo.examples.gamingLaptop.description', "AI understands budget constraints and specific use cases"),
     icon: <BrainIcon color="primary" />
   },
   {
-    query: "Show me eco-friendly products for home",
-    description: "Semantic understanding of product attributes",
+    query: t('aiPage.searchDemo.examples.ecoFriendly.query', "Show me eco-friendly products for home"),
+    description: t('aiPage.searchDemo.examples.ecoFriendly.description', "Semantic understanding of product attributes"),
     icon: <CategoryIcon color="success" />
   },
   {
-    query: "Compare iPhone vs Samsung phones",
-    description: "Intelligent product comparison with pros/cons",
+    query: t('aiPage.searchDemo.examples.phoneComparison.query', "Compare iPhone vs Samsung phones"),
+    description: t('aiPage.searchDemo.examples.phoneComparison.description', "Intelligent product comparison with pros/cons"),
     icon: <CompareIcon color="warning" />
   },
   {
-    query: "What's trending in fashion this season?",
-    description: "Real-time trend analysis and recommendations",
+    query: t('aiPage.searchDemo.examples.fashionTrends.query', "What's trending in fashion this season?"),
+    description: t('aiPage.searchDemo.examples.fashionTrends.description', "Real-time trend analysis and recommendations"),
     icon: <TrendingIcon color="error" />
   }
 ];
 
 export default function AIConcierge() {
+  const { t } = useTranslation('common');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -128,17 +130,16 @@ export default function AIConcierge() {
             </Avatar>
             <Box textAlign="left">
               <Typography variant="h2" fontWeight={900} color="primary.main">
-                AI Shopping Assistant
+                {t('aiPage.title', 'AI Shopping Assistant')}
               </Typography>
               <Typography variant="h6" color="text.secondary" fontWeight={400}>
-                Powered by Google Gemini AI
+                {t('aiPage.subtitle', 'Powered by Google Gemini AI')}
               </Typography>
             </Box>
           </Stack>
 
           <Typography variant="h5" color="text.secondary" maxWidth={600} mx="auto" mb={4}>
-            Experience the future of e-commerce with our intelligent AI that understands your needs,
-            compares products, and provides personalized recommendations.
+            {t('aiPage.description', 'Experience the future of e-commerce with our intelligent AI that understands your needs, compares products, and provides personalized recommendations.')}
           </Typography>
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
@@ -155,7 +156,7 @@ export default function AIConcierge() {
                 fontWeight: 700
               }}
             >
-              Start AI Chat
+              {t('aiPage.startChat', 'Start AI Chat')}
             </Button>
             <Button
               variant="outlined"
@@ -168,7 +169,7 @@ export default function AIConcierge() {
                 fontWeight: 700
               }}
             >
-              Try Smart Search
+              {t('aiPage.trySearch', 'Try Smart Search')}
             </Button>
           </Stack>
         </Box>
@@ -203,14 +204,13 @@ export default function AIConcierge() {
                   <BrainIcon sx={{ fontSize: 30 }} />
                 </Avatar>
                 <Typography variant="h5" fontWeight={700} mb={2}>
-                  Intelligent Search
+                  {t('aiPage.features.intelligentSearch.title', 'Intelligent Search')}
                 </Typography>
                 <Typography color="text.secondary" mb={3}>
-                  Our AI understands natural language queries and finds exactly what you're looking for,
-                  even with vague descriptions.
+                  {t('aiPage.features.intelligentSearch.description', 'Our AI understands natural language queries and finds exactly what you\'re looking for, even with vague descriptions.')}
                 </Typography>
                 <Chip
-                  label="Smart Understanding"
+                  label={t('aiPage.features.intelligentSearch.chip', 'Smart Understanding')}
                   color="primary"
                   variant="outlined"
                 />
@@ -246,14 +246,13 @@ export default function AIConcierge() {
                   <CompareIcon sx={{ fontSize: 30 }} />
                 </Avatar>
                 <Typography variant="h5" fontWeight={700} mb={2}>
-                  Smart Comparison
+                  {t('aiPage.features.smartComparison.title', 'Smart Comparison')}
                 </Typography>
                 <Typography color="text.secondary" mb={3}>
-                  Compare products with detailed analysis of features, price-to-value ratios,
-                  and personalized recommendations.
+                  {t('aiPage.features.smartComparison.description', 'Compare products with detailed analysis of features, price-to-value ratios, and personalized recommendations.')}
                 </Typography>
                 <Chip
-                  label="Detailed Analysis"
+                  label={t('aiPage.features.smartComparison.chip', 'Detailed Analysis')}
                   color="success"
                   variant="outlined"
                 />
@@ -289,14 +288,13 @@ export default function AIConcierge() {
                   <TrendingIcon sx={{ fontSize: 30 }} />
                 </Avatar>
                 <Typography variant="h5" fontWeight={700} mb={2}>
-                  Personalized Recommendations
+                  {t('aiPage.features.personalizedRecommendations.title', 'Personalized Recommendations')}
                 </Typography>
                 <Typography color="text.secondary" mb={3}>
-                  Get tailored product suggestions based on your purchase history,
-                  preferences, and browsing behavior.
+                  {t('aiPage.features.personalizedRecommendations.description', 'Get tailored product suggestions based on your purchase history, preferences, and browsing behavior.')}
                 </Typography>
                 <Chip
-                  label="Personal Touch"
+                  label={t('aiPage.features.personalizedRecommendations.chip', 'Personal Touch')}
                   color="warning"
                   variant="outlined"
                 />
@@ -318,22 +316,22 @@ export default function AIConcierge() {
           }}
         >
           <Typography variant="h4" fontWeight={700} mb={3} textAlign="center">
-            🎯 Try AI-Powered Search
+            {t('aiPage.searchDemo.title', '🎯 Try AI-Powered Search')}
           </Typography>
           
           <Box mb={4}>
             <AiSearchBar 
-              placeholder="Ask AI: Find me products that match my style and budget..."
+              placeholder={t('aiPage.searchDemo.placeholder', 'Ask AI: Find me products that match my style and budget...')}
               showSuggestions={true}
             />
           </Box>
 
           <Typography variant="h6" fontWeight={600} mb={3}>
-            💡 Try these example searches:
+            {t('aiPage.searchDemo.examplesTitle', '💡 Try these example searches:')}
           </Typography>
 
           <Grid container spacing={2}>
-            {DEMO_SEARCHES.map((demo, index) => (
+            {getDemoSearches(t).map((demo, index) => (
               <Grid item xs={12} sm={6} key={index}>
                 <Card
                   sx={{
@@ -380,7 +378,7 @@ export default function AIConcierge() {
             <Stack direction="row" alignItems="center" spacing={2} mb={4}>
               <TrendingIcon color="primary" sx={{ fontSize: 30 }} />
               <Typography variant="h4" fontWeight={700}>
-                Your AI-Curated Picks
+                {t('aiPage.recommendations.title', 'Your AI-Curated Picks')}
               </Typography>
             </Stack>
 
@@ -440,7 +438,7 @@ export default function AIConcierge() {
                 startIcon={isLoading ? <CircularProgress size={20} /> : <TrendingIcon />}
                 sx={{ borderRadius: 3, px: 4 }}
               >
-                {isLoading ? 'Getting Fresh Picks...' : 'Refresh Recommendations'}
+                {isLoading ? t('aiPage.recommendations.loadingButton', 'Getting Fresh Picks...') : t('aiPage.recommendations.refreshButton', 'Refresh Recommendations')}
               </Button>
             </Box>
           </Paper>
@@ -459,7 +457,7 @@ export default function AIConcierge() {
           }}
         >
           <Typography variant="h4" fontWeight={700} mb={4} textAlign="center">
-            🚀 AI Performance Metrics
+            {t('aiPage.metrics.title', '🚀 AI Performance Metrics')}
           </Typography>
 
           <Grid container spacing={4}>
@@ -470,7 +468,7 @@ export default function AIConcierge() {
                   0.5s
                 </Typography>
                 <Typography variant="body1">
-                  Average Response Time
+                  {t('aiPage.metrics.responseTime', 'Average Response Time')}
                 </Typography>
               </Box>
             </Grid>
@@ -482,7 +480,7 @@ export default function AIConcierge() {
                   95%
                 </Typography>
                 <Typography variant="body1">
-                  Search Accuracy
+                  {t('aiPage.metrics.accuracy', 'Search Accuracy')}
                 </Typography>
               </Box>
             </Grid>
@@ -494,7 +492,7 @@ export default function AIConcierge() {
                   87%
                 </Typography>
                 <Typography variant="body1">
-                  Recommendation Hit Rate
+                  {t('aiPage.metrics.hitRate', 'Recommendation Hit Rate')}
                 </Typography>
               </Box>
             </Grid>
@@ -506,7 +504,7 @@ export default function AIConcierge() {
                   100%
                 </Typography>
                 <Typography variant="body1">
-                  Privacy Protected
+                  {t('aiPage.metrics.privacy', 'Privacy Protected')}
                 </Typography>
               </Box>
             </Grid>

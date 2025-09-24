@@ -446,5 +446,116 @@
     "mostHelpful": "Byafasha cyane",
     "highestRated": "Amanota maremare",
     "lowestRated": "Amanota makigufi"
+  },
+  "ai": {
+    "welcomeMessage": "Muraho! Ndi umufasha wawe wo gucuruza rifite ubwenge bw'ikoranabuhanga. Nshobora gufasha mushakisha ibicuruzwa, gereranya ibiguzi, no gufata ibyemezo byiza byo gucuruza. Ni iki mushaka uyu munsi?",
+    "inputPlaceholder": "Nibaza ibintu byose ku bicuruzwa, ibiguzi, cyangwa ibyemezo...",
+    "quickActions": "Ibikorwa byihuse:",
+    "tooltipTitle": "Vugana na Mufasha wa AI",
+    "headerTitle": "Mufasha wo Gucuruza wa AI",
+    "headerSubtitle": "Rifite ubwenge bw'ikoranabuhanga bw'Ubwenge",
+    "thinkingMessage": "AI irahanura...",
+    "errorMessage": "Nkaba ikangaye, ariko nfite ibibazo mu gukora icyo usaba ubu. Nyamuneka gerageza nanone mu gice.",
+    "prompts": {
+      "bestDeals": "🛍️ Shakisha amahirwe meza uyu munsi",
+      "recommendations": "💡 Ngereranye ibicuruzwa ukurikije ibyaguzwe",
+      "compare": "⚖️ Gereranya ibi bicuruzwa ku bwiza",
+      "trending": "🎯 Ni iki cyizwi mu bikoresho by'amashanyarazi?",
+      "budget": "💰 Nyereka ibyihuse ku biguzi",
+      "rated": "⭐ Shakisha ibicuruzwa byizewe"
+    }
+  },
+  "aiPage": {
+    "title": "Mufasha wo Gucuruza wa AI",
+    "subtitle": "Rifite ubwenge bw'ikoranabuhanga bw'Ubwenge",
+    "description": "Gerageza ubucuruzi bw'ikoranabuhanga bw'ubwenge bw'ikoranabuhanga bwacu burakumva ibikenewe, bugereranya ibicuruzwa, kandi buha ibyemezo byihariye.",
+    "startChat": "Tangira Ikiganiro cya AI",
+    "trySearch": "Gerageza Gushakisha bw'Ubwenge",
+    "features": {
+      "intelligentSearch": {
+        "title": "Gushakisha bw'Ubwenge",
+        "description": "AI yacu irakumva ibibazo by'ururimi rw'ikirenga kandi ishakisha ibyo ushakisha, n'ubwo uramukana.",
+        "chip": "Gukumva bw'Ubwenge"
+      },
+      "smartComparison": {
+        "title": "Kugereranya bw'Ubwenge",
+        "description": "Gereranya ibicuruzwa hamwe n'isesengura ryuzuye ry'ibiranga, ibipimo by'ikiguzi ku kiguzi, n'ibyemezo byihariye.",
+        "chip": "Isesengura Ryuzuye"
+      },
+      "personalizedRecommendations": {
+        "title": "Ibyemezo byihariye",
+        "description": "Shakisha ibyemezo by'ibicuruzwa ukurikije amateka y'ibyaguzwe, ibyifuza, n'imyitwarire yo gushakisha.",
+        "chip": "Ubwoba bw'Ihanga"
+      }
+    },
+    "searchDemo": {
+      "title": "🎯 Gerageza Gushakisha kwa AI",
+      "placeholder": "Baza AI: Shakisha ibicuruzwa bihuye n'ubwiza bwanjye n'ikiguzi...",
+      "examplesTitle": "💡 Gerageza ibi bibazo byo gushakisha:",
+      "examples": {
+        "gamingLaptop": {
+          "query": "Nkeneye laptop yo gukina munsi ya $1500",
+          "description": "AI irakumva ibibazo by'ikiguzi n'ibikoresho byihariye"
+        },
+        "ecoFriendly": {
+          "query": "Nyereka ibicuruzwa by'ubwoba bw'ibidukikije mu rugo",
+          "description": "Gukumva bw'ubwenge bw'ibiranga by'ibicuruzwa"
+        },
+        "phoneComparison": {
+          "query": "Gereranya iPhone na Samsung",
+          "description": "Kugereranya ibicuruzwa bw'ubwenge hamwe n'ibyiza n'ibibi"
+        },
+        "fashionTrends": {
+          "query": "Ni iki cyizwi mu myambaro uyu mwaka?",
+          "description": "Isesengura ry'ibyizwi n'ibyemezo by'igihe gito"
+        }
+      }
+    },
+    "recommendations": {
+      "title": "Ibyemezo byawe bya AI",
+      "refreshButton": "Kuvugurura Ibyemezo",
+      "loadingButton": "Birakuraho Ibyemezo Bishya..."
+    },
+    "metrics": {
+      "title": "🚀 Imibare y'Imikorere ya AI",
+      "responseTime": "Igihe cy'Igisubizo Rusange",
+      "accuracy": "Ubwoba bw'Gushakisha",
+      "hitRate": "Uruhare rw'Ibyemezo",
+      "privacy": "Ubwoba bw'Ibanga Bwizewe"
+    }
+  },
+  "searchPage": {
+    "breadcrumb": {
+      "home": "Ahabanza",
+      "searchResults": "Ibyakurikijwe"
+    },
+    "title": "Ibyakurikijwe bya AI",
+    "searchingFor": "Birakashakisha:",
+    "placeholder": "🔍 Shakisha ibicuruzwa...",
+    "loading": "🤖 AI irahanura ibicuruzwa byiza...",
+    "error": "Byanze gushakisha. Nyamuneka gerageza nanone.",
+    "noResults": "Nta bicuruzwa bibonetse bihuye n'ushakisha.",
+    "tryDifferent": "Gerageza ijambo ry'ushakisha ritandukanye cyangwa usuzume ibyiciro byacu.",
+    "addToCart": "Shyira mu Gasanduku",
+    "addToWishlist": "Shyira mu Rutonde rw'Ibikunda",
+    "compare": "Gereranya",
+    "share": "Sangira",
+    "viewDetails": "Reba Amakuru",
+    "view": "Reba",
+    "reviews": "ibitekerezo",
+    "results": "Ibyakurikijwe",
+    "fallbackMode": "Uburyo bwo Gusubira",
+    "relatedCategories": "🗂️ Ibyiciro Bijyanye:",
+    "aiSearchTips": "💡 Amabwiriza yo Gushakisha kwa AI",
+    "noProductsFound": "Nta bicuruzwa bibonetse",
+    "browseCategories": "Suzuma Ibyiciro",
+    "youMightAlsoLike": "💡 Urashobora no gukunda:",
+    "searchError": "Ikosa ry'Ushakisha",
+    "analyzingProducts": "Gusuzuma ibicuruzwa no gushakisha ibihuye neza nawe",
+    "intelligentDiscovery": "Gushakisha ibicuruzwa by'ubwenge bw'ikoranabuhanga rifite ubwenge bw'AI",
+    "aiSearchAnalysis": "🤖 Gusuzuma kwa AI",
+    "aiRecommended": "AI yateganyije",
+    "aiPick": "AI Yateganyije",
+    "analyzedProducts": "Gusuzumye {{count}} Ibicuruzwa"
   }
 }

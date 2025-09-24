@@ -16,7 +16,9 @@ import {
   Alert,
   Divider,
   IconButton,
-  Breadcrumbs
+  Breadcrumbs,
+  Paper,
+  Avatar
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -34,6 +36,7 @@ import NextLink from 'next/link';
 import { apiPost } from '@utils/api';
 import { getMainImage } from '@utils/imageHelpers';
 import AiSearchBar from '@/components/AiSearchBar';
+import { useTranslation } from 'react-i18next';
 
 interface SearchResult {
   productId: string;
@@ -69,6 +72,7 @@ interface Product {
 }
 
 export default function SearchPage() {
+  const { t } = useTranslation('common');
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get('q') || '';
@@ -125,7 +129,7 @@ export default function SearchPage() {
       }
     } catch (error) {
       console.error('Search error:', error);
-      setError('Failed to search. Please try again.');
+      setError(t('searchPage.error', 'Failed to search. Please try again.'));
       setSearchResults(null);
       setProducts([]);
     } finally {
@@ -152,76 +156,175 @@ export default function SearchPage() {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Breadcrumb Navigation */}
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
-        <NextLink href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <Stack direction="row" alignItems="center" spacing={0.5}>
-            <HomeIcon fontSize="small" />
-            <Typography color="text.primary">Home</Typography>
-          </Stack>
-        </NextLink>
-        <Stack direction="row" alignItems="center" spacing={0.5}>
-          <SearchIcon fontSize="small" />
-          <Typography color="text.secondary">Search Results</Typography>
-        </Stack>
-      </Breadcrumbs>
+    <Box sx={{ minHeight: '100vh', bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.900' : 'grey.50' }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 } }}>
+        {/* Modern Breadcrumb Navigation */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mb: 3,
+            borderRadius: 2,
+            bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+            border: '1px solid',
+            borderColor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'divider'
+          }}
+        >
+          <Breadcrumbs aria-label="breadcrumb">
+            <NextLink href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <HomeIcon fontSize="small" />
+                <Typography color="text.primary" fontWeight={500}>
+                  {t('searchPage.breadcrumb.home', 'Home')}
+                </Typography>
+              </Stack>
+            </NextLink>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <SearchIcon fontSize="small" />
+              <Typography color="text.secondary" fontWeight={500}>
+                {t('searchPage.breadcrumb.searchResults', 'Search Results')}
+              </Typography>
+            </Stack>
+          </Breadcrumbs>
+        </Paper>
 
-      {/* Search Header */}
-      <Box sx={{ mb: 4 }}>
-        <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-          <AiIcon color="primary" />
-          <Typography variant="h4" fontWeight={700} color="primary.main">
-            AI-Powered Search Results
-          </Typography>
-        </Stack>
-        
-        {query && (
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
-            Searching for: <strong>"{query}"</strong>
-          </Typography>
+        {/* Modern Search Header */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 3, md: 4 },
+            mb: 4,
+            borderRadius: 3,
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 203, 243, 0.1) 100%)'
+              : 'linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(33, 203, 243, 0.05) 100%)',
+            border: '1px solid',
+            borderColor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'divider'
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={2} mb={3}>
+            <Avatar
+              sx={{
+                bgcolor: 'primary.main',
+                background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                width: 48,
+                height: 48
+              }}
+            >
+              <AiIcon sx={{ fontSize: 24 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="h4" fontWeight={700} color="primary.main">
+                {t('searchPage.title', 'AI-Powered Search Results')}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {t('searchPage.intelligentDiscovery', 'Intelligent product discovery powered by AI')}
+              </Typography>
+            </Box>
+          </Stack>
+          
+          {query && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                {t('searchPage.searchingFor', 'Searching for:')}
+              </Typography>
+              <Chip
+                label={`"${query}"`}
+                color="primary"
+                variant="outlined"
+                sx={{ fontSize: '1rem', fontWeight: 600, px: 2, py: 1 }}
+              />
+            </Box>
+          )}
+
+          {/* Enhanced Search Bar */}
+          <Box sx={{ maxWidth: 600 }}>
+            <AiSearchBar 
+              onSearch={handleNewSearch}
+              placeholder={t('searchPage.placeholder', '🔍 Search for products...')}
+              showSuggestions={true}
+            />
+          </Box>
+        </Paper>
+
+        {/* Enhanced Loading State */}
+        {isLoading && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              borderRadius: 3,
+              bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+              border: '1px solid',
+              borderColor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'divider'
+            }}
+          >
+            <Stack alignItems="center" spacing={3}>
+              <CircularProgress 
+                size={64} 
+                sx={{ 
+                  color: 'primary.main',
+                  '& .MuiCircularProgress-circle': {
+                    strokeLinecap: 'round',
+                  }
+                }} 
+              />
+              <Box>
+                <Typography variant="h5" fontWeight={600} color="text.primary" mb={1}>
+                  {t('searchPage.loading', '🤖 AI is searching for the perfect products...')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {t('searchPage.analyzingProducts', 'Analyzing products and finding the best matches for you')}
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
         )}
 
-        {/* Search Bar */}
-        <AiSearchBar 
-          onSearch={handleNewSearch}
-          placeholder="🔍 Search for products..."
-          showSuggestions={true}
-        />
-      </Box>
-
-      {/* Loading State */}
-      {isLoading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <Stack alignItems="center" spacing={2}>
-            <CircularProgress size={48} />
-            <Typography variant="h6" color="text.secondary">
-              🤖 AI is searching for the perfect products...
-            </Typography>
-          </Stack>
-        </Box>
-      )}
-
-      {/* Error State */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
+        {/* Enhanced Error State */}
+        {error && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              mb: 3,
+              borderRadius: 3,
+              bgcolor: (theme) => theme.palette.mode === 'dark' ? 'error.dark' : 'error.50',
+              border: '1px solid',
+              borderColor: (theme) => theme.palette.mode === 'dark' ? 'error.main' : 'error.200'
+            }}
+          >
+            <Alert severity="error" sx={{ bgcolor: 'transparent', border: 'none' }}>
+              <Typography variant="h6" fontWeight={600} mb={1}>
+                {t('searchPage.searchError', 'Search Error')}
+              </Typography>
+              <Typography variant="body1">
+                {error}
+              </Typography>
+            </Alert>
+          </Paper>
+        )}
 
       {/* Search Results */}
       {searchResults && !isLoading && (
         <Box>
           {/* AI Insight */}
-          <Card sx={{ mb: 4, border: '2px solid', borderColor: 'primary.main' }}>
-            <CardContent>
+          <Card sx={{ 
+            mb: 4, 
+            border: '2px solid', 
+            borderColor: 'primary.main',
+            bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+            borderRadius: 3
+          }}>
+            <CardContent sx={{ p: 3 }}>
               <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                 <AiIcon color="primary" />
                 <Typography variant="h6" fontWeight={700} color="primary.main">
-                  🤖 AI Search Analysis
+                  {t('searchPage.aiSearchAnalysis', '🤖 AI Search Analysis')}
                 </Typography>
                 {searchResults.fallbackUsed && (
-                  <Chip size="small" label="Fallback Mode" color="warning" variant="outlined" />
+                  <Chip size="small" label={t('searchPage.fallbackMode', 'Fallback Mode')} color="warning" variant="outlined" />
                 )}
               </Stack>
               
@@ -238,13 +341,13 @@ export default function SearchPage() {
                   />
                 )}
                 <Chip
-                  label={`🎯 ${products.length} Results`}
+                  label={`🎯 ${products.length} ${t('searchPage.results', 'Results')}`}
                   variant="outlined"
                   color="success"
                 />
                 {searchResults.totalProductsSearched && (
                   <Chip
-                    label={`📊 Analyzed ${searchResults.totalProductsSearched} Products`}
+                    label={`📊 ${t('searchPage.analyzedProducts', 'Analyzed {{count}} Products', { count: searchResults.totalProductsSearched })}`}
                     variant="outlined"
                     color="info"
                     size="small"
@@ -267,7 +370,7 @@ export default function SearchPage() {
               <Stack direction="row" alignItems="center" spacing={1} mb={3}>
                 <TrendingIcon color="primary" />
                 <Typography variant="h5" fontWeight={700}>
-                  Recommended Products
+                  {t('searchPage.foundProducts', 'Found Products')} ({products.length})
                 </Typography>
               </Stack>
 
@@ -276,7 +379,7 @@ export default function SearchPage() {
                   // Try to get AI metadata from the product itself (new backend response)
                   // or fallback to the recommendations array (old method)
                   const aiRelevanceScore = (product as any).aiRelevanceScore || searchResults.recommendations[index]?.relevanceScore || 0;
-                  const aiReason = (product as any).aiReason || searchResults.recommendations[index]?.reason || 'AI recommended';
+                  const aiReason = (product as any).aiReason || searchResults.recommendations[index]?.reason || t('searchPage.aiRecommended', 'AI recommended');
                   const relevanceScore = Math.round(aiRelevanceScore * 100);
                   
                   return (
@@ -288,9 +391,13 @@ export default function SearchPage() {
                           flexDirection: 'column',
                           transition: 'all 0.3s ease',
                           border: `2px solid transparent`,
+                          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+                          borderRadius: 3,
                           '&:hover': {
                             transform: 'translateY(-4px)',
-                            boxShadow: '0 8px 25px rgba(0,0,0,0.12)',
+                            boxShadow: (theme) => theme.palette.mode === 'dark' 
+                              ? '0 8px 25px rgba(0,0,0,0.3)' 
+                              : '0 8px 25px rgba(0,0,0,0.12)',
                             border: '2px solid',
                             borderColor: 'primary.main'
                           }
@@ -321,10 +428,17 @@ export default function SearchPage() {
                             {product.title}
                           </Typography>
                           
-                          <Box sx={{ mb: 2, p: 1.5, bgcolor: 'primary.50', borderRadius: 1, border: '1px solid', borderColor: 'primary.200' }}>
+                          <Box sx={{ 
+                            mb: 2, 
+                            p: 1.5, 
+                            bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : 'primary.50', 
+                            borderRadius: 1, 
+                            border: '1px solid', 
+                            borderColor: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : 'primary.200' 
+                          }}>
                             <Stack direction="row" alignItems="flex-start" spacing={1}>
                               <AiIcon sx={{ fontSize: '1rem', color: 'primary.main', mt: 0.1, flexShrink: 0 }} />
-                              <Typography variant="body2" color="primary.dark" sx={{ fontStyle: 'italic' }}>
+                              <Typography variant="body2" color={(theme) => theme.palette.mode === 'dark' ? 'primary.light' : 'primary.dark'} sx={{ fontStyle: 'italic' }}>
                                 {aiReason}
                               </Typography>
                             </Stack>
@@ -340,7 +454,7 @@ export default function SearchPage() {
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
                             <StarIcon sx={{ fontSize: '1rem', color: '#FFD700' }} />
                             <Typography variant="body2" color="text.secondary">
-                              {(Math.random() * 2 + 3).toFixed(1)} ({Math.floor(Math.random() * 100) + 50} reviews)
+                              {(Math.random() * 2 + 3).toFixed(1)} ({Math.floor(Math.random() * 100) + 50} {t('searchPage.reviews', 'reviews')})
                             </Typography>
                           </Box>
                         </CardContent>
@@ -353,7 +467,7 @@ export default function SearchPage() {
                               startIcon={<AddIcon />}
                               onClick={() => addToCart(product._id)}
                             >
-                              Add to Cart
+                              {t('searchPage.addToCart', 'Add to Cart')}
                             </Button>
                             <Button
                               component={NextLink}
@@ -361,7 +475,7 @@ export default function SearchPage() {
                               variant="outlined"
                               fullWidth
                             >
-                              View
+                              {t('searchPage.view', 'View')}
                             </Button>
                           </Stack>
                         </CardActions>
@@ -372,24 +486,73 @@ export default function SearchPage() {
               </Grid>
             </>
           ) : (
-            <Alert severity="info" sx={{ mt: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                No products found
-              </Typography>
-              <Typography>
-                Try searching with different keywords or browse our categories.
-              </Typography>
-            </Alert>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 6,
+                textAlign: 'center',
+                borderRadius: 3,
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+                border: '1px solid',
+                borderColor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'divider'
+              }}
+            >
+              <Stack alignItems="center" spacing={3}>
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'grey.100',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <SearchIcon sx={{ fontSize: 40, color: (theme) => theme.palette.mode === 'dark' ? 'grey.400' : 'grey.400' }} />
+                </Box>
+                <Box>
+                  <Typography variant="h5" fontWeight={600} color="text.primary" mb={1}>
+                    {t('searchPage.noProductsFound', 'No products found')}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" mb={3}>
+                    {t('searchPage.tryDifferentKeywords', 'Try searching with different keywords or browse our categories.')}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => router.push('/')}
+                    sx={{
+                      borderRadius: 2,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 600
+                    }}
+                  >
+                    {t('searchPage.browseCategories', 'Browse Categories')}
+                  </Button>
+                </Box>
+              </Stack>
+            </Paper>
           )}
 
-          {/* Search Suggestions */}
+          {/* Enhanced Search Suggestions */}
           {searchResults.suggestions && searchResults.suggestions.length > 0 && (
-            <Box sx={{ mt: 4 }}>
-              <Divider sx={{ mb: 3 }} />
-              <Typography variant="h6" fontWeight={600} mb={2}>
-                💡 You might also like:
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                mt: 4,
+                borderRadius: 3,
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+                border: '1px solid',
+                borderColor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'divider'
+              }}
+            >
+              <Typography variant="h6" fontWeight={700} mb={3} color="text.primary">
+                {t('searchPage.youMightAlsoLike', '💡 You might also like:')}
               </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+              <Stack direction="row" spacing={1.5} flexWrap="wrap" gap={1.5}>
                 {searchResults.suggestions.slice(0, 6).map((suggestion) => (
                   <Chip
                     key={suggestion}
@@ -397,24 +560,41 @@ export default function SearchPage() {
                     clickable
                     onClick={() => handleNewSearch(suggestion)}
                     sx={{
-                      bgcolor: 'primary.50',
+                      bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : 'primary.50',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2,
                       '&:hover': {
-                        bgcolor: 'primary.100'
-                      }
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : 'primary.100',
+                        transform: 'translateY(-1px)'
+                      },
+                      transition: 'all 0.2s ease'
                     }}
                   />
                 ))}
               </Stack>
-            </Box>
+            </Paper>
           )}
 
-          {/* Category Suggestions */}
+          {/* Enhanced Category Suggestions */}
           {searchResults.categories && searchResults.categories.length > 0 && (
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="body1" fontWeight={600} mb={2}>
-                🗂️ Related Categories:
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                mt: 3,
+                borderRadius: 3,
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+                border: '1px solid',
+                borderColor: (theme) => theme.palette.mode === 'dark' ? 'grey.700' : 'divider'
+              }}
+            >
+              <Typography variant="h6" fontWeight={700} mb={3} color="text.primary">
+                {t('searchPage.relatedCategories', '🗂️ Related Categories:')}
               </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+              <Stack direction="row" spacing={1.5} flexWrap="wrap" gap={1.5}>
                 {searchResults.categories.map((category) => (
                   <Chip
                     key={category}
@@ -422,31 +602,79 @@ export default function SearchPage() {
                     variant="outlined"
                     clickable
                     onClick={() => handleNewSearch(`category:${category}`)}
+                    sx={{
+                      fontWeight: 600,
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2,
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
+                      '&:hover': {
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : 'primary.50',
+                        transform: 'translateY(-1px)'
+                      },
+                      transition: 'all 0.2s ease'
+                    }}
                   />
                 ))}
               </Stack>
-            </Box>
+            </Paper>
           )}
 
-          {/* AI Search Tips */}
+          {/* Enhanced AI Search Tips */}
           {searchResults.searchTips && searchResults.searchTips.length > 0 && (
-            <Box sx={{ mt: 4, p: 3, bgcolor: 'info.50', borderRadius: 2, border: '1px solid', borderColor: 'info.200' }}>
-              <Typography variant="h6" fontWeight={600} mb={2} color="info.main">
-                💡 AI Search Tips
-              </Typography>
-              <Grid container spacing={1}>
+            <Paper
+              elevation={0}
+              sx={{
+                mt: 4,
+                p: 4,
+                borderRadius: 3,
+                background: (theme) => theme.palette.mode === 'dark' 
+                  ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 203, 243, 0.15) 100%)'
+                  : 'linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(33, 203, 243, 0.05) 100%)',
+                border: '1px solid',
+                borderColor: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : 'primary.200'
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={2} mb={3}>
+                <Avatar
+                  sx={{
+                    bgcolor: 'primary.main',
+                    background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                    width: 40,
+                    height: 40
+                  }}
+                >
+                  <AiIcon sx={{ fontSize: 20 }} />
+                </Avatar>
+                <Typography variant="h6" fontWeight={700} color="primary.main">
+                  {t('searchPage.aiSearchTips', '💡 AI Search Tips')}
+                </Typography>
+              </Stack>
+              <Grid container spacing={2}>
                 {searchResults.searchTips.map((tip, index) => (
                   <Grid item xs={12} sm={6} key={index}>
-                    <Typography variant="body2" color="info.dark">
-                      • {tip}
-                    </Typography>
+                    <Box
+                      sx={{
+                        p: 2,
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'white',
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : 'primary.100'
+                      }}
+                    >
+                      <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
+                        • {tip}
+                      </Typography>
+                    </Box>
                   </Grid>
                 ))}
               </Grid>
-            </Box>
+            </Paper>
           )}
         </Box>
       )}
     </Container>
+    </Box>
   );
 }

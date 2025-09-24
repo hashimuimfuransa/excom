@@ -446,5 +446,116 @@
     "mostHelpful": "Most Helpful",
     "highestRated": "Highest Rated",
     "lowestRated": "Lowest Rated"
+  },
+  "ai": {
+    "welcomeMessage": "Hi! I'm your AI shopping assistant. I can help you find products, compare prices, and make smart shopping decisions. What are you looking for today?",
+    "inputPlaceholder": "Ask me anything about products, prices, or recommendations...",
+    "quickActions": "Quick Actions:",
+    "tooltipTitle": "Chat with AI Assistant",
+    "headerTitle": "AI Shopping Assistant",
+    "headerSubtitle": "Powered by Gemini AI",
+    "thinkingMessage": "AI is thinking...",
+    "errorMessage": "I apologize, but I'm having trouble processing your request right now. Please try again in a moment.",
+    "prompts": {
+      "bestDeals": "🛍️ Find me the best deals today",
+      "recommendations": "💡 Recommend products based on my purchases",
+      "compare": "⚖️ Compare these products for quality",
+      "trending": "🎯 What's trending in electronics?",
+      "budget": "💰 Show me budget-friendly options",
+      "rated": "⭐ Find highly rated products"
+    }
+  },
+  "aiPage": {
+    "title": "AI Shopping Assistant",
+    "subtitle": "Powered by Google Gemini AI",
+    "description": "Experience the future of e-commerce with our intelligent AI that understands your needs, compares products, and provides personalized recommendations.",
+    "startChat": "Start AI Chat",
+    "trySearch": "Try Smart Search",
+    "features": {
+      "intelligentSearch": {
+        "title": "Intelligent Search",
+        "description": "Our AI understands natural language queries and finds exactly what you're looking for, even with vague descriptions.",
+        "chip": "Smart Understanding"
+      },
+      "smartComparison": {
+        "title": "Smart Comparison",
+        "description": "Compare products with detailed analysis of features, price-to-value ratios, and personalized recommendations.",
+        "chip": "Detailed Analysis"
+      },
+      "personalizedRecommendations": {
+        "title": "Personalized Recommendations",
+        "description": "Get tailored product suggestions based on your purchase history, preferences, and browsing behavior.",
+        "chip": "Personal Touch"
+      }
+    },
+    "searchDemo": {
+      "title": "🎯 Try AI-Powered Search",
+      "placeholder": "Ask AI: Find me products that match my style and budget...",
+      "examplesTitle": "💡 Try these example searches:",
+      "examples": {
+        "gamingLaptop": {
+          "query": "I need a laptop for gaming under $1500",
+          "description": "AI understands budget constraints and specific use cases"
+        },
+        "ecoFriendly": {
+          "query": "Show me eco-friendly products for home",
+          "description": "Semantic understanding of product attributes"
+        },
+        "phoneComparison": {
+          "query": "Compare iPhone vs Samsung phones",
+          "description": "Intelligent product comparison with pros/cons"
+        },
+        "fashionTrends": {
+          "query": "What's trending in fashion this season?",
+          "description": "Real-time trend analysis and recommendations"
+        }
+      }
+    },
+    "recommendations": {
+      "title": "Your AI-Curated Picks",
+      "refreshButton": "Refresh Recommendations",
+      "loadingButton": "Getting Fresh Picks..."
+    },
+    "metrics": {
+      "title": "🚀 AI Performance Metrics",
+      "responseTime": "Average Response Time",
+      "accuracy": "Search Accuracy",
+      "hitRate": "Recommendation Hit Rate",
+      "privacy": "Privacy Protected"
+    }
+  },
+  "searchPage": {
+    "breadcrumb": {
+      "home": "Home",
+      "searchResults": "Search Results"
+    },
+    "title": "AI-Powered Search Results",
+    "searchingFor": "Searching for:",
+    "placeholder": "🔍 Search for products...",
+    "loading": "🤖 AI is searching for the perfect products...",
+    "error": "Failed to search. Please try again.",
+    "noResults": "No products found matching your search.",
+    "tryDifferent": "Try a different search term or browse our categories.",
+    "addToCart": "Add to Cart",
+    "addToWishlist": "Add to Wishlist",
+    "compare": "Compare",
+    "share": "Share",
+    "viewDetails": "View Details",
+    "view": "View",
+    "reviews": "reviews",
+    "results": "Results",
+    "fallbackMode": "Fallback Mode",
+    "relatedCategories": "🗂️ Related Categories:",
+    "aiSearchTips": "💡 AI Search Tips",
+    "noProductsFound": "No products found",
+    "browseCategories": "Browse Categories",
+    "youMightAlsoLike": "💡 You might also like:",
+    "searchError": "Search Error",
+    "analyzingProducts": "Analyzing products and finding the best matches for you",
+    "intelligentDiscovery": "Intelligent product discovery powered by AI",
+    "aiSearchAnalysis": "🤖 AI Search Analysis",
+    "aiRecommended": "AI recommended",
+    "aiPick": "AI Pick",
+    "analyzedProducts": "Analyzed {{count}} Products"
   }
 }

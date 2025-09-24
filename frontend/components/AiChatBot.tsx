@@ -38,6 +38,7 @@ import {
 import { apiPost } from '@utils/api';
 import { getMainImage } from '@utils/imageHelpers';
 import NextLink from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 interface Message {
   id: string;
@@ -64,20 +65,21 @@ interface AiChatBotProps {
 }
 
 const PREDEFINED_PROMPTS = [
-  "🛍️ Find me the best deals today",
-  "💡 Recommend products based on my purchases",
-  "⚖️ Compare these products for quality",
-  "🎯 What's trending in electronics?",
-  "💰 Show me budget-friendly options",
-  "⭐ Find highly rated products"
+  { text: "🛍️ Find me the best deals today", key: "ai.prompts.bestDeals" },
+  { text: "💡 Recommend products based on my purchases", key: "ai.prompts.recommendations" },
+  { text: "⚖️ Compare these products for quality", key: "ai.prompts.compare" },
+  { text: "🎯 What's trending in electronics?", key: "ai.prompts.trending" },
+  { text: "💰 Show me budget-friendly options", key: "ai.prompts.budget" },
+  { text: "⭐ Find highly rated products", key: "ai.prompts.rated" }
 ];
 
 export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' }: AiChatBotProps) {
+  const { t } = useTranslation('common');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'bot',
-      content: 'Hi! I\'m your AI shopping assistant. I can help you find products, compare prices, and make smart shopping decisions. What are you looking for today?',
+      content: t('ai.welcomeMessage', 'Hi! I\'m your AI shopping assistant. I can help you find products, compare prices, and make smart shopping decisions. What are you looking for today?'),
       timestamp: new Date()
     }
   ]);
@@ -176,7 +178,7 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.',
+        content: t('ai.errorMessage', 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.'),
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -199,28 +201,58 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
           sx={{
             position: 'fixed',
             [position.includes('right') ? 'right' : 'left']: 24,
-            bottom: 24,
+            bottom: 180, // Positioned well above the bottom menu (which is at 120-140px)
             zIndex: 1300
           }}
         >
-          <Tooltip title="Chat with AI Assistant" placement="left">
+          <Tooltip title={t('ai.tooltipTitle', 'Chat with AI Assistant')} placement="left">
             <IconButton
               onClick={onToggle}
               sx={{
-                width: 60,
-                height: 60,
-                bgcolor: 'primary.main',
+                width: 64,
+                height: 64,
+                background: (theme) => theme.palette.mode === 'dark' 
+                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  : 'linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)',
                 color: 'white',
-                boxShadow: '0 8px 25px rgba(33, 150, 243, 0.3)',
+                boxShadow: (theme) => theme.palette.mode === 'dark'
+                  ? '0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+                  : '0 8px 32px rgba(33, 150, 243, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                border: (theme) => theme.palette.mode === 'dark'
+                  ? '1px solid rgba(255, 255, 255, 0.1)'
+                  : '1px solid rgba(255, 255, 255, 0.2)',
                 '&:hover': {
-                  bgcolor: 'primary.dark',
-                  transform: 'scale(1.1)',
-                  boxShadow: '0 12px 35px rgba(33, 150, 243, 0.4)'
+                  background: (theme) => theme.palette.mode === 'dark' 
+                    ? 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                    : 'linear-gradient(135deg, #21CBF3 0%, #2196F3 100%)',
+                  transform: 'scale(1.1) translateY(-2px)',
+                  boxShadow: (theme) => theme.palette.mode === 'dark'
+                    ? '0 12px 40px rgba(102, 126, 234, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2)'
+                    : '0 12px 40px rgba(33, 150, 243, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3)',
                 },
-                animation: 'pulse 2s infinite'
+                animation: 'aiFloat 3s ease-in-out infinite',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '@keyframes aiFloat': {
+                  '0%, 100%': {
+                    transform: 'translateY(0px)',
+                    boxShadow: (theme) => theme.palette.mode === 'dark'
+                      ? '0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+                      : '0 8px 32px rgba(33, 150, 243, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+                  },
+                  '50%': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: (theme) => theme.palette.mode === 'dark'
+                      ? '0 12px 40px rgba(102, 126, 234, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15)'
+                      : '0 12px 40px rgba(33, 150, 243, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.25)',
+                  }
+                }
               }}
             >
-              <BotIcon sx={{ fontSize: 30 }} />
+              <BotIcon sx={{ 
+                fontSize: 32,
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))'
+              }} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -231,45 +263,67 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
   return (
     <Fade in={isOpen}>
       <Paper
-        elevation={16}
+        elevation={24}
         sx={{
           position: 'fixed',
           [position.includes('right') ? 'right' : 'left']: 24,
-          bottom: 24,
-          width: { xs: 'calc(100vw - 48px)', sm: 400 },
-          height: isMinimized ? 60 : { xs: 'calc(100vh - 100px)', sm: 600 },
-          maxHeight: 600,
+          bottom: 180, // Positioned well above the bottom menu (which is at 120-140px)
+          width: { xs: 'calc(100vw - 48px)', sm: 420 },
+          height: isMinimized ? 60 : { xs: 'calc(100vh - 200px)', sm: 'calc(100vh - 220px)' }, // Responsive height that fits screen
+          maxHeight: { xs: 'calc(100vh - 200px)', sm: 'calc(100vh - 220px)' },
           display: 'flex',
           flexDirection: 'column',
-          borderRadius: 4,
+          borderRadius: 3,
           overflow: 'hidden',
           zIndex: 1300,
-          border: '1px solid',
-          borderColor: 'divider',
-          transition: 'all 0.3s ease'
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'rgba(15, 15, 15, 0.98)'
+            : 'rgba(255, 255, 255, 0.98)',
+          backdropFilter: 'blur(20px)',
+          border: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : '1px solid rgba(0, 0, 0, 0.05)',
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+            : '0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
         {/* Header */}
         <Box
           sx={{
-            p: 2,
-            bgcolor: 'primary.main',
+            p: 2.5,
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+              : 'linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)',
             color: 'white',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            borderBottom: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)'
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Avatar sx={{ bgcolor: 'primary.dark', width: 32, height: 32 }}>
-              <AiIcon fontSize="small" />
+          <Stack direction="row" alignItems="center" spacing={1.5}>
+            <Avatar 
+              sx={{ 
+                bgcolor: 'rgba(255, 255, 255, 0.2)', 
+                width: 36, 
+                height: 36,
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              <AiIcon fontSize="small" sx={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))' }} />
             </Avatar>
             <Box>
-              <Typography variant="subtitle2" fontWeight={700}>
-                AI Shopping Assistant
+              <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '1rem' }}>
+                {t('ai.headerTitle', 'AI Shopping Assistant')}
               </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                Powered by Gemini AI
+              <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.75rem' }}>
+                {t('ai.headerSubtitle', 'Powered by Gemini AI')}
               </Typography>
             </Box>
           </Stack>
@@ -278,14 +332,34 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
             <IconButton
               size="small"
               onClick={() => setIsMinimized(!isMinimized)}
-              sx={{ color: 'white' }}
+              sx={{ 
+                color: 'white',
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+              }}
             >
               <MinimizeIcon fontSize="small" />
             </IconButton>
             <IconButton
               size="small"
               onClick={onToggle}
-              sx={{ color: 'white' }}
+              sx={{ 
+                color: 'white',
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+              }}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -300,10 +374,13 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                 flex: 1,
                 overflow: 'auto',
                 p: 2,
-                bgcolor: 'grey.50',
+                bgcolor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(20, 20, 20, 0.8)' 
+                  : 'rgba(248, 249, 250, 0.8)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2
+                gap: 2,
+                backdropFilter: 'blur(10px)'
               }}
             >
               {messages.map((message) => (
@@ -340,11 +417,23 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                         elevation={1}
                         sx={{
                           p: 1.5,
-                          bgcolor: message.type === 'user' ? 'primary.main' : 'white',
-                          color: message.type === 'user' ? 'white' : 'text.primary',
+                          bgcolor: message.type === 'user' 
+                            ? 'primary.main' 
+                            : (theme) => theme.palette.mode === 'dark' 
+                              ? 'rgba(255, 255, 255, 0.1)' 
+                              : 'white',
+                          color: message.type === 'user' 
+                            ? 'white' 
+                            : (theme) => theme.palette.mode === 'dark' 
+                              ? 'rgba(255, 255, 255, 0.9)' 
+                              : 'text.primary',
                           borderRadius: 2,
                           borderTopLeftRadius: message.type === 'bot' ? 0 : 2,
-                          borderTopRightRadius: message.type === 'user' ? 0 : 2
+                          borderTopRightRadius: message.type === 'user' ? 0 : 2,
+                          backdropFilter: 'blur(10px)',
+                          border: (theme) => theme.palette.mode === 'dark' && message.type === 'bot'
+                            ? '1px solid rgba(255, 255, 255, 0.1)' 
+                            : 'none'
                         }}
                       >
                         <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -482,17 +571,23 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                       elevation={1}
                       sx={{
                         p: 1.5,
-                        bgcolor: 'white',
+                        bgcolor: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.1)' 
+                          : 'white',
                         borderRadius: 2,
                         borderTopLeftRadius: 0,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 1
+                        gap: 1,
+                        backdropFilter: 'blur(10px)',
+                        border: (theme) => theme.palette.mode === 'dark'
+                          ? '1px solid rgba(255, 255, 255, 0.1)' 
+                          : 'none'
                       }}
                     >
                       <CircularProgress size={16} />
                       <Typography variant="body2" color="text.secondary">
-                        AI is thinking...
+                        {t('ai.thinkingMessage', 'AI is thinking...')}
                       </Typography>
                     </Paper>
                   </Stack>
@@ -504,22 +599,47 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
 
             {/* Quick Actions */}
             {messages.length <= 1 && (
-              <Box sx={{ p: 2, bgcolor: 'white', borderTop: '1px solid', borderColor: 'divider' }}>
+              <Box sx={{ 
+                p: 2, 
+                bgcolor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.05)' 
+                  : 'white', 
+                borderTop: '1px solid', 
+                borderColor: (theme) => theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'divider',
+                backdropFilter: 'blur(10px)'
+              }}>
                 <Typography variant="caption" color="text.secondary" mb={1} display="block">
-                  Quick Actions:
+                  {t('ai.quickActions', 'Quick Actions:')}
                 </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
                   {PREDEFINED_PROMPTS.slice(0, 3).map((prompt) => (
                     <Chip
-                      key={prompt}
-                      label={prompt}
+                      key={prompt.key}
+                      label={t(prompt.key, prompt.text)}
                       size="small"
                       clickable
-                      onClick={() => sendMessage(prompt)}
+                      onClick={() => sendMessage(t(prompt.key, prompt.text))}
                       sx={{
                         fontSize: '0.7rem',
-                        bgcolor: 'primary.50',
-                        '&:hover': { bgcolor: 'primary.100' }
+                        bgcolor: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.1)' 
+                          : 'rgba(33, 150, 243, 0.1)',
+                        color: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.9)' 
+                          : 'primary.main',
+                        border: (theme) => theme.palette.mode === 'dark' 
+                          ? '1px solid rgba(255, 255, 255, 0.2)' 
+                          : '1px solid rgba(33, 150, 243, 0.2)',
+                        backdropFilter: 'blur(10px)',
+                        '&:hover': { 
+                          bgcolor: (theme) => theme.palette.mode === 'dark' 
+                            ? 'rgba(255, 255, 255, 0.2)' 
+                            : 'rgba(33, 150, 243, 0.2)',
+                          transform: 'scale(1.05)'
+                        },
+                        transition: 'all 0.2s ease'
                       }}
                     />
                   ))}
@@ -531,12 +651,17 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
             <Box
               sx={{
                 p: 2,
-                bgcolor: 'white',
+                bgcolor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.05)' 
+                  : 'white',
                 borderTop: '1px solid',
-                borderColor: 'divider',
+                borderColor: (theme) => theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'divider',
                 display: 'flex',
                 alignItems: 'flex-end',
-                gap: 1
+                gap: 1,
+                backdropFilter: 'blur(10px)'
               }}
             >
               <TextField
@@ -547,12 +672,40 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder="Ask me anything about products, prices, or recommendations..."
+                placeholder={t('ai.inputPlaceholder', 'Ask me anything about products, prices, or recommendations...')}
                 variant="outlined"
                 size="small"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 3
+                    borderRadius: 3,
+                    bgcolor: (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : 'rgba(0, 0, 0, 0.02)',
+                    backdropFilter: 'blur(10px)',
+                    border: (theme) => theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(255, 255, 255, 0.1)' 
+                      : '1px solid rgba(0, 0, 0, 0.1)',
+                    '&:hover': {
+                      border: (theme) => theme.palette.mode === 'dark' 
+                        ? '1px solid rgba(255, 255, 255, 0.2)' 
+                        : '1px solid rgba(0, 0, 0, 0.2)',
+                    },
+                    '&.Mui-focused': {
+                      border: (theme) => theme.palette.mode === 'dark' 
+                        ? '2px solid rgba(102, 126, 234, 0.5)' 
+                        : '2px solid rgba(33, 150, 243, 0.5)',
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.9)' 
+                      : 'text.primary',
+                    '&::placeholder': {
+                      color: (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.6)' 
+                        : 'text.secondary',
+                      opacity: 1
+                    }
                   }
                 }}
               />
@@ -560,14 +713,29 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || isTyping}
                 sx={{
-                  bgcolor: 'primary.main',
+                  bgcolor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(102, 126, 234, 0.8)' 
+                    : 'primary.main',
                   color: 'white',
                   '&:hover': {
-                    bgcolor: 'primary.dark'
+                    bgcolor: (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(102, 126, 234, 1)' 
+                      : 'primary.dark',
+                    transform: 'scale(1.1)'
                   },
                   '&:disabled': {
-                    bgcolor: 'grey.300'
-                  }
+                    bgcolor: (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.1)' 
+                      : 'grey.300',
+                    color: (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.3)' 
+                      : 'grey.500'
+                  },
+                  transition: 'all 0.2s ease',
+                  backdropFilter: 'blur(10px)',
+                  border: (theme) => theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : 'none'
                 }}
               >
                 <SendIcon />
