@@ -4,6 +4,7 @@ import I18nProvider from '../components/I18nProvider';
 import { AuthProvider } from '@utils/auth';
 import { NotificationProvider } from '@contexts/NotificationContext';
 import Navbar from '../components/Navbar';
+import BottomNavbar from '../components/BottomNavbar';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { CssBaseline, Box } from '@mui/material';
 import AppGlobalStyles from '../components/AppGlobalStyles';
@@ -46,9 +47,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <CssBaseline />
                   <AppGlobalStyles />
                   <Navbar />
-                  <Box component="main" sx={{ minHeight: '100dvh' }}>
+                  <Box component="main" sx={{ 
+                    minHeight: '100dvh',
+                    paddingBottom: { xs: 'calc(70px + env(safe-area-inset-bottom))', md: 0 } // Account for safe area and bottom navbar + SpeedDial
+                  }}>
                     {children}
                   </Box>
+                  <BottomNavbar />
                 </NotificationProvider>
               </AuthProvider>
             </I18nProvider>

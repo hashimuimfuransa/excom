@@ -156,11 +156,18 @@ interface Store {
 // Related Product Card Component
 const RelatedProductCard = ({ product: relatedProduct, router }: { product: Product, router: any }) => (
   <Card 
+    elevation={0}
     sx={{ 
       height: '100%',
-      borderRadius: 2,
+      borderRadius: 3,
       transition: 'all 0.3s ease',
       cursor: 'pointer',
+      border: '1px solid',
+      borderColor: 'divider',
+      backdropFilter: 'blur(10px)',
+      background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
       '&:hover': {
         transform: 'translateY(-4px)',
         boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
@@ -170,12 +177,12 @@ const RelatedProductCard = ({ product: relatedProduct, router }: { product: Prod
   >
     <CardMedia
       component="img"
-      height="150"
+      height={{ xs: 140, md: 150 }}
       image={relatedProduct.images[0]}
       alt={relatedProduct.title}
       sx={{ objectFit: 'cover' }}
     />
-    <CardContent sx={{ p: 2 }}>
+    <CardContent sx={{ p: { xs: 1.5, md: 2 } }}>
       <Typography 
         variant="subtitle2" 
         fontWeight={600} 
@@ -186,18 +193,24 @@ const RelatedProductCard = ({ product: relatedProduct, router }: { product: Prod
           display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
+          fontSize: { xs: '0.8rem', md: '0.875rem' }
         }}
       >
         {relatedProduct.title}
       </Typography>
-      <Typography variant="h6" color="primary.main" fontWeight={700}>
+      <Typography 
+        variant="h6" 
+        color="primary.main" 
+        fontWeight={700}
+        sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
+      >
         ${relatedProduct.price.toFixed(2)}
       </Typography>
     </CardContent>
   </Card>
 );
 
-// Product Image Gallery Component
+// Enhanced Product Image Gallery Component
 const ProductImageGallery = ({ 
   product, 
   selectedImageIndex, 
@@ -212,54 +225,143 @@ const ProductImageGallery = ({
   if (!product?.images?.length) return null;
 
   return (
-    <Paper sx={{ borderRadius: 3, overflow: 'hidden', p: 1 }}>
+    <Paper 
+      elevation={0}
+      sx={{ 
+        borderRadius: 3, 
+        overflow: 'hidden', 
+        p: { xs: 1, md: 1.5 },
+        bgcolor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
+        backdropFilter: 'blur(10px)',
+        background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+      }}
+    >
       {/* Main Image */}
       <Card 
+        elevation={0}
         sx={{ 
-          borderRadius: 2, 
-          mb: 2, 
+          borderRadius: 3, 
+          mb: { xs: 1.5, md: 2 }, 
           position: 'relative',
           cursor: 'pointer',
+          overflow: 'hidden',
+          border: '1px solid',
+          borderColor: 'divider',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'scale(1.02)',
+            boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+          },
           '&:hover .zoom-icon': { opacity: 1 }
         }}
         onClick={() => setImageDialogOpen(true)}
       >
         <CardMedia
           component="img"
-          height="400"
+          height={{ xs: 250, sm: 300, md: 400 }}
           image={product.images[selectedImageIndex]}
           alt={product.title}
-          sx={{ objectFit: 'cover' }}
+          sx={{ 
+            objectFit: 'cover',
+            transition: 'transform 0.3s ease'
+          }}
         />
         <IconButton
           className="zoom-icon"
           sx={{
             position: 'absolute',
-            top: 8,
-            right: 8,
-            bgcolor: 'rgba(255,255,255,0.9)',
+            top: { xs: 8, md: 12 },
+            right: { xs: 8, md: 12 },
+            bgcolor: (theme) => theme.palette.mode === 'dark' 
+              ? 'rgba(255,255,255,0.15)' 
+              : 'rgba(255,255,255,0.9)',
+            backdropFilter: 'blur(10px)',
             opacity: 0,
-            transition: 'opacity 0.3s',
-            '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
+            transition: 'all 0.3s ease',
+            width: { xs: 36, md: 44 },
+            height: { xs: 36, md: 44 },
+            color: (theme) => theme.palette.mode === 'dark' 
+              ? 'rgba(255,255,255,0.9)' 
+              : 'rgba(0,0,0,0.7)',
+            '&:hover': { 
+              bgcolor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.25)' 
+                : 'rgba(255,255,255,1)',
+              transform: 'scale(1.1)'
+            }
           }}
         >
-          <ZoomInIcon />
+          <ZoomInIcon sx={{ fontSize: { xs: 20, md: 24 } }} />
         </IconButton>
+        
+        {/* Image Counter */}
+        {product.images.length > 1 && (
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: { xs: 8, md: 12 },
+              left: { xs: 8, md: 12 },
+              bgcolor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(0,0,0,0.8)' 
+                : 'rgba(0,0,0,0.7)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 2,
+              px: 1.5,
+              py: 0.5
+            }}
+          >
+            <Typography variant="caption" color="white" fontWeight={600}>
+              {selectedImageIndex + 1} / {product.images.length}
+            </Typography>
+          </Box>
+        )}
       </Card>
 
-      {/* Thumbnail Images */}
+      {/* Enhanced Thumbnail Images */}
       {product.images.length > 1 && (
-        <Stack direction="row" spacing={1} sx={{ overflowX: 'auto' }}>
+        <Stack 
+          direction="row" 
+          spacing={{ xs: 0.5, md: 1 }} 
+          sx={{ 
+            overflowX: 'auto',
+            pb: 0.5,
+            '&::-webkit-scrollbar': {
+              height: 4,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              borderRadius: 2,
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: 'rgba(0,0,0,0.3)',
+            },
+          }}
+        >
           {product.images.map((image, index) => (
             <Card
               key={index}
+              elevation={0}
               sx={{
-                minWidth: 60,
-                height: 60,
+                minWidth: { xs: 50, md: 60 },
+                height: { xs: 50, md: 60 },
                 cursor: 'pointer',
                 border: selectedImageIndex === index ? '2px solid' : '1px solid',
                 borderColor: selectedImageIndex === index ? 'primary.main' : 'divider',
-                borderRadius: 1
+                borderRadius: 2,
+                overflow: 'hidden',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  borderColor: 'primary.main',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }
               }}
               onClick={() => setSelectedImageIndex(index)}
             >
@@ -268,7 +370,10 @@ const ProductImageGallery = ({
                 height="100%"
                 image={image}
                 alt={`${product.title} ${index + 1}`}
-                sx={{ objectFit: 'cover' }}
+                sx={{ 
+                  objectFit: 'cover',
+                  transition: 'transform 0.3s ease'
+                }}
               />
             </Card>
           ))}
@@ -334,14 +439,14 @@ export default function ProductPage() {
       const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
       const updated = [
         product,
-        ...recentlyViewed.filter((p: Product) => p.id !== product.id)
+        ...recentlyViewed.filter((p: Product) => p._id !== product._id)
       ].slice(0, 10)
       localStorage.setItem('recentlyViewed', JSON.stringify(updated))
 
       // Simulate view count increment (would be backend API call)
       setMockProduct(prev => prev ? {
         ...prev,
-        viewCount: (prev.viewCount || 0) + 1
+        views: (prev.views || 0) + 1
       } : prev)
 
       // Track product view analytics
@@ -411,7 +516,7 @@ export default function ProductPage() {
       setSnackbar({ 
         open: true, 
         message: t('productDetails.pleaseSelectSize'), 
-        severity: 'warning' 
+        severity: 'error' 
       });
       return;
     }
@@ -420,7 +525,7 @@ export default function ProductPage() {
       setSnackbar({ 
         open: true, 
         message: t('productDetails.pleaseSelectColor'), 
-        severity: 'warning' 
+        severity: 'error' 
       });
       return;
     }
@@ -547,7 +652,7 @@ export default function ProductPage() {
       setSnackbar({ open: true, message: t('productDetails.removedFromCompare'), severity: 'success' });
     } else {
       if (compareList.length >= 4) {
-        setSnackbar({ open: true, message: t('productDetails.compareLimit'), severity: 'warning' });
+        setSnackbar({ open: true, message: t('productDetails.compareLimit'), severity: 'error' });
         return;
       }
       updatedList = [...compareList, productId];
@@ -638,16 +743,48 @@ export default function ProductPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Breadcrumbs */}
-      <Paper sx={{ p: 2, mb: 4, borderRadius: 2, bgcolor: 'grey.50' }}>
-        <Breadcrumbs sx={{ fontSize: '0.875rem' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
+        {/* Enhanced Breadcrumbs */}
+        <Paper 
+          elevation={0}
+          sx={{ 
+            p: { xs: 1.5, md: 2 }, 
+            mb: { xs: 2, md: 4 }, 
+            borderRadius: 3, 
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            backdropFilter: 'blur(10px)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+          }}
+        >
+          <Breadcrumbs 
+            sx={{ 
+              fontSize: { xs: '0.75rem', md: '0.875rem' },
+              '& .MuiBreadcrumbs-separator': {
+                color: 'text.secondary',
+                mx: { xs: 0.5, md: 1 }
+              }
+            }}
+          >
           <MLink 
             component={NextLink} 
             href="/" 
             underline="hover" 
             color="inherit"
-            sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.5,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  color: 'primary.main',
+                  transform: 'translateX(2px)'
+                }
+              }}
           >
             🏠 {t('productDetails.home')}
           </MLink>
@@ -656,7 +793,16 @@ export default function ProductPage() {
             href="/product" 
             underline="hover" 
             color="inherit"
-            sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.5,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  color: 'primary.main',
+                  transform: 'translateX(2px)'
+                }
+              }}
           >
             🛍️ {t('productDetails.products')}
           </MLink>
@@ -667,7 +813,7 @@ export default function ProductPage() {
             color="primary.main" 
             sx={{ 
               fontWeight: 600,
-              maxWidth: 200,
+                maxWidth: { xs: 150, md: 200 },
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap'
@@ -678,7 +824,7 @@ export default function ProductPage() {
         </Breadcrumbs>
       </Paper>
 
-      <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 2, md: 4 }}>
         {/* Product Images */}
         <Grid item xs={12} md={6}>
           <ProductImageGallery 
@@ -690,10 +836,23 @@ export default function ProductPage() {
           
           {/* AR Viewer */}
           {product.modelStatus === 'ready' && product.modelUrl && (
-            <Box sx={{ mt: 3 }}>
-              <Paper sx={{ p: 3, borderRadius: 3, bgcolor: 'background.paper' }}>
+              <Box sx={{ mt: { xs: 2, md: 3 } }}>
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: { xs: 2, md: 3 }, 
+                    borderRadius: 3, 
+                    bgcolor: 'background.paper',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    backdropFilter: 'blur(10px)',
+                    background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+                  }}
+                >
                 <Stack spacing={2}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
                     <Typography variant="h6" fontWeight={700}>
                       🎯 View in 3D & AR
                     </Typography>
@@ -702,6 +861,7 @@ export default function ProductPage() {
                       size="small" 
                       color="primary" 
                       variant="outlined"
+                        sx={{ fontWeight: 600 }}
                     />
                   </Stack>
                   <ARViewer
@@ -728,19 +888,44 @@ export default function ProductPage() {
 
         {/* Product Info */}
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, borderRadius: 3, height: 'fit-content', position: 'sticky', top: 20 }}>
-            <Stack spacing={3}>
+          <Paper 
+            elevation={0}
+            sx={{ 
+              p: { xs: 2, md: 3 }, 
+              borderRadius: 3, 
+              height: 'fit-content', 
+              position: { xs: 'static', md: 'sticky' }, 
+              top: { md: 20 },
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+              backdropFilter: 'blur(10px)',
+              background: (theme) => theme.palette.mode === 'dark' 
+                ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+            }}
+          >
+            <Stack spacing={{ xs: 2, md: 3 }}>
               {/* Title and Category */}
               <Box>
-                <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                <Stack 
+                  direction="row" 
+                  spacing={{ xs: 0.5, md: 1 }} 
+                  alignItems="center" 
+                  mb={{ xs: 1, md: 1.5 }}
+                  flexWrap="wrap"
+                >
                   <Chip 
                     label={product.category} 
                     size="small" 
                     color="primary" 
                     variant="filled"
                     sx={{ 
-                      background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
-                      fontWeight: 600
+                      background: (theme) => theme.palette.mode === 'dark' 
+                        ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
+                        : 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                      fontWeight: 600,
+                      fontSize: { xs: '0.7rem', md: '0.75rem' }
                     }}
                   />
                   <Chip 
@@ -748,7 +933,10 @@ export default function ProductPage() {
                     size="small" 
                     color="warning" 
                     variant="outlined"
-                    sx={{ fontWeight: 500 }}
+                    sx={{ 
+                      fontWeight: 500,
+                      fontSize: { xs: '0.7rem', md: '0.75rem' }
+                    }}
                   />
                   {product.bargainingEnabled && (
                     <Chip 
@@ -756,7 +944,10 @@ export default function ProductPage() {
                       size="small" 
                       color="success" 
                       variant="outlined"
-                      sx={{ fontWeight: 500 }}
+                      sx={{ 
+                        fontWeight: 500,
+                        fontSize: { xs: '0.7rem', md: '0.75rem' }
+                      }}
                     />
                   )}
                 </Stack>
@@ -765,18 +956,26 @@ export default function ProductPage() {
                   fontWeight={800} 
                   gutterBottom
                   sx={{
-                    background: 'linear-gradient(45deg, #1a1a1a, #4a4a4a)',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+                    background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(45deg, #ffffff, #e0e0e0)'
+                      : 'linear-gradient(45deg, #1a1a1a, #4a4a4a)',
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    lineHeight: 1.2
+                    lineHeight: 1.2,
+                    mb: { xs: 1, md: 1.5 }
                   }}
                 >
                   {product.title}
                 </Typography>
                 {/* Enhanced Rating & Social Proof */}
-                <Stack spacing={2}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                <Stack spacing={{ xs: 1.5, md: 2 }}>
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'row' }} 
+                    alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                    spacing={{ xs: 0.5, sm: 1 }}
+                  >
                     <Rating 
                       value={product.rating?.average || 4.2} 
                       precision={0.1} 
@@ -784,16 +983,29 @@ export default function ProductPage() {
                       size="small"
                       sx={{ color: 'warning.main' }}
                     />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                    >
                       ({product.rating?.average || 4.2}) • {product.rating?.count || 127} {t('productDetails.reviews')}
                     </Typography>
                   </Stack>
 
                   {/* Social Proof Indicators */}
-                  <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'row' }} 
+                    spacing={{ xs: 1, sm: 2 }} 
+                    alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                    flexWrap="wrap"
+                  >
                     <Stack direction="row" alignItems="center" spacing={0.5}>
                       <ViewIcon fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography 
+                        variant="caption" 
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                      >
                         {(product.views || productViews || 245).toLocaleString()} {t('productDetails.views')}
                       </Typography>
                     </Stack>
@@ -801,7 +1013,12 @@ export default function ProductPage() {
                     {(product.sold || 0) > 0 && (
                       <Stack direction="row" alignItems="center" spacing={0.5}>
                         <TrendingIcon fontSize="small" color="success" />
-                        <Typography variant="caption" color="success.main" fontWeight={600}>
+                        <Typography 
+                          variant="caption" 
+                          color="success.main" 
+                          fontWeight={600}
+                          sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                        >
                           {product.sold} {t('productDetails.soldThisMonth')}
                         </Typography>
                       </Stack>
@@ -809,7 +1026,12 @@ export default function ProductPage() {
                     
                     <Stack direction="row" alignItems="center" spacing={0.5}>
                       <TimerIcon fontSize="small" color="warning" />
-                      <Typography variant="caption" color="warning.main" fontWeight={600}>
+                      <Typography 
+                        variant="caption" 
+                        color="warning.main" 
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                      >
                         ⚡ 23 {t('productDetails.peopleViewingThis')}
                       </Typography>
                     </Stack>
@@ -819,14 +1041,35 @@ export default function ProductPage() {
 
               {/* Price */}
               <Box>
-                <Paper sx={{ p: 2, bgcolor: 'primary.50', borderRadius: 2, border: '1px solid', borderColor: 'primary.200' }}>
-                  <Stack spacing={1}>
-                    <Box display="flex" alignItems="baseline" gap={1}>
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: { xs: 1.5, md: 2 }, 
+                    borderRadius: 3, 
+                    border: '1px solid',
+                    borderColor: 'primary.main',
+                    bgcolor: 'primary.50',
+                    background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(100, 181, 246, 0.15) 0%, rgba(66, 165, 245, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%)',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <Stack spacing={{ xs: 1, md: 1.5 }}>
+                    <Box 
+                      display="flex" 
+                      alignItems="baseline" 
+                      gap={{ xs: 0.5, md: 1 }}
+                      flexWrap="wrap"
+                    >
                       <Typography 
                         variant="h2" 
                         fontWeight={900}
                         sx={{
-                          background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                          fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                          background: (theme) => theme.palette.mode === 'dark' 
+                            ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
+                            : 'linear-gradient(45deg, #2196F3, #21CBF3)',
                           backgroundClip: 'text',
                           WebkitBackgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
@@ -834,7 +1077,12 @@ export default function ProductPage() {
                       >
                         ${product.price.toFixed(2)}
                       </Typography>
-                      <Typography variant="h6" color="text.secondary" fontWeight={500}>
+                      <Typography 
+                        variant="h6" 
+                        color="text.secondary" 
+                        fontWeight={500}
+                        sx={{ fontSize: { xs: '0.9rem', md: '1.25rem' } }}
+                      >
                         {product.currency || t('productDetails.usd')}
                       </Typography>
                       {product.bargainingEnabled && (
@@ -844,7 +1092,10 @@ export default function ProductPage() {
                           size="small" 
                           color="warning" 
                           variant="filled"
-                          sx={{ ml: 'auto' }}
+                          sx={{ 
+                            ml: 'auto',
+                            fontSize: { xs: '0.7rem', md: '0.75rem' }
+                          }}
                         />
                       )}
                     </Box>
@@ -886,9 +1137,40 @@ export default function ProductPage() {
 
               {/* Store Info */}
               {store && (
-                <Paper sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
+                <Paper sx={{ 
+                  p: 2, 
+                  bgcolor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'grey.50', 
+                  borderRadius: 2,
+                  border: (theme) => theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : 'none',
+                  backdropFilter: (theme) => theme.palette.mode === 'dark' 
+                    ? 'blur(10px)' 
+                    : 'none',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    bgcolor: (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.08)' 
+                      : 'grey.100',
+                    transform: 'translateY(-1px)',
+                    boxShadow: (theme) => theme.palette.mode === 'dark' 
+                      ? '0 4px 20px rgba(0, 0, 0, 0.3)' 
+                      : '0 2px 8px rgba(0, 0, 0, 0.1)'
+                  }
+                }}>
                   <Stack direction="row" alignItems="center" spacing={2}>
-                    <Avatar sx={{ bgcolor: 'primary.main' }}>
+                    <Avatar sx={{ 
+                      bgcolor: (theme) => theme.palette.mode === 'dark' 
+                        ? 'linear-gradient(45deg, #64B5F6, #42A5F5)' 
+                        : 'primary.main',
+                      width: 48,
+                      height: 48,
+                      boxShadow: (theme) => theme.palette.mode === 'dark' 
+                        ? '0 4px 12px rgba(100, 181, 246, 0.3)' 
+                        : '0 2px 8px rgba(33, 150, 243, 0.2)'
+                    }}>
                       {store.logo ? (
                         <Box 
                           component="img" 
@@ -897,15 +1179,32 @@ export default function ProductPage() {
                           sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                       ) : (
-                        <StoreIcon />
+                        <StoreIcon sx={{ color: 'white' }} />
                       )}
                     </Avatar>
                     <Box flex={1}>
-                      <Typography variant="subtitle1" fontWeight={600}>
+                      <Typography 
+                        variant="subtitle1" 
+                        fontWeight={600}
+                        sx={{
+                          color: (theme) => theme.palette.mode === 'dark' 
+                            ? 'rgba(255, 255, 255, 0.9)' 
+                            : 'text.primary',
+                          fontSize: { xs: '0.9rem', md: '1rem' }
+                        }}
+                      >
                         {store.name}
                       </Typography>
                       {store.owner && (
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography 
+                          variant="body2" 
+                          sx={{
+                            color: (theme) => theme.palette.mode === 'dark' 
+                              ? 'rgba(255, 255, 255, 0.7)' 
+                              : 'text.secondary',
+                            fontSize: { xs: '0.75rem', md: '0.875rem' }
+                          }}
+                        >
                           {t('productDetails.by')} {store.owner.name}
                         </Typography>
                       )}
@@ -915,6 +1214,35 @@ export default function ProductPage() {
                       href={`/vendors/${store._id}`}
                       variant="outlined"
                       size="small"
+                      sx={{
+                        borderRadius: 2,
+                        px: 2,
+                        py: 0.5,
+                        fontSize: { xs: '0.75rem', md: '0.875rem' },
+                        fontWeight: 600,
+                        borderColor: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(100, 181, 246, 0.5)' 
+                          : 'primary.main',
+                        color: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(100, 181, 246, 0.9)' 
+                          : 'primary.main',
+                        bgcolor: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(100, 181, 246, 0.1)' 
+                          : 'transparent',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: (theme) => theme.palette.mode === 'dark' 
+                            ? 'rgba(100, 181, 246, 0.8)' 
+                            : 'primary.dark',
+                          bgcolor: (theme) => theme.palette.mode === 'dark' 
+                            ? 'rgba(100, 181, 246, 0.2)' 
+                            : 'primary.50',
+                          transform: 'translateY(-1px)',
+                          boxShadow: (theme) => theme.palette.mode === 'dark' 
+                            ? '0 4px 12px rgba(100, 181, 246, 0.3)' 
+                            : '0 2px 8px rgba(33, 150, 243, 0.2)'
+                        }
+                      }}
                     >
                       {t('productDetails.visitStore')}
                     </Button>
@@ -1032,7 +1360,9 @@ export default function ProductPage() {
                     border: '3px solid', 
                     borderColor: 'warning.main',
                     borderRadius: 4,
-                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.15) 100%)',
+                    background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(251, 191, 36, 0.2) 100%)'
+                      : 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.15) 100%)',
                     position: 'relative',
                     overflow: 'hidden',
                     '&::before': {
@@ -1081,7 +1411,9 @@ export default function ProductPage() {
                     
                     <Box sx={{ 
                       p: 2, 
-                      bgcolor: 'rgba(255,255,255,0.7)', 
+                      bgcolor: (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(255,255,255,0.1)' 
+                        : 'rgba(255,255,255,0.7)', 
                       borderRadius: 2,
                       border: '1px dashed',
                       borderColor: 'warning.main'
@@ -1142,7 +1474,7 @@ export default function ProductPage() {
               )}
 
               {/* Action Buttons */}
-              <Stack spacing={2}>
+              <Stack spacing={{ xs: 1.5, md: 2 }}>
                 <Button
                   variant="contained"
                   size="large"
@@ -1151,16 +1483,24 @@ export default function ProductPage() {
                   disabled={addingToCart}
                   sx={{ 
                     borderRadius: 3, 
-                    py: 2,
-                    fontSize: '1.1rem',
+                    py: { xs: 1.5, md: 2 },
+                    fontSize: { xs: '1rem', md: '1.1rem' },
                     fontWeight: 'bold',
-                    background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
-                    boxShadow: '0 4px 20px rgba(33, 150, 243, 0.3)',
+                    background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
+                      : 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                    boxShadow: (theme) => theme.palette.mode === 'dark' 
+                      ? '0 4px 20px rgba(100, 181, 246, 0.3)'
+                      : '0 4px 20px rgba(33, 150, 243, 0.3)',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-2px)',
-                      boxShadow: '0 8px 25px rgba(33, 150, 243, 0.4)',
-                      background: 'linear-gradient(45deg, #1976D2, #2196F3)'
+                      boxShadow: (theme) => theme.palette.mode === 'dark' 
+                        ? '0 8px 25px rgba(100, 181, 246, 0.4)'
+                        : '0 8px 25px rgba(33, 150, 243, 0.4)',
+                      background: (theme) => theme.palette.mode === 'dark' 
+                        ? 'linear-gradient(45deg, #42A5F5, #64B5F6)'
+                        : 'linear-gradient(45deg, #1976D2, #2196F3)'
                     }
                   }}
                 >
@@ -1173,8 +1513,8 @@ export default function ProductPage() {
                   onClick={handleBuyNow}
                   sx={{ 
                     borderRadius: 3, 
-                    py: 2,
-                    fontSize: '1.1rem',
+                    py: { xs: 1.5, md: 2 },
+                    fontSize: { xs: '1rem', md: '1.1rem' },
                     fontWeight: 'bold',
                     borderWidth: 2,
                     borderColor: 'primary.main',
@@ -1194,12 +1534,37 @@ export default function ProductPage() {
                 </Button>
 
                 {/* Enhanced Action Buttons */}
-                <Paper sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                  <Typography variant="subtitle2" fontWeight={600} gutterBottom color="text.secondary" sx={{ mb: 2 }}>
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: { xs: 1.5, md: 2 }, 
+                    borderRadius: 3, 
+                    bgcolor: 'background.paper',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    backdropFilter: 'blur(10px)',
+                    background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+                  }}
+                >
+                  <Typography 
+                    variant="subtitle2" 
+                    fontWeight={600} 
+                    gutterBottom 
+                    color="text.secondary" 
+                    sx={{ 
+                      mb: { xs: 1.5, md: 2 },
+                      fontSize: { xs: '0.8rem', md: '0.875rem' }
+                    }}
+                  >
                     🚀 {t('productDetails.quickActions') || 'Quick Actions'}
                   </Typography>
-                  <Stack spacing={2}>
-                    <Stack direction="row" spacing={1}>
+                  <Stack spacing={{ xs: 1.5, md: 2 }}>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      spacing={{ xs: 1, sm: 1 }}
+                    >
                       <Tooltip title={isWishlisted ? t('productDetails.removeFromWishlist') : t('productDetails.addToWishlist')}>
                         <Button
                           variant={isWishlisted ? "contained" : "outlined"}
@@ -1208,7 +1573,8 @@ export default function ProductPage() {
                           sx={{ 
                             flex: 1,
                             borderRadius: 2,
-                            py: 1.5,
+                            py: { xs: 1, md: 1.5 },
+                            fontSize: { xs: '0.8rem', md: '0.875rem' },
                             color: isWishlisted ? 'white' : 'error.main',
                             bgcolor: isWishlisted ? 'error.main' : 'transparent',
                             borderColor: 'error.main',
@@ -1233,7 +1599,8 @@ export default function ProductPage() {
                           sx={{ 
                             flex: 1,
                             borderRadius: 2,
-                            py: 1.5,
+                            py: { xs: 1, md: 1.5 },
+                            fontSize: { xs: '0.8rem', md: '0.875rem' },
                             color: 'success.main',
                             borderColor: 'success.main',
                             transition: 'all 0.3s ease',
@@ -1250,7 +1617,10 @@ export default function ProductPage() {
                       </Tooltip>
                   </Stack>
 
-                  <Stack direction="row" spacing={1}>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      spacing={{ xs: 1, sm: 1 }}
+                    >
                       <Tooltip title={isComparing ? t('productDetails.removeFromCompare') : t('productDetails.addToCompare')}>
                         <Button
                           variant={isComparing ? "contained" : "outlined"}
@@ -1259,7 +1629,8 @@ export default function ProductPage() {
                           sx={{ 
                             flex: 1,
                             borderRadius: 2,
-                            py: 1.5,
+                            py: { xs: 1, md: 1.5 },
+                            fontSize: { xs: '0.8rem', md: '0.875rem' },
                             color: isComparing ? 'white' : 'primary.main',
                             bgcolor: isComparing ? 'primary.main' : 'transparent',
                             borderColor: 'primary.main',
@@ -1284,7 +1655,8 @@ export default function ProductPage() {
                           sx={{ 
                             flex: 1,
                             borderRadius: 2,
-                            py: 1.5,
+                            py: { xs: 1, md: 1.5 },
+                            fontSize: { xs: '0.8rem', md: '0.875rem' },
                             color: notifyOnStock ? 'white' : 'warning.main',
                             bgcolor: notifyOnStock ? 'warning.main' : 'transparent',
                             borderColor: 'warning.main',
@@ -1306,31 +1678,68 @@ export default function ProductPage() {
               </Stack>
 
               {/* Delivery Options */}
-              <Paper sx={{ p: 3, bgcolor: 'blue.50', borderRadius: 3, border: '1px solid', borderColor: 'blue.200' }}>
-                <Typography variant="subtitle1" fontWeight={700} gutterBottom color="primary.main">
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: { xs: 2, md: 3 }, 
+                  borderRadius: 3, 
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  bgcolor: 'primary.50',
+                  background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(100, 181, 246, 0.15) 0%, rgba(66, 165, 245, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%)',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <Typography 
+                  variant="subtitle1" 
+                  fontWeight={700} 
+                  gutterBottom 
+                  color="primary.main"
+                  sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
+                >
                   🚚 {t('productDetails.deliveryOptions')}
                 </Typography>
-                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                  <InputLabel>{t('productDetails.chooseDeliveryOption')}</InputLabel>
+                <FormControl fullWidth size="small" sx={{ mb: { xs: 1.5, md: 2 } }}>
+                  <InputLabel sx={{ fontSize: { xs: '0.8rem', md: '0.875rem' } }}>
+                    {t('productDetails.chooseDeliveryOption')}
+                  </InputLabel>
                   <Select
                     value={deliveryOption}
                     label={t('productDetails.chooseDeliveryOption')}
                     onChange={(e) => setDeliveryOption(e.target.value)}
+                    sx={{ fontSize: { xs: '0.8rem', md: '0.875rem' } }}
                   >
                     <MenuItem value="standard">
-                      <Stack direction="row" justifyContent="space-between" width="100%">
+                      <Stack 
+                        direction={{ xs: 'column', sm: 'row' }} 
+                        justifyContent="space-between" 
+                        width="100%"
+                        spacing={{ xs: 0.5, sm: 1 }}
+                      >
                         <span>📦 {t('productDetails.standardShipping')}</span>
                         <span>{t('productDetails.freeDelivery')}</span>
                       </Stack>
                     </MenuItem>
                     <MenuItem value="express">
-                      <Stack direction="row" justifyContent="space-between" width="100%">
+                      <Stack 
+                        direction={{ xs: 'column', sm: 'row' }} 
+                        justifyContent="space-between" 
+                        width="100%"
+                        spacing={{ xs: 0.5, sm: 1 }}
+                      >
                         <span>⚡ {t('productDetails.expressShipping')}</span>
                         <span>{t('productDetails.fastDelivery')}</span>
                       </Stack>
                     </MenuItem>
                     <MenuItem value="overnight">
-                      <Stack direction="row" justifyContent="space-between" width="100%">
+                      <Stack 
+                        direction={{ xs: 'column', sm: 'row' }} 
+                        justifyContent="space-between" 
+                        width="100%"
+                        spacing={{ xs: 0.5, sm: 1 }}
+                      >
                         <span>🚀 {t('productDetails.overnightShipping')}</span>
                         <span>{t('productDetails.overnightDelivery')}</span>
                       </Stack>
@@ -1338,39 +1747,95 @@ export default function ProductPage() {
                   </Select>
                 </FormControl>
                 
-                <Stack spacing={1}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                <Stack spacing={{ xs: 0.5, md: 1 }}>
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'row' }} 
+                    alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                    spacing={{ xs: 0.5, sm: 1 }}
+                  >
                     <CheckIcon fontSize="small" color="success" />
-                    <Typography variant="caption">{t('productDetails.freeReturns30Days')}</Typography>
+                    <Typography 
+                      variant="caption"
+                      sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                    >
+                      {t('productDetails.freeReturns30Days')}
+                    </Typography>
                   </Stack>
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'row' }} 
+                    alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                    spacing={{ xs: 0.5, sm: 1 }}
+                  >
                     <VerifiedIcon fontSize="small" color="primary" />
-                    <Typography variant="caption">{t('productDetails.securePackaging')}</Typography>
+                    <Typography 
+                      variant="caption"
+                      sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                    >
+                      {t('productDetails.securePackaging')}
+                    </Typography>
                   </Stack>
                 </Stack>
               </Paper>
 
               {/* Inventory Status */}
-              <Paper sx={{ p: 3, borderRadius: 3 }}>
-                <Stack spacing={2}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography variant="subtitle1" fontWeight={700}>
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: { xs: 2, md: 3 }, 
+                  borderRadius: 3,
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  backdropFilter: 'blur(10px)',
+                  background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+                }}
+              >
+                <Stack spacing={{ xs: 1.5, md: 2 }}>
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'row' }} 
+                    justifyContent="space-between" 
+                    alignItems={{ xs: 'flex-start', sm: 'center' }}
+                    spacing={{ xs: 1, sm: 0 }}
+                  >
+                    <Typography 
+                      variant="subtitle1" 
+                      fontWeight={700}
+                      sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
+                    >
                       📊 {t('productDetails.stockStatus')}
                     </Typography>
                     <Chip 
                       label={product.inventory && product.inventory > 0 ? `✅ ${t('productDetails.inStock')}` : `❌ ${t('productDetails.outOfStock')}`}
                       color={product.inventory && product.inventory > 0 ? 'success' : 'error'}
                       variant="filled"
+                      sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
                     />
                   </Stack>
                   
                   {product.inventory && product.inventory > 0 && (
                     <Box>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Typography variant="body2" color="text.secondary">
+                      <Stack 
+                        direction={{ xs: 'column', sm: 'row' }} 
+                        justifyContent="space-between" 
+                        alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                        mb={1}
+                        spacing={{ xs: 0.5, sm: 0 }}
+                      >
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                        >
                           {t('productDetails.available')}: {product.inventory} {t('productDetails.units')}
                         </Typography>
-                        <Typography variant="body2" color="success.main" fontWeight={600}>
+                        <Typography 
+                          variant="body2" 
+                          color="success.main" 
+                          fontWeight={600}
+                          sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                        >
                           {product.inventory > 20 ? t('productDetails.highStock') : product.inventory > 5 ? t('productDetails.limitedStock') : t('productDetails.lowStock')}
                         </Typography>
                       </Stack>
@@ -1393,42 +1858,115 @@ export default function ProductPage() {
                   )}
                   
                   {product.sku && (
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">SKU:</Typography>
-                      <Typography variant="body2" fontWeight={600}>{product.sku}</Typography>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      justifyContent="space-between"
+                      spacing={{ xs: 0.5, sm: 0 }}
+                    >
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        SKU:
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        {product.sku}
+                      </Typography>
                     </Stack>
                   )}
                 </Stack>
               </Paper>
 
               {/* Features */}
-              <Paper sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
-                <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ mb: 2 }}>
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: { xs: 1.5, md: 2 }, 
+                  borderRadius: 3,
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  backdropFilter: 'blur(10px)',
+                  background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+                }}
+              >
+                <Typography 
+                  variant="subtitle2" 
+                  fontWeight={600} 
+                  gutterBottom 
+                  sx={{ 
+                    mb: { xs: 1.5, md: 2 },
+                    fontSize: { xs: '0.8rem', md: '0.875rem' }
+                  }}
+                >
                   🛡️ {t('productDetails.productGuarantees')}
                 </Typography>
-                <Grid container spacing={2}>
+                <Grid container spacing={{ xs: 1.5, md: 2 }}>
                   <Grid item xs={6}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      alignItems="center" 
+                      spacing={{ xs: 0.5, sm: 1 }}
+                    >
                       <ShippingIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">{t('productDetails.freeShipping')}</Typography>
+                      <Typography 
+                        variant="caption"
+                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                      >
+                        {t('productDetails.freeShipping')}
+                      </Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={6}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      alignItems="center" 
+                      spacing={{ xs: 0.5, sm: 1 }}
+                    >
                       <SecurityIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">{t('productDetails.securePayment')}</Typography>
+                      <Typography 
+                        variant="caption"
+                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                      >
+                        {t('productDetails.securePayment')}
+                      </Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={6}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      alignItems="center" 
+                      spacing={{ xs: 0.5, sm: 1 }}
+                    >
                       <ReturnIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">{t('productDetails.easyReturns')}</Typography>
+                      <Typography 
+                        variant="caption"
+                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                      >
+                        {t('productDetails.easyReturns')}
+                      </Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={6}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      alignItems="center" 
+                      spacing={{ xs: 0.5, sm: 1 }}
+                    >
                       <VerifiedIcon fontSize="small" color="primary" />
-                      <Typography variant="caption">{t('productDetails.qualityAssured')}</Typography>
+                      <Typography 
+                        variant="caption"
+                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                      >
+                        {t('productDetails.qualityAssured')}
+                      </Typography>
                     </Stack>
                   </Grid>
                 </Grid>
@@ -1439,16 +1977,36 @@ export default function ProductPage() {
       </Grid>
 
       {/* Enhanced Product Details Tabs */}
-      <Paper sx={{ mt: 4, borderRadius: 3, overflow: 'hidden' }}>
+        <Paper 
+          elevation={0}
+          sx={{ 
+            mt: { xs: 3, md: 4 }, 
+            borderRadius: 3, 
+            overflow: 'hidden',
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            backdropFilter: 'blur(10px)',
+            background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+          }}
+        >
         <Tabs 
           value={tabValue} 
           onChange={(_, value) => setTabValue(value)} 
           sx={{ 
-            px: 2, 
-            bgcolor: 'grey.50',
+              px: { xs: 1, md: 2 }, 
+              bgcolor: 'background.paper',
             '& .MuiTabs-indicator': {
               height: 3,
               borderRadius: '3px 3px 0 0'
+              },
+              '& .MuiTab-root': {
+                fontSize: { xs: '0.75rem', md: '0.875rem' },
+                fontWeight: 600,
+                minHeight: { xs: 40, md: 48 },
+                px: { xs: 1, md: 2 }
             }
           }}
           variant="scrollable"
@@ -1461,15 +2019,25 @@ export default function ProductPage() {
           <Tab label={`📦 ${t('productDetails.shipping')}`} />
         </Tabs>
         
-        <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 2, md: 3 } }}>
           {/* Description Tab */}
           {tabValue === 0 && (
-            <Stack spacing={3}>
+              <Stack spacing={{ xs: 2, md: 3 }}>
               <Box>
-                <Typography variant="h6" fontWeight={700} gutterBottom>
+                  <Typography 
+                    variant="h6" 
+                    fontWeight={700} 
+                    gutterBottom
+                    sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}
+                  >
                   {t('productDetails.productDescription')}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" lineHeight={1.8}>
+                  <Typography 
+                    variant="body1" 
+                    color="text.secondary" 
+                    lineHeight={1.8}
+                    sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+                  >
                   {product.description}
                 </Typography>
               </Box>
@@ -1477,16 +2045,28 @@ export default function ProductPage() {
               {/* Key Features */}
               {product.features && product.features.length > 0 && (
                 <Box>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
+                    <Typography 
+                      variant="h6" 
+                      fontWeight={700} 
+                      gutterBottom
+                      sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}
+                    >
                     🎯 Key Features
                   </Typography>
                   <List>
                     {product.features.map((feature, index) => (
                       <ListItem key={index} disablePadding>
-                        <ListItemIcon sx={{ minWidth: 32 }}>
+                          <ListItemIcon sx={{ minWidth: { xs: 28, md: 32 } }}>
                           <CheckIcon fontSize="small" color="success" />
                         </ListItemIcon>
-                        <ListItemText primary={feature} />
+                          <ListItemText 
+                            primary={feature}
+                            sx={{ 
+                              '& .MuiListItemText-primary': {
+                                fontSize: { xs: '0.875rem', md: '1rem' }
+                              }
+                            }}
+                          />
                       </ListItem>
                     ))}
                   </List>
@@ -1496,10 +2076,19 @@ export default function ProductPage() {
               {/* Tags */}
               {product.tags && product.tags.length > 0 && (
                 <Box>
-                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    <Typography 
+                      variant="subtitle1" 
+                      fontWeight={600} 
+                      gutterBottom
+                      sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
+                    >
                     🏷️ Tags
                   </Typography>
-                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                    <Stack 
+                      direction="row" 
+                      spacing={{ xs: 0.5, md: 1 }} 
+                      flexWrap="wrap"
+                    >
                     {product.tags.map((tag, index) => (
                       <Chip 
                         key={index}
@@ -1507,6 +2096,7 @@ export default function ProductPage() {
                         size="small"
                         variant="outlined"
                         color="primary"
+                          sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
                       />
                     ))}
                   </Stack>
@@ -1517,40 +2107,133 @@ export default function ProductPage() {
           
           {/* Enhanced Specifications Tab */}
           {tabValue === 1 && (
-            <Stack spacing={3}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>
+            <Stack spacing={{ xs: 2, md: 3 }}>
+              <Typography 
+                variant="h6" 
+                fontWeight={700} 
+                gutterBottom
+                sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}
+              >
                 📋 Detailed Specifications
               </Typography>
               
               {/* Basic Info */}
               <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <AccordionSummary 
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{ 
+                    '& .MuiAccordionSummary-content': {
+                      fontSize: { xs: '0.9rem', md: '1rem' }
+                    }
+                  }}
+                >
                   <Typography fontWeight={600}>📦 Basic Information</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                  <Stack spacing={2}>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Category:</Typography>
-                      <Typography variant="body2" fontWeight={600}>{product.category}</Typography>
+                  <Stack spacing={{ xs: 1.5, md: 2 }}>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      justifyContent="space-between"
+                      spacing={{ xs: 0.5, sm: 0 }}
+                    >
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        Category:
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        {product.category}
+                      </Typography>
                     </Stack>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Price:</Typography>
-                      <Typography variant="body2" fontWeight={600}>${product.price.toFixed(2)}</Typography>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      justifyContent="space-between"
+                      spacing={{ xs: 0.5, sm: 0 }}
+                    >
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        Price:
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        ${product.price.toFixed(2)}
+                      </Typography>
                     </Stack>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Currency:</Typography>
-                      <Typography variant="body2" fontWeight={600}>{product.currency || 'USD'}</Typography>
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      justifyContent="space-between"
+                      spacing={{ xs: 0.5, sm: 0 }}
+                    >
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        Currency:
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                      >
+                        {product.currency || 'USD'}
+                      </Typography>
                     </Stack>
                     {product.brand && (
-                      <Stack direction="row" justifyContent="space-between">
-                        <Typography variant="body2" color="text.secondary">Brand:</Typography>
-                        <Typography variant="body2" fontWeight={600}>{product.brand}</Typography>
+                      <Stack 
+                        direction={{ xs: 'column', sm: 'row' }} 
+                        justifyContent="space-between"
+                        spacing={{ xs: 0.5, sm: 0 }}
+                      >
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                        >
+                          Brand:
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          fontWeight={600}
+                          sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                        >
+                          {product.brand}
+                        </Typography>
                       </Stack>
                     )}
                     {product.condition && (
-                      <Stack direction="row" justifyContent="space-between">
-                        <Typography variant="body2" color="text.secondary">Condition:</Typography>
-                        <Chip label={product.condition} size="small" color="info" variant="outlined" />
+                      <Stack 
+                        direction={{ xs: 'column', sm: 'row' }} 
+                        justifyContent="space-between"
+                        alignItems={{ xs: 'flex-start', sm: 'center' }}
+                        spacing={{ xs: 0.5, sm: 0 }}
+                      >
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                        >
+                          Condition:
+                        </Typography>
+                        <Chip 
+                          label={product.condition} 
+                          size="small" 
+                          color="info" 
+                          variant="outlined"
+                          sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                        />
                       </Stack>
                     )}
                   </Stack>
@@ -1560,17 +2243,41 @@ export default function ProductPage() {
               {/* Product Variants */}
               {(product.variants?.sizes?.length || product.variants?.colors?.length || product.variants?.weight || product.variants?.dimensions) && (
                 <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{ 
+                      '& .MuiAccordionSummary-content': {
+                        fontSize: { xs: '0.9rem', md: '1rem' }
+                      }
+                    }}
+                  >
                     <Typography fontWeight={600}>🎨 Product Variants & Specifications</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Stack spacing={2}>
+                    <Stack spacing={{ xs: 1.5, md: 2 }}>
                       {product.variants?.sizes?.length && (
                         <Box>
-                          <Typography variant="body2" color="text.secondary" gutterBottom>Available Sizes:</Typography>
-                          <Stack direction="row" spacing={1} flexWrap="wrap">
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary" 
+                            gutterBottom
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Available Sizes:
+                          </Typography>
+                          <Stack 
+                            direction="row" 
+                            spacing={{ xs: 0.5, md: 1 }} 
+                            flexWrap="wrap"
+                          >
                             {product.variants.sizes.map((size) => (
-                              <Chip key={size} label={size} size="small" variant="outlined" />
+                              <Chip 
+                                key={size} 
+                                label={size} 
+                                size="small" 
+                                variant="outlined"
+                                sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                              />
                             ))}
                           </Stack>
                         </Box>
@@ -1578,51 +2285,144 @@ export default function ProductPage() {
                       
                       {product.variants?.colors?.length && (
                         <Box>
-                          <Typography variant="body2" color="text.secondary" gutterBottom>Available Colors:</Typography>
-                          <Stack direction="row" spacing={1} flexWrap="wrap">
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary" 
+                            gutterBottom
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Available Colors:
+                          </Typography>
+                          <Stack 
+                            direction="row" 
+                            spacing={{ xs: 0.5, md: 1 }} 
+                            flexWrap="wrap"
+                          >
                             {product.variants.colors.map((color) => (
-                              <Chip key={color} label={color} size="small" variant="outlined" />
+                              <Chip 
+                                key={color} 
+                                label={color} 
+                                size="small" 
+                                variant="outlined"
+                                sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                              />
                             ))}
                           </Stack>
                         </Box>
                       )}
                       
                       {product.variants?.weight && (
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Weight:</Typography>
-                          <Typography variant="body2" fontWeight={600}>
+                        <Stack 
+                          direction={{ xs: 'column', sm: 'row' }} 
+                          justifyContent="space-between"
+                          spacing={{ xs: 0.5, sm: 0 }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Weight:
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
                             {product.variants.weight.displayValue || `${product.variants.weight.value}${product.variants.weight.unit}`}
                           </Typography>
                         </Stack>
                       )}
                       
                       {product.variants?.dimensions && (
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Dimensions:</Typography>
-                          <Typography variant="body2" fontWeight={600}>
+                        <Stack 
+                          direction={{ xs: 'column', sm: 'row' }} 
+                          justifyContent="space-between"
+                          spacing={{ xs: 0.5, sm: 0 }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Dimensions:
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
                             {product.variants.dimensions.length} × {product.variants.dimensions.width} × {product.variants.dimensions.height} {product.variants.dimensions.unit}
                           </Typography>
                         </Stack>
                       )}
                       
                       {product.variants?.material && (
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Material:</Typography>
-                          <Typography variant="body2" fontWeight={600}>{product.variants.material}</Typography>
+                        <Stack 
+                          direction={{ xs: 'column', sm: 'row' }} 
+                          justifyContent="space-between"
+                          spacing={{ xs: 0.5, sm: 0 }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Material:
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            {product.variants.material}
+                          </Typography>
                         </Stack>
                       )}
                       
                       {product.variants?.brand && (
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Brand:</Typography>
-                          <Typography variant="body2" fontWeight={600}>{product.variants.brand}</Typography>
+                        <Stack 
+                          direction={{ xs: 'column', sm: 'row' }} 
+                          justifyContent="space-between"
+                          spacing={{ xs: 0.5, sm: 0 }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Brand:
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            {product.variants.brand}
+                          </Typography>
                         </Stack>
                       )}
                       
                       {product.variants?.sku && (
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">SKU:</Typography>
-                          <Typography variant="body2" fontWeight={600}>{product.variants.sku}</Typography>
+                        <Stack 
+                          direction={{ xs: 'column', sm: 'row' }} 
+                          justifyContent="space-between"
+                          spacing={{ xs: 0.5, sm: 0 }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            SKU:
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            {product.variants.sku}
+                          </Typography>
                         </Stack>
                       )}
                     </Stack>
@@ -1633,21 +2433,58 @@ export default function ProductPage() {
               {/* Physical Details - Fallback for old products */}
               {(product.weight || product.dimensions) && !product.variants && (
                 <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{ 
+                      '& .MuiAccordionSummary-content': {
+                        fontSize: { xs: '0.9rem', md: '1rem' }
+                      }
+                    }}
+                  >
                     <Typography fontWeight={600}>📏 Physical Details</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Stack spacing={2}>
+                    <Stack spacing={{ xs: 1.5, md: 2 }}>
                       {product.weight && (
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Weight:</Typography>
-                          <Typography variant="body2" fontWeight={600}>{product.weight} kg</Typography>
+                        <Stack 
+                          direction={{ xs: 'column', sm: 'row' }} 
+                          justifyContent="space-between"
+                          spacing={{ xs: 0.5, sm: 0 }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Weight:
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            {product.weight} kg
+                          </Typography>
                         </Stack>
                       )}
                       {product.dimensions && (
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Dimensions:</Typography>
-                          <Typography variant="body2" fontWeight={600}>
+                        <Stack 
+                          direction={{ xs: 'column', sm: 'row' }} 
+                          justifyContent="space-between"
+                          spacing={{ xs: 0.5, sm: 0 }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
+                            Dimensions:
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                          >
                             {product.dimensions.length} × {product.dimensions.width} × {product.dimensions.height} cm
                           </Typography>
                         </Stack>
@@ -1660,11 +2497,22 @@ export default function ProductPage() {
               {/* Warranty */}
               {product.warranty && (
                 <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{ 
+                      '& .MuiAccordionSummary-content': {
+                        fontSize: { xs: '0.9rem', md: '1rem' }
+                      }
+                    }}
+                  >
                     <Typography fontWeight={600}>🛡️ Warranty & Support</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+                    >
                       {product.warranty}
                     </Typography>
                   </AccordionDetails>
@@ -1675,40 +2523,95 @@ export default function ProductPage() {
           
           {/* Enhanced Reviews Tab */}
           {tabValue === 2 && (
-            <Stack spacing={3}>
+            <Stack spacing={{ xs: 2, md: 3 }}>
               <Box>
-                <Typography variant="h6" fontWeight={700} gutterBottom>
+                <Typography 
+                  variant="h6" 
+                  fontWeight={700} 
+                  gutterBottom
+                  sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}
+                >
                   ⭐ Customer Reviews & Ratings
                 </Typography>
                 
                 {/* Rating Overview */}
-                <Paper sx={{ p: 3, bgcolor: 'grey.50', borderRadius: 2, mb: 3 }}>
-                  <Grid container spacing={3}>
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: { xs: 2, md: 3 }, 
+                    bgcolor: 'background.paper',
+                    borderRadius: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    backdropFilter: 'blur(10px)',
+                    background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                    mb: { xs: 2, md: 3 }
+                  }}
+                >
+                  <Grid container spacing={{ xs: 2, md: 3 }}>
                     <Grid item xs={12} md={4}>
                       <Stack alignItems="center" spacing={1}>
-                        <Typography variant="h2" fontWeight={800} color="warning.main">
+                        <Typography 
+                          variant="h2" 
+                          fontWeight={800} 
+                          color="warning.main"
+                          sx={{ fontSize: { xs: '2rem', md: '3rem' } }}
+                        >
                           {product.rating?.average || 4.2}
                         </Typography>
-                        <Rating value={product.rating?.average || 4.2} readOnly precision={0.1} />
-                        <Typography variant="body2" color="text.secondary">
+                        <Rating 
+                          value={product.rating?.average || 4.2} 
+                          readOnly 
+                          precision={0.1}
+                          size="small"
+                        />
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
+                        >
                           Based on {product.rating?.count || 127} reviews
                         </Typography>
                       </Stack>
                     </Grid>
                     
                     <Grid item xs={12} md={8}>
-                      <Stack spacing={1}>
+                      <Stack spacing={{ xs: 0.5, md: 1 }}>
                         {[5, 4, 3, 2, 1].map((stars) => (
-                          <Stack key={stars} direction="row" alignItems="center" spacing={1}>
-                            <Typography variant="body2" sx={{ minWidth: 60 }}>
+                          <Stack 
+                            key={stars} 
+                            direction="row" 
+                            alignItems="center" 
+                            spacing={{ xs: 0.5, md: 1 }}
+                          >
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                minWidth: { xs: 50, md: 60 },
+                                fontSize: { xs: '0.75rem', md: '0.875rem' }
+                              }}
+                            >
                               {stars} stars
                             </Typography>
                             <LinearProgress 
                               variant="determinate" 
                               value={((product.rating?.breakdown?.[stars] || Math.random() * 50) / (product.rating?.count || 127)) * 100}
-                              sx={{ flex: 1, height: 6, borderRadius: 3 }}
+                              sx={{ 
+                                flex: 1, 
+                                height: { xs: 4, md: 6 }, 
+                                borderRadius: 3 
+                              }}
                             />
-                            <Typography variant="body2" color="text.secondary" sx={{ minWidth: 40 }}>
+                            <Typography 
+                              variant="body2" 
+                              color="text.secondary" 
+                              sx={{ 
+                                minWidth: { xs: 30, md: 40 },
+                                fontSize: { xs: '0.75rem', md: '0.875rem' }
+                              }}
+                            >
                               {product.rating?.breakdown?.[stars] || Math.floor(Math.random() * 50)}
                             </Typography>
                           </Stack>
@@ -1718,7 +2621,12 @@ export default function ProductPage() {
                   </Grid>
                 </Paper>
                 
-                <Typography variant="body1" color="text.secondary" textAlign="center">
+                <Typography 
+                  variant="body1" 
+                  color="text.secondary" 
+                  textAlign="center"
+                  sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+                >
                   📝 Individual reviews will be displayed here when available
                 </Typography>
               </Box>
@@ -1727,8 +2635,13 @@ export default function ProductPage() {
           
           {/* FAQ Tab */}
           {tabValue === 3 && (
-            <Stack spacing={2}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>
+            <Stack spacing={{ xs: 1.5, md: 2 }}>
+              <Typography 
+                variant="h6" 
+                fontWeight={700} 
+                gutterBottom
+                sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}
+              >
                 ❓ Frequently Asked Questions
               </Typography>
               
@@ -1755,11 +2668,22 @@ export default function ProductPage() {
                 }
               ].map((faq, index) => (
                 <Accordion key={index}>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{ 
+                      '& .MuiAccordionSummary-content': {
+                        fontSize: { xs: '0.9rem', md: '1rem' }
+                      }
+                    }}
+                  >
                     <Typography fontWeight={600}>{faq.question}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+                    >
                       {faq.answer}
                     </Typography>
                   </AccordionDetails>
@@ -1770,19 +2694,46 @@ export default function ProductPage() {
           
           {/* Shipping Tab */}
           {tabValue === 4 && (
-            <Stack spacing={3}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>
+            <Stack spacing={{ xs: 2, md: 3 }}>
+              <Typography 
+                variant="h6" 
+                fontWeight={700} 
+                gutterBottom
+                sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}
+              >
                 🚚 Shipping & Delivery Information
               </Typography>
               
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, md: 3 }}>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 3, bgcolor: 'success.50', borderRadius: 2 }}>
-                    <Stack spacing={2}>
-                      <Typography variant="subtitle1" fontWeight={600} color="success.dark">
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: { xs: 2, md: 3 }, 
+                      bgcolor: 'success.50',
+                      borderRadius: 3,
+                      border: '1px solid',
+                      borderColor: 'success.main',
+                      backdropFilter: 'blur(10px)',
+                      background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(129, 199, 132, 0.15) 0%, rgba(102, 187, 106, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%)'
+                    }}
+                  >
+                    <Stack spacing={{ xs: 1.5, md: 2 }}>
+                      <Typography 
+                        variant="subtitle1" 
+                        fontWeight={600} 
+                        color="success.dark"
+                        sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
+                      >
                         📦 Free Standard Shipping
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+                      >
                         • Delivery in 3-5 business days<br/>
                         • Available nationwide<br/>
                         • Package tracking included<br/>
@@ -1793,12 +2744,34 @@ export default function ProductPage() {
                 </Grid>
                 
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 3, bgcolor: 'warning.50', borderRadius: 2 }}>
-                    <Stack spacing={2}>
-                      <Typography variant="subtitle1" fontWeight={600} color="warning.dark">
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: { xs: 2, md: 3 }, 
+                      bgcolor: 'warning.50',
+                      borderRadius: 3,
+                      border: '1px solid',
+                      borderColor: 'warning.main',
+                      backdropFilter: 'blur(10px)',
+                      background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255, 213, 79, 0.15) 0%, rgba(255, 193, 7, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%)'
+                    }}
+                  >
+                    <Stack spacing={{ xs: 1.5, md: 2 }}>
+                      <Typography 
+                        variant="subtitle1" 
+                        fontWeight={600} 
+                        color="warning.dark"
+                        sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
+                      >
                         ⚡ Express Options
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+                      >
                         • Express (1-2 days): $9.99<br/>
                         • Overnight: $19.99<br/>
                         • Same-day in select cities<br/>
@@ -1812,25 +2785,58 @@ export default function ProductPage() {
               <Divider />
               
               <Box>
-                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                <Typography 
+                  variant="subtitle1" 
+                  fontWeight={600} 
+                  gutterBottom
+                  sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
+                >
                   📋 Important Shipping Notes
                 </Typography>
                 <List>
                   <ListItem>
                     <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
-                    <ListItemText primary="All orders are processed within 1 business day" />
+                    <ListItemText 
+                      primary="All orders are processed within 1 business day"
+                      sx={{ 
+                        '& .MuiListItemText-primary': {
+                          fontSize: { xs: '0.875rem', md: '1rem' }
+                        }
+                      }}
+                    />
                   </ListItem>
                   <ListItem>
                     <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
-                    <ListItemText primary="Free packaging and handling" />
+                    <ListItemText 
+                      primary="Free packaging and handling"
+                      sx={{ 
+                        '& .MuiListItemText-primary': {
+                          fontSize: { xs: '0.875rem', md: '1rem' }
+                        }
+                      }}
+                    />
                   </ListItem>
                   <ListItem>
                     <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
-                    <ListItemText primary="Secure and eco-friendly packaging" />
+                    <ListItemText 
+                      primary="Secure and eco-friendly packaging"
+                      sx={{ 
+                        '& .MuiListItemText-primary': {
+                          fontSize: { xs: '0.875rem', md: '1rem' }
+                        }
+                      }}
+                    />
                   </ListItem>
                   <ListItem>
                     <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
-                    <ListItemText primary="Real-time tracking updates via SMS and email" />
+                    <ListItemText 
+                      primary="Real-time tracking updates via SMS and email"
+                      sx={{ 
+                        '& .MuiListItemText-primary': {
+                          fontSize: { xs: '0.875rem', md: '1rem' }
+                        }
+                      }}
+                    />
                   </ListItem>
                 </List>
               </Box>
@@ -1840,13 +2846,19 @@ export default function ProductPage() {
       </Paper>
 
       {/* Related Products */}
-      <Box mt={6}>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
+      <Container maxWidth="lg" sx={{ mt: { xs: 4, md: 6 } }}>
+        <Box>
+          <Typography 
+            variant="h5" 
+            fontWeight={700} 
+            gutterBottom
+            sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}
+          >
           {t('productDetails.relatedProducts')}
         </Typography>
         
         {relatedLoading ? (
-          <Grid container spacing={2}>
+            <Grid container spacing={{ xs: 1.5, md: 2 }}>
             {[...Array(4)].map((_, i) => (
               <Grid item xs={6} sm={4} md={3} key={i}>
                 <Skeleton variant="rectangular" height={150} sx={{ borderRadius: 2 }} />
@@ -1856,7 +2868,7 @@ export default function ProductPage() {
             ))}
           </Grid>
         ) : relatedProducts.length > 0 ? (
-          <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 1.5, md: 3 }}>
             {relatedProducts.map((relatedProduct) => (
               <Grid item xs={6} sm={4} md={3} key={relatedProduct._id}>
                 <RelatedProductCard product={relatedProduct} router={router} />
@@ -1864,19 +2876,31 @@ export default function ProductPage() {
             ))}
           </Grid>
         ) : (
-          <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+            >
             {t('productDetails.noRelatedProducts')}
           </Typography>
         )}
       </Box>
 
       {/* Recently Viewed Products Section */}
-      <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
+      <Container maxWidth="lg" sx={{ mt: { xs: 4, md: 6 } }}>
+        <Box>
+          <Typography 
+            variant="h5" 
+            fontWeight={700} 
+            gutterBottom
+            sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}
+          >
           👁️ Recently Viewed Products
         </Typography>
         <RecentlyViewedProducts currentProductId={productId} />
-      </Box>
+        </Box>
+      </Container>
+      </Container>
 
       {/* Image Dialog */}
       <Dialog
@@ -1884,12 +2908,33 @@ export default function ProductPage() {
         onClose={() => setImageDialogOpen(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3 } }}
+        PaperProps={{ 
+          sx: { 
+            borderRadius: 3,
+            maxHeight: '90vh',
+            m: { xs: 1, md: 2 }
+          } 
+        }}
       >
         <DialogTitle>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">{product.title}</Typography>
-            <IconButton onClick={() => setImageDialogOpen(false)}>
+          <Stack 
+            direction="row" 
+            justifyContent="space-between" 
+            alignItems="center"
+          >
+            <Typography 
+              variant="h6"
+              sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
+            >
+              {product.title}
+            </Typography>
+            <IconButton 
+              onClick={() => setImageDialogOpen(false)}
+              sx={{ 
+                width: { xs: 32, md: 40 },
+                height: { xs: 32, md: 40 }
+              }}
+            >
               ×
             </IconButton>
           </Stack>
@@ -1908,13 +2953,24 @@ export default function ProductPage() {
             />
           </Box>
           {product.images.length > 1 && (
-            <Stack direction="row" spacing={1} justifyContent="center" mt={2}>
+            <Stack 
+              direction="row" 
+              spacing={{ xs: 0.5, md: 1 }} 
+              justifyContent="center" 
+              mt={2}
+              flexWrap="wrap"
+            >
               {product.images.map((_, index) => (
                 <Button
                   key={index}
                   variant={selectedImageIndex === index ? 'contained' : 'outlined'}
                   size="small"
                   onClick={() => setSelectedImageIndex(index)}
+                  sx={{ 
+                    fontSize: { xs: '0.75rem', md: '0.875rem' },
+                    minWidth: { xs: 32, md: 40 },
+                    height: { xs: 32, md: 40 }
+                  }}
                 >
                   {index + 1}
                 </Button>
@@ -1930,11 +2986,18 @@ export default function ProductPage() {
         autoHideDuration={3000}
         onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        sx={{ 
+          mb: { xs: 2, md: 3 },
+          ml: { xs: 1, md: 2 }
+        }}
       >
         <Alert 
           onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} 
           severity={snackbar.severity}
-          sx={{ borderRadius: 2 }}
+          sx={{ 
+            borderRadius: 2,
+            fontSize: { xs: '0.875rem', md: '1rem' }
+          }}
         >
           {snackbar.message}
         </Alert>
@@ -1950,7 +3013,7 @@ export default function ProductPage() {
             sx={{
               position: 'fixed',
               bottom: { xs: 80, md: 120 }, // Higher on desktop to avoid conflicts
-              right: { xs: 20, md: 30 },
+              right: { xs: 16, md: 24 },
               zIndex: 1000,
               width: { xs: 56, md: 68 },
               height: { xs: 56, md: 68 },
@@ -1984,15 +3047,15 @@ export default function ProductPage() {
             sx={{
               position: 'fixed',
               bottom: { xs: 80, md: 120 },
-              right: { xs: 90, md: 120 },
+              right: { xs: 80, md: 100 },
               zIndex: 999,
-              px: 2,
-              py: 1,
+              px: { xs: 1.5, md: 2 },
+              py: { xs: 0.5, md: 1 },
               borderRadius: 3,
               bgcolor: 'warning.dark',
               color: 'white',
               fontWeight: 600,
-              fontSize: '0.875rem',
+              fontSize: { xs: '0.75rem', md: '0.875rem' },
               whiteSpace: 'nowrap',
               opacity: 0,
               transform: 'translateX(10px)',
@@ -2030,10 +3093,10 @@ export default function ProductPage() {
               sx={{
                 position: 'fixed',
                 bottom: { xs: 135, md: 175 },
-                right: { xs: 15, md: 25 },
+                right: { xs: 12, md: 20 },
                 zIndex: 1001,
-                width: 24,
-                height: 24,
+                width: { xs: 20, md: 24 },
+                height: { xs: 20, md: 24 },
                 borderRadius: '50%',
                 bgcolor: 'success.main',
                 display: 'flex',
@@ -2052,7 +3115,12 @@ export default function ProductPage() {
                 }
               }}
             >
-              <Typography variant="caption" fontWeight="bold" color="white" fontSize="0.75rem">
+              <Typography 
+                variant="caption" 
+                fontWeight="bold" 
+                color="white" 
+                fontSize={{ xs: '0.7rem', md: '0.75rem' }}
+              >
                 !
               </Typography>
             </Paper>
@@ -2075,7 +3143,8 @@ export default function ProductPage() {
         productId={!existingChatId ? productId : undefined}
         chatId={existingChatId || undefined}
       />
-    </Container>
+      </Container>
+    </Box>
   );
 }
 
@@ -2115,25 +3184,32 @@ const RecentlyViewedProductCard = ({ product }: { product: Product }) => {
   
   return (
     <Card 
+      elevation={0}
       sx={{ 
         height: '100%', 
         cursor: 'pointer',
         transition: 'all 0.3s ease',
+        border: '1px solid',
+        borderColor: 'divider',
+        backdropFilter: 'blur(10px)',
+        background: (theme) => theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: 4
+          boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
         }
       }}
       onClick={() => router.push(`/product/${product.id}`)}
     >
       <CardMedia
         component="img"
-        height="160"
+        height={{ xs: 140, md: 160 }}
         image={product.images?.[0] || '/placeholder-product.jpg'}
         alt={product.title}
         sx={{ objectFit: 'cover' }}
       />
-      <CardContent sx={{ p: 2, pb: '16px !important' }}>
+      <CardContent sx={{ p: { xs: 1.5, md: 2 }, pb: '16px !important' }}>
         <Typography 
           variant="body2" 
           fontWeight={600}
@@ -2142,18 +3218,33 @@ const RecentlyViewedProductCard = ({ product }: { product: Product }) => {
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            fontSize: { xs: '0.8rem', md: '0.875rem' }
           }}
         >
           {product.title}
         </Typography>
-        <Typography variant="h6" fontWeight={700} color="primary">
+        <Typography 
+          variant="h6" 
+          fontWeight={700} 
+          color="primary"
+          sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
+        >
           ${product.price}
         </Typography>
         {product.rating && (
           <Stack direction="row" alignItems="center" spacing={0.5} mt={1}>
-            <Rating size="small" value={product.rating.average} readOnly precision={0.1} />
-            <Typography variant="caption" color="text.secondary">
+            <Rating 
+              size="small" 
+              value={product.rating.average} 
+              readOnly 
+              precision={0.1}
+            />
+            <Typography 
+              variant="caption" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+            >
               ({product.rating.count})
             </Typography>
           </Stack>
