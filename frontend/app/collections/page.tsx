@@ -69,6 +69,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
 import { apiGet, apiPost } from '@utils/api';
 import { useTranslation } from 'react-i18next';
+import BackButton from '@/components/BackButton';
 
 interface Collection {
   _id: string;
@@ -430,20 +431,23 @@ export default function CollectionsPage() {
             transition={{ duration: 0.6 }}
           >
             <Box textAlign="center" mb={4}>
-              <Typography 
-                variant="h2" 
-                fontWeight={900} 
-                gutterBottom
-                sx={{
-                  background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mb: 2
-                }}
-              >
-                {t('collectionsPage.title')}
-              </Typography>
+              <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
+                <BackButton href="/" tooltip="Back to Home" />
+                <Typography 
+                  variant="h2" 
+                  fontWeight={900} 
+                  gutterBottom
+                  sx={{
+                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    mb: 2
+                  }}
+                >
+                  {t('collectionsPage.title')}
+                </Typography>
+              </Box>
               <Typography variant="h5" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
                 {t('collectionsPage.description')}
               </Typography>

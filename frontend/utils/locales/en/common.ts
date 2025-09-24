@@ -14,6 +14,7 @@ export default {
     "join": "Join",
     "adminDashboard": "Admin Dashboard",
     "vendorDashboard": "Vendor Dashboard",
+    "affiliateDashboard": "Affiliate Dashboard",
     "myOrders": "My Orders",
     "profile": "Profile",
     "logout": "Logout",
@@ -53,6 +54,28 @@ export default {
     "create": "Create",
     "back": "Back",
     "addToCart": "Add to Cart"
+  },
+
+  // Common translations used across components
+  "common": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "cancel": "Cancel",
+    "update": "Update",
+    "create": "Create",
+    "loading": "Loading...",
+    "pending": "Pending",
+    "save": "Save",
+    "close": "Close",
+    "submit": "Submit",
+    "back": "Back",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "optional": "Optional",
+    "required": "Required"
   },
 
   // Product Management
@@ -108,7 +131,43 @@ export default {
     "failedToUpload": "Failed to upload images. Please try again.",
     "confirmDelete": "Are you sure you want to delete this product?",
     "allStores": "All Stores",
-    "allCategories": "All Categories"
+    "allCategories": "All Categories",
+    "productVariants": "Product Variants",
+    "sizes": "Sizes",
+    "colors": "Colors",
+    "weight": "Weight",
+    "weightValue": "Weight Value",
+    "unit": "Unit",
+    "dimensions": "Dimensions",
+    "length": "Length",
+    "width": "Width",
+    "height": "Height",
+    "dimensionUnit": "Dimension Unit",
+    "brand": "Brand",
+    "material": "Material",
+    "sku": "SKU",
+    "inventory": "Inventory",
+    "bargainPrice": "Bargain Price",
+    "bargainEnabled": "Bargaining Enabled",
+    "minimumPrice": "Minimum Price",
+    "maxDiscount": "Max Discount",
+    "minimumPriceHelper": "The lowest price you're willing to accept in bargaining",
+    "maxDiscountHelper": "Maximum discount percentage you'll offer",
+    "kg": "kg",
+    "g": "g",
+    "lb": "lb",
+    "oz": "oz",
+    "cm": "cm",
+    "in": "in",
+    "m": "m",
+    "modelManagement": "3D Model Management",
+    "modelStatus": "3D Model Status",
+    "modelStatusNone": "None",
+    "modelStatusGenerating": "Generating",
+    "modelStatusReady": "Ready",
+    "modelStatusFailed": "Failed",
+    "expandModelManagement": "Expand 3D Model Management",
+    "collapseModelManagement": "Collapse 3D Model Management"
   },
 
   // Categories
@@ -164,23 +223,6 @@ export default {
     "bargainHistory": "Bargain History",
     "minimumPriceHelper": "The lowest price you're willing to accept in bargaining",
     "maxDiscountHelper": "Maximum discount percentage you'll offer"
-  },
-  "categories": {
-    "electronics": "Electronics",
-    "fashion": "Fashion",
-    "gaming": "Gaming",
-    "mobile": "Mobile & Tech",
-    "home": "Home & Garden",
-    "sports": "Sports & Fitness",
-    "books": "Books & Media",
-    "beauty": "Beauty & Care",
-    "audio": "Music & Audio",
-    "computers": "Computers",
-    "kitchen": "Kitchen & Dining",
-    "pets": "Pets & Animals",
-    "toys": "Toys & Games",
-    "automotive": "Automotive",
-    "health": "Health & Wellness"
   },
   "home": {
     "questTitle": "What's Your Next Quest?",
@@ -572,7 +614,12 @@ export default {
     "bestPriceGuaranteed": "Best Price Guaranteed",
     "min": "Min:",
     "fastDelivery": "Fast Delivery",
-    "soldThisMonth": "sold this month"
+    "soldThisMonth": "sold this month",
+    "selectOptions": "Select Options",
+    "size": "Size",
+    "color": "Color",
+    "pleaseSelectSize": "Please select a size",
+    "pleaseSelectColor": "Please select a color"
   },
   "orders": {
     "title": "Orders",
@@ -1020,5 +1067,22 @@ export default {
     "avatar": "Profile Picture",
     "uploadAvatar": "Upload Picture",
     "removeAvatar": "Remove Picture"
+  },
+
+  // AR Viewer
+  "arViewer": {
+    "controls": "3D Controls",
+    "autoRotate": "Auto Rotate",
+    "cameraAngle": "Camera Angle",
+    "resetView": "Reset View",
+    "fullscreen": "Fullscreen",
+    "download": "Download Model",
+    "share": "Share",
+    "viewInAR": "View in AR",
+    "loading": "Loading 3D model...",
+    "retry": "Retry",
+    "arSupported": "AR is supported on this device",
+    "arNotSupported": "AR is not supported on this device",
+    "mobileRecommended": "Mobile recommended"
   }
 }

@@ -100,48 +100,57 @@ export default function HomePage() {
   }, [products]);
 
   const ProductGrid = ({ title, items }: { title: string; items: Product[] | null }) => (
-    <Box mt={8}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={4}>
-        <Stack direction="row" alignItems="center" spacing={2}>
+    <Box mt={6}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
+        <Stack direction="row" alignItems="center" spacing={1.5}>
           <Typography 
-            variant="h4" 
-            fontWeight={900}
+            variant="h5" 
+            fontWeight={800}
             sx={{ 
-              background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+              background: 'linear-gradient(45deg, #22c55e, #16a34a)',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+              WebkitTextFillColor: 'transparent',
+              fontSize: { xs: '1.5rem', md: '1.8rem' }
             }}
           >
             {title}
           </Typography>
           <Chip 
-            label="HOT" 
+            label="🔥" 
             size="small" 
             sx={{ 
               bgcolor: '#FF4757', 
               color: 'white', 
               fontWeight: 700,
+              fontSize: '0.7rem',
+              height: 24,
               animation: 'pulse 2s infinite' 
             }} 
           />
         </Stack>
         <Button 
-          size="medium" 
+          size="small" 
           variant="outlined"
           endIcon={<ArrowForwardIcon />}
           href="/products"
-          sx={{ 
-            borderRadius: 3,
-            px: 3,
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              transform: 'translateX(4px)',
-              boxShadow: '0 8px 25px rgba(33, 150, 243, 0.3)'
-            }
-          }}
+                sx={{ 
+                  borderRadius: 0,
+                  px: 2,
+                  py: 0.5,
+                  fontSize: '0.8rem',
+                  transition: 'all 0.3s ease',
+                  border: '2px solid #22c55e',
+                  color: '#22c55e',
+                  '&:hover': {
+                    transform: 'translateX(2px)',
+                    boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)',
+                    backgroundColor: '#22c55e',
+                    color: 'white'
+                  }
+                }}
         >
-          {t('products.viewAll')}
+          View All
         </Button>
       </Stack>
       
@@ -170,7 +179,7 @@ export default function HomePage() {
           ))}
         </Grid>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {(items || []).map((p) => {
             const img = getMainImage(p.images, 'product', p._id);
             const isRealImage = hasRealImages(p.images);
@@ -183,34 +192,34 @@ export default function HomePage() {
                 <Card 
                   component={NextLink as any} 
                   href={`/product/${p._id}`} 
-                  sx={{ 
-                    borderRadius: 4, 
-                    textDecoration: 'none', 
-                    overflow: 'hidden',
-                    position: 'relative',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    background: 'linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(250,250,250,0.9) 100%)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                    '&:hover': { 
-                      transform: 'translateY(-8px) scale(1.02)',
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-                      borderColor: 'primary.main'
-                    } 
-                  }}
+                sx={{ 
+                  borderRadius: 0, 
+                  textDecoration: 'none', 
+                  overflow: 'hidden',
+                  position: 'relative',
+                  border: '2px solid',
+                  borderColor: '#e5e7eb',
+                  background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(250,250,250,0.95) 100%)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': { 
+                    transform: 'translateY(-6px)',
+                    boxShadow: '0 12px 32px rgba(34, 197, 94, 0.15)',
+                    borderColor: '#22c55e'
+                  } 
+                }}
                 >
                   <Box sx={{ position: 'relative', overflow: 'hidden' }}>
                     <CardMedia 
                       component="img" 
-                      height="200" 
+                      height="180" 
                       image={img} 
                       alt={p.title} 
                       sx={{
                         filter: isRealImage ? 'none' : 'brightness(0.9) sepia(0.1)',
-                        transition: 'transform 0.4s ease',
+                        transition: 'transform 0.3s ease',
                         '&:hover': {
-                          transform: 'scale(1.1)'
+                          transform: 'scale(1.05)'
                         }
                       }}
                     />
@@ -251,36 +260,7 @@ export default function HomePage() {
                       />
                     )}
 
-                    {/* Bargaining Badge */}
-                    {p.bargainingEnabled && (
-                      <Chip
-                        label="💬 Bargain!"
-                        size="small"
-                        sx={{
-                          position: 'absolute',
-                          bottom: 8,
-                          left: 8,
-                          bgcolor: 'warning.main',
-                          color: 'white',
-                          fontWeight: 700,
-                          fontSize: '0.7rem',
-                          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)',
-                          animation: 'pulse 2s infinite',
-                          '@keyframes pulse': {
-                            '0%': {
-                              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)',
-                            },
-                            '50%': {
-                              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.6)',
-                              transform: 'scale(1.05)',
-                            },
-                            '100%': {
-                              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)',
-                            }
-                          }
-                        }}
-                      />
-                    )}
+                    {/* Bargaining Badge - Removed for now as property doesn't exist */}
                     
                     {!isRealImage && (
                       <Chip
@@ -335,42 +315,31 @@ export default function HomePage() {
                     </Box>
                   </Box>
                   
-                  <CardContent sx={{ p: 2.5 }}>
+                  <CardContent sx={{ p: 2 }}>
                     <Typography 
-                      variant="h6" 
+                      variant="subtitle1" 
                       fontWeight={700} 
                       gutterBottom 
                       noWrap
                       sx={{ 
-                        fontSize: { xs: '1rem', sm: '1.1rem' },
-                        color: 'text.primary'
+                        fontSize: { xs: '0.9rem', sm: '1rem' },
+                        color: 'text.primary',
+                        lineHeight: 1.3
                       }}
                     >
                       {p.title}
                     </Typography>
                     
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                       <Stack direction="row" spacing={0.5} alignItems="center">
-                        <StarIcon sx={{ color: '#FFD700', fontSize: '1rem' }} />
-                        <Typography variant="body2" fontWeight={600}>
+                        <StarIcon sx={{ color: '#FFD700', fontSize: '0.9rem' }} />
+                        <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.8rem' }}>
                           {rating.toFixed(1)}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
                           ({Math.floor(Math.random() * 100) + 10})
                         </Typography>
                       </Stack>
-                      
-                      {p.category && (
-                        <Chip 
-                          label={p.category} 
-                          size="small" 
-                          variant="outlined"
-                          sx={{ 
-                            fontSize: '0.7rem',
-                            height: 20
-                          }}
-                        />
-                      )}
                     </Stack>
                     
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -380,7 +349,7 @@ export default function HomePage() {
                             variant="h6" 
                             fontWeight={800} 
                             color="primary.main"
-                            sx={{ fontSize: '1.2rem' }}
+                            sx={{ fontSize: '1.1rem' }}
                           >
                             ${(p.price ?? 0).toFixed(2)}
                           </Typography>
@@ -390,15 +359,15 @@ export default function HomePage() {
                               sx={{ 
                                 textDecoration: 'line-through',
                                 color: 'text.secondary',
-                                fontSize: '0.9rem'
+                                fontSize: '0.8rem'
                               }}
                             >
                               ${originalPrice.toFixed(2)}
                             </Typography>
                           )}
                         </Stack>
-                        <Typography variant="caption" color="success.main" fontWeight={600}>
-                          {t('products.freeShipping')} ✅
+                        <Typography variant="caption" color="success.main" fontWeight={600} sx={{ fontSize: '0.7rem' }}>
+                          Free Shipping ✅
                         </Typography>
                       </Box>
                       
@@ -407,8 +376,8 @@ export default function HomePage() {
                         sx={{
                           bgcolor: 'primary.main',
                           color: 'white',
-                          width: 36,
-                          height: 36,
+                          width: 32,
+                          height: 32,
                           '&:hover': {
                             bgcolor: 'primary.dark',
                             transform: 'scale(1.1)'
@@ -430,7 +399,7 @@ export default function HomePage() {
 
   return (
     <Box>
-      {/* Gaming CSS Animations */}
+      {/* Enhanced CSS Animations */}
       <style jsx global>{`
         @keyframes pulse {
           0%, 100% { transform: scale(1); opacity: 1; }
@@ -439,474 +408,257 @@ export default function HomePage() {
         
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
-          25% { transform: translateY(-10px) rotate(1deg); }
-          50% { transform: translateY(-5px) rotate(0deg); }
-          75% { transform: translateY(-15px) rotate(-1deg); }
+          25% { transform: translateY(-15px) rotate(2deg); }
+          50% { transform: translateY(-8px) rotate(0deg); }
+          75% { transform: translateY(-20px) rotate(-2deg); }
         }
         
         @keyframes gamingGlow {
           0%, 100% { filter: drop-shadow(0 0 5px currentColor); }
           50% { filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 30px currentColor); }
         }
+        
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        
+        @keyframes slideInUp {
+          from { transform: translateY(30px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeInScale {
+          from { transform: scale(0.9); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
       `}</style>
 
       {/* Hero */}
       <HeroSlider />
 
-      <Container sx={{ py: 6 }}>
-        {/* Enhanced Search Section */}
-        <Paper 
-          elevation={0} 
-          sx={{ 
-            p: 4, 
-            borderRadius: 4, 
-            border: (t) => `1px solid ${t.palette.divider}`,
-            background: (t) => t.palette.mode === 'light' 
-              ? 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(250,250,250,0.9) 100%)'
-              : 'linear-gradient(135deg, rgba(30,30,30,0.9) 0%, rgba(20,20,20,0.9) 100%)',
-            backdropFilter: 'blur(10px)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        >
-          {/* Background decoration */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: -50,
-              right: -50,
-              width: 200,
-              height: 200,
-              borderRadius: '50%',
-              background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
-              opacity: 0.05,
-              zIndex: 0
-            }}
-          />
-          
-          <Stack spacing={3} sx={{ position: 'relative', zIndex: 1 }}>
-            <Box textAlign="center">
-              <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} mb={1}>
-                <Typography variant="h5" fontWeight={800}>
-                  🎯 {t('home.questTitle')}
-                </Typography>
-                <Chip 
-                  label={t('home.powerUp')} 
-                  size="small" 
-                  sx={{ 
-                    bgcolor: '#FF4757', 
-                    color: 'white', 
-                    fontWeight: 700,
-                    animation: 'pulse 2s infinite' 
-                  }} 
-                />
-              </Stack>
-              <Typography variant="body1" color="text.secondary">
-                🚀 {t('home.discoverEpicDeals')} • ⚡ {t('home.unlockExclusiveItems')} • 🏆 {t('home.levelUpShopping')}
-              </Typography>
-            </Box>
-            
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
-              <AiSearchBar 
-                onSearch={handleSearch}
-                placeholder={`🎯 ${t('home.aiSearchPlaceholder')}`}
-                showSuggestions={true}
-              />
-              <Button 
-                variant="contained" 
-                size="large"
-                endIcon={<ArrowForwardIcon />} 
-                component={NextLink}
-                href="/categories" 
-                sx={{ 
-                  px: 4, 
-                  py: 1.5,
-                  borderRadius: 3,
-                  minWidth: 160,
-                  background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  boxShadow: '0 6px 20px rgba(33, 150, 243, 0.4)',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'translateY(-2px) scale(1.05)',
-                    boxShadow: '0 12px 30px rgba(33, 150, 243, 0.6)'
-                  }
-                }}
-              >
-                🚀 {t('home.questOn')}
-              </Button>
-            </Stack>
-            
-            <Box>
-              <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 600 }}>
-                🔥 {t('home.popularQuests')}
-              </Typography>
-              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-                {[
-                  {label:`⚡ ${t('home.electronics')}`, href:'/categories/electronics', color: '#2196F3'},
-                  {label:`👗 ${t('home.fashion')}`, href:'/categories/fashion', color: '#E91E63'},
-                  {label:`🏡 ${t('home.homeAndGarden')}`, href:'/categories/home', color: '#4CAF50'},
-                  {label:`🏃 ${t('home.sports')}`, href:'/categories/sports', color: '#FF9800'},
-                  {label:`📚 ${t('home.books')}`, href:'/categories/books', color: '#795548'}
-                ].map((q) => (
-                  <Chip 
-                    key={q.label} 
-                    label={q.label} 
-                    size="small" 
-                    variant="outlined" 
-                    clickable 
-                    component={NextLink as any} 
-                    href={q.href} 
-                    sx={{ 
-                      borderRadius: 3,
-                      fontWeight: 600,
-                      border: `2px solid ${q.color}30`,
-                      color: q.color,
-                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                      '&:hover': {
-                        transform: 'translateY(-3px) scale(1.05)',
-                        boxShadow: `0 8px 25px ${q.color}40`,
-                        borderColor: q.color,
-                        bgcolor: q.color,
-                        color: 'white'
-                      }
-                    }} 
-                  />
-                ))}
-              </Stack>
-            </Box>
-          </Stack>
-        </Paper>
-
-
-
-
-
+      <Container sx={{ py: 4 }}>
         {/* Category Slider */}
-        <Box mt={8}>
+        <Box mt={2}>
           <CategorySlider />
         </Box>
 
-        {/* Featured collections */}
-        <Box mt={8}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={4}>
-            <Box>
-              <Stack direction="row" alignItems="center" spacing={2} mb={1}>
-                <Typography variant="h5" fontWeight={900}>
-                  🎮 {t('home.epicCollections')}
-                </Typography>
-                <Chip 
-                  label={t('home.legendaryTier')} 
-                  size="small" 
-                  sx={{ 
-                    bgcolor: '#FFD700', 
-                    color: 'black', 
-                    fontWeight: 800,
-                    fontSize: '0.65rem',
-                    animation: 'pulse 3s infinite'
-                  }} 
-                />
-              </Stack>
-              <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-                🏨 {t('home.collectionCategories')}
+        {/* Featured Collections - Minimal Design */}
+        <Box mt={6}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <LocalMallIcon sx={{ color: 'primary.main', fontSize: '1.5rem' }} />
+              <Typography 
+                variant="h5" 
+                fontWeight={700}
+                sx={{ 
+                  background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontSize: { xs: '1.3rem', md: '1.5rem' }
+                }}
+              >
+                Gura ukurikije Icyiciro
               </Typography>
-            </Box>
+              <Chip 
+                label="Hot" 
+                size="small" 
+                sx={{ 
+                  bgcolor: '#FF4757', 
+                  color: 'white', 
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 22,
+                  borderRadius: 1
+                }} 
+              />
+            </Stack>
             <Button 
               component={NextLink}
               href="/collections" 
               variant="contained"
+              size="small"
               sx={{ 
-                borderRadius: 3, 
+                borderRadius: 0, 
                 display: { xs: 'none', sm: 'flex' },
-                background: 'linear-gradient(45deg, #FF6B35, #F7931E)',
-                fontWeight: 700,
+                background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+                fontWeight: 600,
                 px: 3,
-                boxShadow: '0 4px 15px rgba(255, 107, 53, 0.4)',
+                py: 1,
+                fontSize: '0.8rem',
+                textTransform: 'none',
                 '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 8px 25px rgba(255, 107, 53, 0.6)'
+                  background: 'linear-gradient(45deg, #16a34a, #15803d)'
                 }
               }}
             >
-              🏆 {t('home.browseAll')}
+              View All
             </Button>
           </Stack>
-          <Grid container spacing={3}>
+          
+          {/* Minimal Collections Grid */}
+          <Grid container spacing={2}>
             {[
               { 
-                title: `🏨 ${t('home.premiumHotels')}`, 
-                subtitle: t('home.luxuryAccommodations'),
-                img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format&fit=crop', 
+                title: 'Hotels', 
+                icon: '🏨',
                 href: '/collections?type=hotel',
-                badge: `🔥 ${t('home.badgeTrending')}`,
-                badgeColor: '#2196F3',
-                powerLevel: t('home.powerLevelEpic')
+                color: '#2196F3'
               },
               { 
-                title: `🍽️ ${t('home.topRestaurants')}`, 
-                subtitle: t('home.fineDining'),
-                img: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1200&auto=format&fit=crop', 
+                title: 'Restaurants', 
+                icon: '🍽️',
                 href: '/collections?type=restaurant',
-                badge: `⭐ ${t('home.badgeNewSpots')}`,
-                badgeColor: '#FF9800',
-                powerLevel: t('home.powerLevelRare')
+                color: '#FF9800'
               },
               { 
-                title: `🏡 ${t('home.realEstate')}`, 
-                subtitle: t('home.primeProperties'),
-                img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop', 
+                title: 'Real Estate', 
+                icon: '🏡',
                 href: '/collections?type=real-estate',
-                badge: `👑 ${t('home.badgePremium')}`,
-                badgeColor: '#4CAF50',
-                powerLevel: t('home.powerLevelLegendary')
+                color: '#4CAF50'
               },
               { 
-                title: `🚗 ${t('home.carRentals')}`, 
-                subtitle: t('home.premiumVehicles'),
-                img: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=1200&auto=format&fit=crop', 
+                title: 'Car Rentals', 
+                icon: '🚗',
                 href: '/collections?type=car-rental',
-                badge: `🚀 ${t('home.badgeFast')}`,
-                badgeColor: '#E91E63',
-                powerLevel: t('home.powerLevelRare')
+                color: '#E91E63'
               },
               { 
-                title: `🎓 ${t('home.tutorsAndCourses')}`, 
-                subtitle: t('home.expertKnowledge'),
-                img: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600&fit=crop&crop=center', 
+                title: 'Education', 
+                icon: '🎓',
                 href: '/collections?type=education',
-                badge: `📚 ${t('home.badgeLearn')}`,
-                badgeColor: '#3F51B5',
-                powerLevel: t('home.powerLevelEpic')
+                color: '#3F51B5'
               },
               { 
-                title: `🛍️ ${t('home.shoppingLifestyle')}`, 
-                subtitle: t('home.curatedProducts'),
-                img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop', 
+                title: 'Shopping', 
+                icon: '🛍️',
                 href: '/collections?type=shopping',
-                badge: `💎 ${t('home.badgeLuxury')}`,
-                badgeColor: '#9C27B0',
-                powerLevel: t('home.powerLevelLegendary')
+                color: '#9C27B0'
               },
             ].map((c) => (
-              <Grid key={c.title} item xs={12} md={4}>
+              <Grid item xs={6} sm={4} md={2} key={c.title}>
                 <Card 
                   component={NextLink as any} 
                   href={c.href} 
                   sx={{ 
-                    borderRadius: 3, 
-                    overflow: 'hidden', 
                     textDecoration: 'none', 
-                    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)', 
-                    position: 'relative',
-                    height: 280,
+                    transition: 'all 0.2s ease', 
+                    height: 120,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: '1px solid',
+                    borderColor: 'divider',
                     '&:hover': { 
-                      transform: 'translateY(-8px) scale(1.02)', 
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.15)' 
+                      borderColor: c.color,
+                      transform: 'translateY(-2px)',
+                      boxShadow: `0 4px 12px ${c.color}20`
                     } 
                   }}
                 >
-                  <CardMedia 
-                    component="img" 
-                    height="200" 
-                    image={c.img} 
-                    alt={c.title}
+                  <Typography sx={{ fontSize: '2rem', mb: 1 }}>
+                    {c.icon}
+                  </Typography>
+                  <Typography 
+                    variant="subtitle2" 
+                    fontWeight={600}
                     sx={{ 
-                      filter: 'brightness(0.9)',
-                      transition: 'filter 300ms',
-                      '&:hover': { filter: 'brightness(1.1)' }
-                    }}
-                  />
-                  {/* Gaming Badge */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      zIndex: 2
+                      fontSize: '0.9rem',
+                      color: 'text.primary',
+                      textAlign: 'center'
                     }}
                   >
-                    <Chip 
-                      label={c.badge} 
-                      size="small" 
-                      sx={{ 
-                        backdropFilter: 'blur(8px)',
-                        bgcolor: c.badgeColor,
-                        color: 'white',
-                        fontWeight: 700,
-                        fontSize: '0.7rem',
-                        animation: 'pulse 2s infinite',
-                        border: '2px solid rgba(255,255,255,0.3)'
-                      }}
-                    />
-                  </Box>
-                  
-                  {/* Power Level Indicator */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: 12,
-                      left: 12,
-                      zIndex: 2
-                    }}
-                  >
-                    <Chip 
-                      label={c.powerLevel} 
-                      size="small" 
-                      sx={{ 
-                        bgcolor: 'rgba(0,0,0,0.7)',
-                        color: '#FFD700',
-                        fontWeight: 800,
-                        fontSize: '0.65rem',
-                        border: '1px solid #FFD700'
-                      }}
-                    />
-                  </Box>
-                  <CardContent sx={{ height: 80 }}>
-                    <Typography variant="h6" fontWeight={700} gutterBottom>
-                      {c.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {c.subtitle}
-                    </Typography>
-                  </CardContent>
+                    {c.title}
+                  </Typography>
                 </Card>
               </Grid>
             ))}
           </Grid>
-          
-          {/* Mobile Browse All Button */}
-          <Box sx={{ display: { xs: 'block', sm: 'none' }, textAlign: 'center', mt: 3 }}>
-            <Button
-              component={NextLink}
-              href="/categories"
-              variant="outlined"
-              fullWidth
-              sx={{ borderRadius: 2 }}
-            >
-              Browse All Collections
-            </Button>
-          </Box>
         </Box>
 
         {/* New Arrivals (real data) */}
-        <ProductGrid title={t('products.newArrivals')} items={newArrivals} />
+        <ProductGrid title="🔥 New Arrivals" items={newArrivals} />
 
         {/* Top Picks (real data) */}
-        <Box mt={6}>
-          <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-            <TrendingUpIcon color="primary" />
-            <Typography variant="h5" fontWeight={800}>{t('products.topPicks')}</Typography>
-          </Stack>
-          <Grid container spacing={2}>
-            {(!products ? Array.from({ length: 8 }) : topPicks).map((p: any, idx: number) => {
-              if (!products) {
-                return (
-                  <Grid item xs={6} sm={4} md={3} key={idx}>
-                    <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2, mb: 1 }} />
-                    <Skeleton width="80%" />
-                    <Skeleton width="40%" />
-                  </Grid>
-                );
-              }
-              const img = getMainImage(p.images, 'product', p._id);
-              const isRealImage = hasRealImages(p.images);
-              const rating = typeof p.rating === 'number' ? p.rating : 4.7;
-              return (
-                <Grid item xs={6} sm={4} md={3} key={p._id}>
-                  <Card component={NextLink as any} href={`/product/${p._id}`} sx={{ borderRadius: 3, textDecoration: 'none', overflow: 'hidden', transition: 'transform 200ms', position: 'relative', '&:hover': { transform: 'translateY(-2px)' } }}>
-                    <Box sx={{ position: 'relative' }}>
-                      <CardMedia 
-                        component="img" 
-                        height="160" 
-                        image={img} 
-                        alt={p.title} 
-                        sx={{
-                          filter: isRealImage ? 'none' : 'brightness(0.9) sepia(0.1)',
-                        }}
-                      />
-                      {!isRealImage && (
-                        <Chip
-                          label="Stock Photo"
-                          size="small"
-                          sx={{
-                            position: 'absolute',
-                            bottom: 4,
-                            left: 4,
-                            backgroundColor: 'rgba(0,0,0,0.6)',
-                            color: 'white',
-                            fontSize: '0.6rem',
-                            height: 16
-                          }}
-                        />
-                      )}
-                    </Box>
-                    <CardContent>
-                      <Typography fontWeight={700} gutterBottom noWrap>{p.title}</Typography>
-                      <Stack direction="row" spacing={0.5} alignItems="center" color="warning.main">
-                        <StarIcon fontSize="small" />
-                        <Typography variant="body2">{rating.toFixed(1)}</Typography>
-                      </Stack>
-                      <Typography variant="body2" color="text.secondary">${(p.price ?? 0).toFixed(2)}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Box>
+        <ProductGrid title="⭐ Top Picks" items={topPicks} />
 
-        {/* Testimonials Section */}
+        {/* Modern Testimonials Section */}
         <Box mt={8}>
-          <Typography variant="h5" fontWeight={800} textAlign="center" gutterBottom>
-            {t('home.customerTestimonials')}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" textAlign="center" mb={4}>
-            {t('home.testimonialSubtitle')}
-          </Typography>
+          <Box textAlign="center" mb={6}>
+            <Typography 
+              variant="h4" 
+              fontWeight={900} 
+              gutterBottom
+              sx={{
+                background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontSize: { xs: '1.8rem', md: '2.2rem' }
+              }}
+            >
+              💬 What Our Customers Say
+            </Typography>
+            <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500, fontSize: '1.1rem' }}>
+              Real experiences from satisfied customers
+            </Typography>
+          </Box>
           
           <Grid container spacing={4}>
             {[
               {
-                name: t('testimonials.person1.name'),
-                role: t('testimonials.person1.role'),
+                name: 'Sarah Johnson',
+                role: 'Fashion Enthusiast',
                 avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: t('testimonials.person1.text')
+                text: 'Amazing quality products and fast delivery! The shopping experience here is incredible.',
+                verified: true
               },
               {
-                name: t('testimonials.person2.name'),
-                role: t('testimonials.person2.role'),
+                name: 'Michael Chen',
+                role: 'Tech Reviewer',
                 avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: t('testimonials.person2.text')
+                text: 'Best prices and authentic products. Customer service is top-notch!',
+                verified: true
               },
               {
-                name: t('testimonials.person3.name'),
-                role: t('testimonials.person3.role'),
+                name: 'Emily Rodriguez',
+                role: 'Lifestyle Blogger',
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: t('testimonials.person3.text')
+                text: 'Love the variety and quality. This platform has everything I need!',
+                verified: true
               }
             ].map((testimonial, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Paper 
                   sx={{ 
-                    p: 4, 
-                    borderRadius: 4,
+                    p: 5, 
+                    borderRadius: 0,
                     height: '100%',
                     position: 'relative',
                     background: (t) => t.palette.mode === 'light' 
-                      ? 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)'
-                      : 'linear-gradient(135deg, rgba(30,30,30,0.9) 0%, rgba(45,45,45,0.9) 100%)',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    backdropFilter: 'blur(10px)',
+                      ? 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'
+                      : 'linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(45,45,45,0.95) 100%)',
+                    border: '2px solid',
+                    borderColor: '#e5e7eb',
+                    backdropFilter: 'blur(20px)',
                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      transform: 'translateY(-8px) scale(1.02)',
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
-                      borderColor: 'primary.main'
+                      transform: 'translateY(-12px)',
+                      boxShadow: '0 24px 48px rgba(34, 197, 94, 0.15)',
+                      borderColor: '#22c55e',
+                      '& .testimonial-quote': {
+                        transform: 'scale(1.05)',
+                        color: '#22c55e'
+                      },
+                      '& .testimonial-avatar': {
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 8px 24px rgba(34, 197, 94, 0.3)'
+                      }
                     },
                     '&::before': {
                       content: '""',
@@ -914,32 +666,49 @@ export default function HomePage() {
                       top: 0,
                       left: 0,
                       right: 0,
-                      height: 4,
-                      background: (t) => `linear-gradient(90deg, ${t.palette.primary.main}, ${t.palette.secondary.main})`,
-                      borderRadius: '4px 4px 0 0'
+                      height: 6,
+                      background: 'linear-gradient(90deg, #22c55e, #16a34a)',
+                      borderRadius: 0
                     }
                   }}
                 >
-                  <Stack spacing={3}>
+                  <Stack spacing={4}>
                     <Stack direction="row" alignItems="center" spacing={3}>
                       <Avatar 
+                        className="testimonial-avatar"
                         src={testimonial.avatar}
                         sx={{ 
-                          width: 64, 
-                          height: 64,
-                          border: '3px solid',
-                          borderColor: 'primary.main',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                          width: 72, 
+                          height: 72,
+                          border: '4px solid',
+                          borderColor: '#22c55e',
+                          boxShadow: '0 6px 20px rgba(34, 197, 94, 0.2)',
+                          transition: 'all 0.3s ease'
                         }}
                       />
                       <Box>
-                        <Typography variant="h6" fontWeight={700} color="text.primary">
-                          {testimonial.name}
-                        </Typography>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <Typography variant="h6" fontWeight={800} color="text.primary">
+                            {testimonial.name}
+                          </Typography>
+                          {testimonial.verified && (
+                            <Chip 
+                              label="✓ Verified" 
+                              size="small" 
+                              sx={{ 
+                                bgcolor: '#22c55e', 
+                                color: 'white', 
+                                fontSize: '0.7rem',
+                                height: 20,
+                                borderRadius: 0
+                              }} 
+                            />
+                          )}
+                        </Stack>
                         <Typography 
                           variant="body2" 
-                          color="primary.main" 
-                          fontWeight={500}
+                          color="#22c55e" 
+                          fontWeight={600}
                           sx={{ mt: 0.5 }}
                         >
                           {testimonial.role}
@@ -953,8 +722,8 @@ export default function HomePage() {
                           key={i} 
                           sx={{ 
                             color: '#FFD700', 
-                            fontSize: '1.5rem',
-                            filter: 'drop-shadow(0 2px 4px rgba(255,215,0,0.3))'
+                            fontSize: '1.8rem',
+                            filter: 'drop-shadow(0 3px 6px rgba(255,215,0,0.4))'
                           }} 
                         />
                       ))}
@@ -963,36 +732,39 @@ export default function HomePage() {
                     <Box 
                       sx={{ 
                         position: 'relative',
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: 'rgba(0,0,0,0.02)',
-                        border: '1px solid',
-                        borderColor: 'divider'
+                        p: 3,
+                        borderRadius: 0,
+                        bgcolor: 'rgba(34, 197, 94, 0.05)',
+                        border: '2px solid',
+                        borderColor: 'rgba(34, 197, 94, 0.1)',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: -2,
+                          left: -2,
+                          right: -2,
+                          bottom: -2,
+                          background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+                          zIndex: -1,
+                          borderRadius: 0
+                        }
                       }}
                     >
                       <Typography 
+                        className="testimonial-quote"
                         variant="body1" 
                         sx={{ 
                           fontStyle: 'italic',
-                          lineHeight: 1.6,
+                          lineHeight: 1.7,
                           position: 'relative',
-                          zIndex: 1
+                          zIndex: 1,
+                          fontSize: '1.1rem',
+                          fontWeight: 500,
+                          transition: 'all 0.3s ease'
                         }}
                       >
                         "{testimonial.text}"
                       </Typography>
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: -8,
-                          left: 12,
-                          width: 24,
-                          height: 24,
-                          bgcolor: 'primary.main',
-                          clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
-                          opacity: 0.8
-                        }}
-                      />
                     </Box>
                   </Stack>
                 </Paper>
@@ -1001,99 +773,152 @@ export default function HomePage() {
           </Grid>
         </Box>
 
-        {/* Enhanced Flash Deals */}
+        {/* Modern Flash Deals */}
         <Box mt={8}>
           <Paper 
             sx={{ 
-              p: 4, 
-              borderRadius: 4,
-              background: (t) => t.palette.mode === 'light' 
-                ? 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%)'
-                : 'linear-gradient(135deg, #E53E3E 0%, #38B2AC 100%)',
+              p: 8, 
+              borderRadius: 0,
+              background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%)',
               color: 'white',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              boxShadow: '0 24px 64px rgba(34, 197, 94, 0.3)',
+              border: '4px solid',
+              borderColor: '#15803d'
             }}
           >
-            {/* Background Pattern */}
+            {/* Animated Background Pattern */}
             <Box
               sx={{
                 position: 'absolute',
-                top: -100,
-                right: -100,
-                width: 300,
-                height: 300,
+                top: -120,
+                right: -120,
+                width: 500,
+                height: 500,
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.08)',
+                animation: 'float 12s ease-in-out infinite',
+                zIndex: 0
+              }}
+            />
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: -100,
+                left: -100,
+                width: 400,
+                height: 400,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.06)',
+                animation: 'float 15s ease-in-out infinite reverse',
                 zIndex: 0
               }}
             />
             
             <Box sx={{ position: 'relative', zIndex: 1 }}>
-              <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} mb={2}>
-                <BoltIcon sx={{ fontSize: '2rem' }} />
-                <Typography variant="h4" fontWeight={800}>{t('home.flashDeals')}</Typography>
+              <Stack direction="row" alignItems="center" justifyContent="center" spacing={3} mb={4}>
+                <BoltIcon sx={{ fontSize: '4rem', animation: 'pulse 2s infinite', filter: 'drop-shadow(0 4px 8px rgba(255,255,255,0.3))' }} />
+                <Typography variant="h2" fontWeight={900} sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, textShadow: '2px 2px 8px rgba(0,0,0,0.3)' }}>
+                  ⚡ Flash Deals
+                </Typography>
               </Stack>
               
-              <Typography variant="h6" textAlign="center" sx={{ opacity: 0.9, mb: 4 }}>
-                {t('home.flashDealsSubtitle')}
+              <Typography variant="h5" textAlign="center" sx={{ opacity: 0.95, mb: 6, fontWeight: 500, fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
+                Limited time offers - Don't miss out on these incredible savings!
               </Typography>
               
-              <Grid container spacing={3}>
+              <Grid container spacing={4}>
                 {[
-                  { title: t('deals.electronicsTitle'), discount: '30%', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400' },
-                  { title: t('deals.fashionTitle'), discount: '25%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400' },
-                  { title: t('deals.homeTitle'), discount: '20%', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400' },
-                  { title: t('deals.sportsTitle'), discount: '35%', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400' }
+                  { title: 'Electronics', discount: '30%', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400', originalPrice: '$299', newPrice: '$209' },
+                  { title: 'Fashion', discount: '25%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400', originalPrice: '$89', newPrice: '$67' },
+                  { title: 'Home & Garden', discount: '20%', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400', originalPrice: '$149', newPrice: '$119' },
+                  { title: 'Sports', discount: '35%', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400', originalPrice: '$199', newPrice: '$129' }
                 ].map((deal, index) => (
                   <Grid item xs={12} sm={6} md={3} key={index}>
                     <Card 
                       component={NextLink as any} 
                       href="/categories" 
                       sx={{ 
-                        borderRadius: 3, 
+                        borderRadius: 0, 
                         textDecoration: 'none', 
                         overflow: 'hidden',
                         position: 'relative',
-                        transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                        transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+                        border: '3px solid',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        background: 'rgba(255,255,255,0.95)',
+                        backdropFilter: 'blur(20px)',
                         '&:hover': { 
-                          transform: 'translateY(-8px) scale(1.05)', 
-                          boxShadow: '0 20px 40px rgba(0,0,0,0.2)' 
+                          transform: 'translateY(-12px) scale(1.03)', 
+                          boxShadow: '0 24px 48px rgba(0,0,0,0.25)',
+                          borderColor: 'rgba(255,255,255,0.8)',
+                          '& .deal-image': {
+                            transform: 'scale(1.1)',
+                            filter: 'brightness(1.1)'
+                          },
+                          '& .deal-discount': {
+                            transform: 'scale(1.2)',
+                            animation: 'pulse 1s infinite'
+                          }
                         } 
                       }}
                     >
                       <CardMedia 
+                        className="deal-image"
                         component="img" 
-                        height="120" 
+                        height="140" 
                         image={deal.image}
                         alt={deal.title}
-                        sx={{ filter: 'brightness(0.8)' }}
+                        sx={{ 
+                          filter: 'brightness(0.9)',
+                          transition: 'all 0.4s ease'
+                        }}
                       />
                       
                       {/* Discount Badge */}
                       <Box
+                        className="deal-discount"
                         sx={{
                           position: 'absolute',
-                          top: 8,
-                          right: 8,
-                          bgcolor: '#FF4757',
+                          top: 12,
+                          right: 12,
+                          bgcolor: '#ef4444',
                           color: 'white',
-                          px: 1,
-                          py: 0.5,
-                          borderRadius: 2,
-                          fontWeight: 700,
-                          fontSize: '0.75rem'
+                          px: 2,
+                          py: 1,
+                          borderRadius: 0,
+                          fontWeight: 800,
+                          fontSize: '0.9rem',
+                          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)',
+                          border: '2px solid white',
+                          transition: 'all 0.3s ease'
                         }}
                       >
                         -{deal.discount}
                       </Box>
                       
-                      <CardContent>
-                        <Typography fontWeight={700} variant="subtitle1">
+                      <CardContent sx={{ p: 3 }}>
+                        <Typography fontWeight={800} variant="h6" sx={{ mb: 1, fontSize: '1.1rem' }}>
                           {deal.title}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {t('deals.saveUpTo')} {deal.discount} {t('deals.todayOnly')}
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                          <Typography variant="h6" fontWeight={800} color="#22c55e" sx={{ fontSize: '1.2rem' }}>
+                            {deal.newPrice}
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              textDecoration: 'line-through',
+                              color: 'text.secondary',
+                              fontSize: '0.9rem'
+                            }}
+                          >
+                            {deal.originalPrice}
+                          </Typography>
+                        </Stack>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                          Save up to {deal.discount} today only!
                         </Typography>
                       </CardContent>
                     </Card>
@@ -1101,87 +926,144 @@ export default function HomePage() {
                 ))}
               </Grid>
               
-              <Box textAlign="center" mt={3}>
+              <Box textAlign="center" mt={6}>
                 <Button
                   component={NextLink}
                   href="/categories"
                   variant="contained"
                   size="large"
                   sx={{
-                    bgcolor: 'rgba(255,255,255,0.2)',
+                    bgcolor: 'rgba(255,255,255,0.15)',
                     color: 'white',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    borderRadius: 3,
-                    px: 4,
+                    backdropFilter: 'blur(20px)',
+                    border: '3px solid rgba(255,255,255,0.3)',
+                    borderRadius: 0,
+                    px: 8,
+                    py: 3,
+                    fontSize: '1.3rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    boxShadow: '0 8px 32px rgba(255,255,255,0.2)',
                     '&:hover': {
-                      bgcolor: 'rgba(255,255,255,0.3)',
-                      transform: 'translateY(-2px)'
+                      bgcolor: 'rgba(255,255,255,0.25)',
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 12px 40px rgba(255,255,255,0.3)',
+                      borderColor: 'rgba(255,255,255,0.5)'
                     }
                   }}
                 >
-                  {t('home.shopAllDeals')}
+                  🛒 Shop All Deals Now
                 </Button>
               </Box>
             </Box>
           </Paper>
         </Box>
 
-        {/* Newsletter Section */}
+        {/* Modern Newsletter Section */}
         <Box mt={8}>
           <Paper 
             sx={{ 
-              p: 6, 
-              borderRadius: 4,
+              p: 8, 
+              borderRadius: 0,
               textAlign: 'center',
-              background: (t) => t.palette.mode === 'light' 
-                ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)'
-                : 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',
-              border: '1px solid',
-              borderColor: 'divider'
+              background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 50%, rgba(21, 128, 61, 0.1) 100%)',
+              border: '3px solid',
+              borderColor: '#22c55e',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 24px 64px rgba(34, 197, 94, 0.15)'
             }}
           >
-            <Typography variant="h5" fontWeight={700} gutterBottom>
-              {t('home.newsletter')}
-            </Typography>
-            <Typography variant="body1" color="text.secondary" mb={3}>
-              {t('home.newsletterSubtitle')}
-            </Typography>
+            {/* Background Elements */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -80,
+                right: -80,
+                width: 300,
+                height: 300,
+                borderRadius: '50%',
+                background: 'linear-gradient(45deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1))',
+                animation: 'float 8s ease-in-out infinite',
+                zIndex: 0
+              }}
+            />
             
-            <Stack 
-              direction={{ xs: 'column', sm: 'row' }} 
-              spacing={2} 
-              justifyContent="center" 
-              alignItems="center"
-              sx={{ maxWidth: 500, mx: 'auto' }}
-            >
-              <TextField
-                placeholder="Enter your email address"
-                variant="outlined"
-                sx={{ 
-                  flex: 1,
-                  '& .MuiInputBase-root': { 
-                    borderRadius: 3,
-                    bgcolor: 'background.paper'
-                  }
-                }}
-              />
-              <Button
-                variant="contained"
-                size="large"
-                sx={{ 
-                  px: 4,
-                  borderRadius: 3,
-                  minWidth: 140
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Typography 
+                variant="h3" 
+                fontWeight={900} 
+                gutterBottom
+                sx={{
+                  background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontSize: { xs: '2rem', md: '2.5rem' }
                 }}
               >
-                {t('home.subscribe')}
-              </Button>
-            </Stack>
-            
-            <Typography variant="caption" color="text.secondary" mt={2} display="block">
-              {t('home.privacyNote')}
-            </Typography>
+                📧 Stay Updated
+              </Typography>
+              <Typography variant="h5" color="text.secondary" mb={5} sx={{ fontWeight: 500, fontSize: { xs: '1.1rem', md: '1.3rem' } }}>
+                Get the latest deals and exclusive offers delivered to your inbox
+              </Typography>
+              
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={3} 
+                justifyContent="center" 
+                alignItems="center"
+                sx={{ maxWidth: 700, mx: 'auto' }}
+              >
+                <TextField
+                  placeholder="Enter your email address"
+                  variant="outlined"
+                  sx={{ 
+                    flex: 1,
+                    '& .MuiInputBase-root': { 
+                      borderRadius: 0,
+                      bgcolor: 'background.paper',
+                      fontSize: '1.1rem',
+                      py: 1.5,
+                      border: '2px solid',
+                      borderColor: '#e5e7eb',
+                      '&:focus-within': {
+                        borderColor: '#22c55e',
+                        boxShadow: '0 0 0 3px rgba(34, 197, 94, 0.1)'
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={{ 
+                    px: 8,
+                    py: 2,
+                    borderRadius: 0,
+                    minWidth: 200,
+                    fontSize: '1.1rem',
+                    fontWeight: 800,
+                    background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+                    boxShadow: '0 8px 32px rgba(34, 197, 94, 0.4)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    '&:hover': {
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 12px 40px rgba(34, 197, 94, 0.6)',
+                      background: 'linear-gradient(45deg, #16a34a, #15803d)'
+                    }
+                  }}
+                >
+                  Subscribe
+                </Button>
+              </Stack>
+              
+              <Typography variant="caption" color="text.secondary" mt={4} display="block" sx={{ fontSize: '0.9rem', fontWeight: 500 }}>
+                We respect your privacy. Unsubscribe at any time.
+              </Typography>
+            </Box>
           </Paper>
         </Box>
       </Container>

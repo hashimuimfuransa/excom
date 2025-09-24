@@ -38,7 +38,8 @@ import {
   Receipt as OrdersIcon,
   Favorite as FavoriteIcon,
   Person as PersonIcon,
-  MonetizationOn as BargainIcon
+  MonetizationOn as BargainIcon,
+  TrendingUp as AffiliateIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import DarkModeToggle from './DarkModeToggle';
@@ -177,10 +178,16 @@ export default function Navbar() {
         
         <Divider sx={{ my: 2 }} />
         
-        {/* Language Switcher in Mobile */}
-        <ListItem sx={{ px: 2, py: 1 }}>
-          <LanguageSwitcher />
-        </ListItem>
+        {/* Settings Section */}
+        <Box sx={{ px: 2, py: 1 }}>
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600 }}>
+            Settings
+          </Typography>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <LanguageSwitcher />
+            <DarkModeToggle />
+          </Stack>
+        </Box>
         
         <Divider sx={{ my: 1 }} />
         
@@ -276,7 +283,30 @@ export default function Navbar() {
               </ListItem>
             )}
             
-            {user.role !== 'admin' && (
+            {user.role === 'affiliate' && (
+              <ListItem disablePadding>
+                <ListItemButton 
+                  component={NextLink}
+                  href="/dashboard/affiliate"
+                  onClick={() => setMobileOpen(false)}
+                  sx={{ 
+                    borderRadius: 2, 
+                    mx: 2, 
+                    mb: 0.5,
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.success.main, 0.1)
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'success.main', minWidth: 40 }}>
+                    <AffiliateIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={t('navigation.affiliateDashboard')} />
+                </ListItemButton>
+              </ListItem>
+            )}
+            
+            {user.role !== 'admin' && user.role !== 'affiliate' && (
               <ListItem disablePadding>
                 <ListItemButton 
                   component={NextLink}
@@ -373,12 +403,30 @@ export default function Navbar() {
         sx={(t) => ({
           borderRadius: 0,
           backdropFilter: 'saturate(180%) blur(20px)',
-          backgroundColor: t.palette.mode === 'dark' 
-            ? alpha(t.palette.background.paper, 0.85)
-            : alpha('#ffffff', 0.95),
-          borderBottom: `1px solid ${alpha(t.palette.divider, 0.3)}`,
+          background: t.palette.mode === 'dark' 
+            ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(22, 163, 74, 0.95) 50%, rgba(21, 128, 61, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(22, 163, 74, 0.95) 50%, rgba(21, 128, 61, 0.95) 100%)',
+          borderBottom: `1px solid ${alpha(t.palette.divider, 0.2)}`,
           transition: 'all 0.3s ease',
-          color: t.palette.mode === 'dark' ? t.palette.text.primary : '#1a1a1a'
+          color: 'white',
+          boxShadow: '0 4px 20px rgba(34, 197, 94, 0.15)',
+          // Enhanced styling for modern look
+          '& .MuiIconButton-root': {
+            color: 'white',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)', 
+              transform: 'scale(1.05)'
+            }
+          },
+          '& .MuiButton-root': {
+            color: 'white',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)', 
+              transform: 'translateY(-1px)'
+            }
+          }
         })}
       >
         <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
@@ -388,7 +436,10 @@ export default function Navbar() {
               onClick={handleDrawerToggle}
               sx={{ 
                 mr: 1,
-                color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a'
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                }
               }}
               aria-label="menu"
             >
@@ -426,10 +477,8 @@ export default function Navbar() {
               variant="h6" 
               fontWeight={800}
               sx={{ 
-                background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: 'white',
+                textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                 display: { xs: isMobile ? 'none' : 'block', sm: 'block' }
               }}
             >
@@ -449,12 +498,12 @@ export default function Navbar() {
                 sx={{ 
                   borderRadius: 2,
                   px: 2,
-                  color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a',
+                  color: 'white',
                   fontWeight: 600,
                   transition: 'all 0.3s ease',
                   '&:hover': {
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    color: theme.palette.primary.main,
+                    bgcolor: 'rgba(255, 255, 255, 0.15)', 
+                    color: 'white',
                     transform: 'translateY(-1px)'
                   }
                 }}
@@ -468,12 +517,12 @@ export default function Navbar() {
                 sx={{ 
                   borderRadius: 2,
                   px: 2,
-                  color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a',
+                  color: 'white',
                   fontWeight: 600,
                   transition: 'all 0.3s ease',
                   '&:hover': {
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    color: theme.palette.primary.main,
+                    bgcolor: 'rgba(255, 255, 255, 0.15)', 
+                    color: 'white',
                     transform: 'translateY(-1px)'
                   }
                 }}
@@ -487,12 +536,12 @@ export default function Navbar() {
                 sx={{ 
                   borderRadius: 2,
                   px: 2,
-                  color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a',
+                  color: 'white',
                   fontWeight: 600,
                   transition: 'all 0.3s ease',
                   '&:hover': {
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    color: theme.palette.primary.main,
+                    bgcolor: 'rgba(255, 255, 255, 0.15)', 
+                    color: 'white',
                     transform: 'translateY(-1px)'
                   }
                 }}
@@ -502,13 +551,22 @@ export default function Navbar() {
             </Stack>
           )}
 
-          {/* Right side actions */}
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: 2 }}>
-            <LanguageSwitcher />
-            <DarkModeToggle />
+          {/* Right side actions - Organized for mobile */}
+          <Stack 
+            direction="row" 
+            spacing={{ xs: 0.5, sm: 1 }} 
+            alignItems="center" 
+            sx={{ ml: { xs: 1, sm: 2 } }}
+          >
+            {/* Settings Group - Language & Theme */}
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <LanguageSwitcher />
+              <DarkModeToggle />
+            </Stack>
             
+            {/* User Actions Group */}
             {!user ? (
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }}>
                 {!isMobile && (
                   <Button 
                     component={NextLink} 
@@ -516,12 +574,12 @@ export default function Navbar() {
                     startIcon={<LoginIcon />}
                     sx={{ 
                       borderRadius: 2,
-                      color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a',
+                      color: 'white',
                       fontWeight: 600,
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        bgcolor: alpha(theme.palette.success.main, 0.1),
-                        color: theme.palette.success.main
+                        bgcolor: 'rgba(255, 255, 255, 0.15)',
+                        color: 'white'
                       }
                     }}
                   >
@@ -535,12 +593,17 @@ export default function Navbar() {
                   startIcon={!isMobile ? <PersonAddIcon /> : undefined}
                   sx={{ 
                     borderRadius: 2,
-                    background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
-                    boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    color: 'white',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    backdropFilter: 'blur(10px)',
                     transition: 'all 0.3s ease',
+                    px: { xs: 1.5, sm: 2 },
+                    fontSize: { xs: '0.8rem', sm: '0.9rem' },
                     '&:hover': {
+                      background: 'rgba(255, 255, 255, 0.3)',
                       transform: 'translateY(-2px)',
-                      boxShadow: '0 8px 25px rgba(33, 150, 243, 0.4)'
+                      boxShadow: '0 8px 25px rgba(255, 255, 255, 0.2)'
                     }
                   }}
                 >
@@ -548,171 +611,189 @@ export default function Navbar() {
                 </Button>
               </Stack>
             ) : (
-              <>
-                <IconButton 
-                  onClick={(e) => setAnchorEl(e.currentTarget)} 
-                  aria-label="account"
-                  sx={{
-                    transition: 'transform 0.2s ease',
-                    '&:hover': {
-                      transform: 'scale(1.1)'
-                    }
+              <IconButton 
+                onClick={(e) => setAnchorEl(e.currentTarget)} 
+                aria-label="account"
+                sx={{
+                  transition: 'transform 0.2s ease',
+                  '&:hover': {
+                    transform: 'scale(1.1)'
+                  }
+                }}
+              >
+                <Avatar 
+                  src={user.avatar}
+                  sx={{ 
+                    width: { xs: 32, sm: 36 }, 
+                    height: { xs: 32, sm: 36 },
+                    background: user.avatar ? 'transparent' : 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                    boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)'
                   }}
                 >
-                  <Avatar 
-                    src={user.avatar}
-                    sx={{ 
-                      width: { xs: 36, sm: 40 }, 
-                      height: { xs: 36, sm: 40 },
-                      background: user.avatar ? 'transparent' : 'linear-gradient(45deg, #2196F3, #21CBF3)',
-                      boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)'
-                    }}
-                  >
-                    {!user.avatar && (user.firstName?.[0] || user.lastName?.[0] || 'U')?.toUpperCase()}
-                  </Avatar>
-                </IconButton>
-                
-                <Menu 
-                  anchorEl={anchorEl} 
-                  open={open} 
-                  onClose={() => setAnchorEl(null)}
-                  sx={{
-                    '& .MuiPaper-root': {
-                      borderRadius: 2,
-                      minWidth: 200,
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`
-                    }
-                  }}
-                >
-                  <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-                    <Typography variant="subtitle2" fontWeight={600}>
-                      {`${user.firstName || ''} ${user.lastName || ''}`.trim() || t('user.user')}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {user.email}
-                    </Typography>
-                  </Box>
-                  
-                  <MenuItem 
-                    component={NextLink} 
-                    href="/profile"
-                    sx={{ gap: 1 }}
-                  >
-                    <PersonIcon fontSize="small" />
-                    {t('navigation.profile')}
-                  </MenuItem>
-                  
-                  {user.role === 'admin' && (
-                    <MenuItem 
-                      component={NextLink} 
-                      href="/dashboard/admin"
-                      sx={{ gap: 1 }}
-                    >
-                      <DashboardIcon fontSize="small" />
-                      {t('navigation.adminDashboard')}
-                    </MenuItem>
-                  )}
-                  {user.role !== 'admin' && (
-                    <MenuItem 
-                      component={NextLink} 
-                      href="/dashboard/vendor"
-                      sx={{ gap: 1 }}
-                    >
-                      <DashboardIcon fontSize="small" />
-                      {t('navigation.vendorDashboard')}
-                    </MenuItem>
-                  )}
-                  <MenuItem 
-                    component={NextLink} 
-                    href="/orders"
-                    sx={{ gap: 1 }}
-                  >
-                    <OrdersIcon fontSize="small" />
-                    {t('navigation.myOrders')}
-                  </MenuItem>
-                  <MenuItem 
-                    component={NextLink} 
-                    href="/bargaining"
-                    sx={{ gap: 1 }}
-                  >
-                    <BargainIcon fontSize="small" />
-                    {t('navigation.bargaining')}
-                  </MenuItem>
-                  <MenuItem onClick={logout} sx={{ gap: 1, color: 'error.main' }}>
-                    <LogoutIcon fontSize="small" />
-                    {t('navigation.logout')}
-                  </MenuItem>
-                </Menu>
-              </>
+                  {!user.avatar && (user.firstName?.[0] || user.lastName?.[0] || 'U')?.toUpperCase()}
+                </Avatar>
+              </IconButton>
             )}
 
-            {/* Wishlist */}
-            <IconButton 
-              component={NextLink} 
-              href="/wishlist" 
-              aria-label="wishlist"
-              sx={{
-                color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a',
-                transition: 'transform 0.2s ease',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                  color: theme.palette.primary.main
-                }
-              }}
-            >
-              <Badge 
-                badgeContent={wishlistCount || 0} 
-                color="error"
+            {/* Shopping Actions Group */}
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              {/* Wishlist */}
+              <IconButton 
+                component={NextLink} 
+                href="/wishlist" 
+                aria-label="wishlist"
                 sx={{
-                  '& .MuiBadge-badge': {
-                    right: 2,
-                    top: 2,
-                    fontSize: '0.75rem',
-                    minWidth: '20px',
-                    height: '20px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(45deg, #e91e63, #f06292)'
+                  color: 'white',
+                  transition: 'all 0.2s ease',
+                  p: { xs: 0.5, sm: 1 },
+                  '&:hover': {
+                    transform: 'scale(1.1)',
+                    color: 'white',
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   }
                 }}
               >
-                <FavoriteIcon />
-              </Badge>
-            </IconButton>
+                <Badge 
+                  badgeContent={wishlistCount || 0} 
+                  color="error"
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      right: 1,
+                      top: 1,
+                      fontSize: '0.7rem',
+                      minWidth: '16px',
+                      height: '16px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(45deg, #e91e63, #f06292)'
+                    }
+                  }}
+                >
+                  <FavoriteIcon fontSize="small" />
+                </Badge>
+              </IconButton>
 
-            {/* Shopping Cart */}
-            <IconButton 
-              component={NextLink} 
-              href="/cart" 
-              aria-label="cart"
-              sx={{
-                color: theme.palette.mode === 'dark' ? 'inherit' : '#1a1a1a',
-                transition: 'transform 0.2s ease',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                  color: theme.palette.primary.main
-                }
-              }}
-            >
-              <Badge 
-                badgeContent={items.length + bookingItems.length} 
-                color="primary"
+              {/* Shopping Cart */}
+              <IconButton 
+                component={NextLink} 
+                href="/cart" 
+                aria-label="cart"
                 sx={{
-                  '& .MuiBadge-badge': {
-                    right: 2,
-                    top: 2,
-                    fontSize: '0.75rem',
-                    minWidth: '20px',
-                    height: '20px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(45deg, #FF6B6B, #FF8E53)'
+                  color: 'white',
+                  transition: 'all 0.2s ease',
+                  p: { xs: 0.5, sm: 1 },
+                  '&:hover': {
+                    transform: 'scale(1.1)',
+                    color: 'white',
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   }
                 }}
               >
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
+                <Badge 
+                  badgeContent={items.length + bookingItems.length} 
+                  color="primary"
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      right: 1,
+                      top: 1,
+                      fontSize: '0.7rem',
+                      minWidth: '16px',
+                      height: '16px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(45deg, #FF6B6B, #FF8E53)'
+                    }
+                  }}
+                >
+                  <ShoppingCartIcon fontSize="small" />
+                </Badge>
+              </IconButton>
+            </Stack>
           </Stack>
+
+          {/* User Menu */}
+          {user && (
+            <Menu 
+              anchorEl={anchorEl} 
+              open={open} 
+              onClose={() => setAnchorEl(null)}
+              sx={{
+                '& .MuiPaper-root': {
+                  borderRadius: 2,
+                  minWidth: 200,
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`
+                }
+              }}
+            >
+              <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+                <Typography variant="subtitle2" fontWeight={600}>
+                  {`${user.firstName || ''} ${user.lastName || ''}`.trim() || t('user.user')}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {user.email}
+                </Typography>
+              </Box>
+              
+              <MenuItem 
+                component={NextLink} 
+                href="/profile"
+                sx={{ gap: 1 }}
+              >
+                <PersonIcon fontSize="small" />
+                {t('navigation.profile')}
+              </MenuItem>
+              
+              {user.role === 'admin' && (
+                <MenuItem 
+                  component={NextLink} 
+                  href="/dashboard/admin"
+                  sx={{ gap: 1 }}
+                >
+                  <DashboardIcon fontSize="small" />
+                  {t('navigation.adminDashboard')}
+                </MenuItem>
+              )}
+              {user.role === 'affiliate' && (
+                <MenuItem 
+                  component={NextLink} 
+                  href="/dashboard/affiliate"
+                  sx={{ gap: 1 }}
+                >
+                  <AffiliateIcon fontSize="small" />
+                  {t('navigation.affiliateDashboard')}
+                </MenuItem>
+              )}
+              {user.role !== 'admin' && user.role !== 'affiliate' && (
+                <MenuItem 
+                  component={NextLink} 
+                  href="/dashboard/vendor"
+                  sx={{ gap: 1 }}
+                >
+                  <DashboardIcon fontSize="small" />
+                  {t('navigation.vendorDashboard')}
+                </MenuItem>
+              )}
+              <MenuItem 
+                component={NextLink} 
+                href="/orders"
+                sx={{ gap: 1 }}
+              >
+                <OrdersIcon fontSize="small" />
+                {t('navigation.myOrders')}
+              </MenuItem>
+              <MenuItem 
+                component={NextLink} 
+                href="/bargaining"
+                sx={{ gap: 1 }}
+              >
+                <BargainIcon fontSize="small" />
+                {t('navigation.bargaining')}
+              </MenuItem>
+              <MenuItem onClick={logout} sx={{ gap: 1, color: 'error.main' }}>
+                <LogoutIcon fontSize="small" />
+                {t('navigation.logout')}
+              </MenuItem>
+            </Menu>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -726,9 +807,26 @@ export default function Navbar() {
             width: 280,
             borderRadius: '0 16px 16px 0',
             background: theme.palette.mode === 'dark' 
-              ? 'linear-gradient(180deg, rgba(30,30,30,0.95) 0%, rgba(15,15,15,0.95) 100%)'
-              : 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(250,250,250,0.95) 100%)',
-            backdropFilter: 'blur(20px)'
+              ? 'linear-gradient(180deg, rgba(10, 15, 26, 0.98) 0%, rgba(5, 8, 15, 0.98) 100%)'
+              : 'linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: `1px solid ${theme.palette.divider}`,
+            // Enhanced dark mode styling for drawer
+            ...(theme.palette.mode === 'dark' && {
+              '& .MuiListItemButton-root': {
+                color: theme.palette.text.primary,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(124, 58, 237, 0.15)',
+                  color: theme.palette.primary.main,
+                }
+              },
+              '& .MuiListItemIcon-root': {
+                color: theme.palette.text.secondary,
+              }
+            })
           }
         }}
       >

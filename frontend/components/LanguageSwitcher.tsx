@@ -14,10 +14,12 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
+import EnglandFlag from './flags/EnglandFlag';
+import RwandaFlag from './flags/RwandaFlag';
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'rw', name: 'Kinyarwanda', flag: '🇷🇼' }
+  { code: 'en', name: 'English', flag: EnglandFlag },
+  { code: 'rw', name: 'Kinyarwanda', flag: RwandaFlag }
 ];
 
 export default function LanguageSwitcher() {
@@ -54,6 +56,8 @@ export default function LanguageSwitcher() {
     return languages.find(lang => lang.code === i18n.language) || languages[0];
   };
 
+  const currentLanguage = getCurrentLanguage();
+
   return (
     <>
       <IconButton
@@ -66,7 +70,20 @@ export default function LanguageSwitcher() {
           }
         }}
       >
-        <LanguageIcon />
+        <Box sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.3)',
+          background: 'rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <currentLanguage.flag size={20} />
+        </Box>
       </IconButton>
 
       <Menu
@@ -114,13 +131,12 @@ export default function LanguageSwitcher() {
               }}
             >
               <Box sx={{ 
-                fontSize: '1.2rem', 
                 minWidth: '24px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                {language.flag}
+                <language.flag size={20} />
               </Box>
               
               <Typography variant="body2" sx={{ flexGrow: 1 }}>

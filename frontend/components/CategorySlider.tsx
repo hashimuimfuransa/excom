@@ -402,133 +402,59 @@ export default function CategorySlider() {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {/* Enhanced Gaming Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <Box 
-          sx={{ 
-            mb: 4,
-            p: 3,
-            borderRadius: 4,
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%)',
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        >
-          {/* Animated Background Elements */}
-          <motion.div
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-              rotate: [0, 180, 360]
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            style={{
-              position: 'absolute',
-              top: -50,
-              right: -50,
-              width: 100,
-              height: 100,
-              borderRadius: '50%',
-              background: 'linear-gradient(45deg, #6366f1, transparent)',
-              opacity: 0.1,
-              zIndex: 0
-            }}
-          />
-          <motion.div
-            animate={{
-              x: [0, -80, 0],
-              y: [0, 30, 0],
-              rotate: [360, 0, 360]
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            style={{
-              position: 'absolute',
-              bottom: -30,
-              left: -30,
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              background: 'linear-gradient(45deg, #a855f7, transparent)',
-              opacity: 0.15,
-              zIndex: 0
-            }}
-          />
-
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ position: 'relative', zIndex: 1 }}>
-            <Box>
-              <Stack direction="row" alignItems="center" spacing={2} mb={1}>
-                <Typography 
-                  variant="h4" 
-                  fontWeight={900} 
-                  sx={{ 
-                    background: 'linear-gradient(45deg, #6366f1, #a855f7, #ec4899)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    textShadow: '0 2px 4px rgba(99, 102, 241, 0.3)'
-                  }}
-                >
-                  🎮 {t('home.shopByCategory')}
-                </Typography>
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Chip
-                    label={t('home.smoothFlow')}
-                    size="small"
-                    sx={{
-                      bgcolor: '#6366f1',
-                      color: 'white',
-                      fontWeight: 700,
-                      fontSize: '0.6rem'
-                    }}
-                  />
-                </motion.div>
-              </Stack>
-              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                ⚡ {t('home.categoryDescription')}
-              </Typography>
-            </Box>
-            <Button
-              component={NextLink}
-              href="/categories"
-              variant="contained"
+      {/* Minimal Category Header */}
+      <Box sx={{ mb: 4 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Typography 
+              variant="h5" 
+              fontWeight={700}
               sx={{ 
-                borderRadius: 3,
-                bgcolor: 'linear-gradient(45deg, #6366f1, #a855f7)',
-                background: 'linear-gradient(45deg, #6366f1, #a855f7)',
-                px: 3,
-                py: 1.5,
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                display: { xs: 'none', sm: 'flex' },
-                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px) scale(1.05)',
-                  boxShadow: '0 8px 25px rgba(99, 102, 241, 0.6)'
-                }
+                background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontSize: { xs: '1.3rem', md: '1.5rem' }
               }}
             >
-              🚀 {t('home.viewAll')}
-            </Button>
+              Shop by Category
+            </Typography>
+            <Chip 
+              label="Hot" 
+              size="small" 
+              sx={{ 
+                bgcolor: '#FF4757', 
+                color: 'white', 
+                fontWeight: 600,
+                fontSize: '0.7rem',
+                height: 22,
+                borderRadius: 1
+              }} 
+            />
           </Stack>
-        </Box>
-      </motion.div>
+          <Button
+            component={NextLink}
+            href="/categories"
+            variant="contained"
+            size="small"
+            sx={{ 
+              borderRadius: 1,
+              background: 'linear-gradient(45deg, #22c55e, #16a34a)',
+              fontWeight: 600,
+              px: 3,
+              py: 1,
+              fontSize: '0.8rem',
+              textTransform: 'none',
+              display: { xs: 'none', sm: 'flex' },
+              '&:hover': {
+                background: 'linear-gradient(45deg, #16a34a, #15803d)'
+              }
+            }}
+          >
+            View All
+          </Button>
+        </Stack>
+      </Box>
 
       {/* Scroll Container */}
       <Box sx={{ position: 'relative' }}>
@@ -776,18 +702,18 @@ export default function CategorySlider() {
                       </Avatar>
                       
                       <Typography
-                        variant="h6"
-                        fontWeight={800}
+                        variant="subtitle1"
+                        fontWeight={700}
                         sx={{
                           zIndex: 1,
                           textAlign: 'center',
                           lineHeight: 1.2,
-                          mb: 1.5,
-                          fontSize: '1.1rem'
+                          mb: 1,
+                          fontSize: '0.95rem'
                         }}
                       >
                         {loading ? (
-                          <Skeleton variant="text" width={120} height={28} />
+                          <Skeleton variant="text" width={100} height={24} />
                         ) : (
                           category.name
                         )}
@@ -795,18 +721,18 @@ export default function CategorySlider() {
 
                       {/* Item Count Chip */}
                       {loading ? (
-                        <Skeleton variant="rectangular" width={80} height={20} sx={{ borderRadius: 3 }} />
+                        <Skeleton variant="rectangular" width={60} height={18} sx={{ borderRadius: 2 }} />
                       ) : (
                         <Chip
                           className="count-chip"
-                          label={`${category.count} items`}
+                          label={`${category.count}`}
                           size="small"
                           sx={{
                             bgcolor: `${category.color}15`,
                             color: category.color,
                             fontWeight: 600,
-                            fontSize: '0.7rem',
-                            height: 20,
+                            fontSize: '0.65rem',
+                            height: 18,
                             transition: 'all 0.3s ease'
                           }}
                         />

@@ -22,10 +22,14 @@ import {
   TrendingUp,
   Inventory,
   ArrowBack as ArrowBackIcon,
-  MonetizationOn
+  MonetizationOn,
+  ViewInAr as ArIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
 import { apiDelete, apiGet, apiPost, apiPatch } from '@utils/api';
 import { useTranslation } from 'react-i18next';
+import Product3DManager from '@components/Product3DManager';
 
 interface Product { 
   _id: string; 
@@ -44,6 +48,32 @@ interface Product {
   maxBargainDiscountPercent?: number;
   createdAt?: string;
   updatedAt?: string;
+  // Product variants
+  variants?: {
+    sizes?: string[];
+    colors?: string[];
+    weight?: {
+      value: number;
+      unit: 'kg' | 'g' | 'lb' | 'oz';
+      displayValue?: string;
+    };
+    dimensions?: {
+      length: number;
+      width: number;
+      height: number;
+      unit: 'cm' | 'in' | 'm';
+    };
+    material?: string;
+    brand?: string;
+    sku?: string;
+    inventory?: number;
+  };
+  // AR/3D Model fields
+  modelUrl?: string;
+  modelType?: 'gltf' | 'glb' | 'usdz';
+  modelStatus?: 'none' | 'generating' | 'ready' | 'failed';
+  modelGeneratedAt?: string;
+  modelGenerationId?: string;
 }
 
 interface Store {
@@ -96,6 +126,30 @@ export default function VendorProductsPage() {
   const [bargainingEnabled, setBargainingEnabled] = useState(false);
   const [minBargainPrice, setMinBargainPrice] = useState<number | ''>('');
   const [maxBargainDiscountPercent, setMaxBargainDiscountPercent] = useState<number | ''>(20);
+  
+  // Product variants state
+  const [variants, setVariants] = useState({
+    sizes: [] as string[],
+    colors: [] as string[],
+    weight: {
+      value: '' as number | '',
+      unit: 'kg' as 'kg' | 'g' | 'lb' | 'oz',
+      displayValue: ''
+    },
+    dimensions: {
+      length: '' as number | '',
+      width: '' as number | '',
+      height: '' as number | '',
+      unit: 'cm' as 'cm' | 'in' | 'm'
+    },
+    material: '',
+    brand: '',
+    sku: '',
+    inventory: '' as number | ''
+  });
+  
+  // 3D Model management state
+  const [expanded3DSections, setExpanded3DSections] = useState<Set<string>>(new Set());
   
   // Store management
   const [stores, setStores] = useState<Store[]>([]);
@@ -192,6 +246,16 @@ export default function VendorProductsPage() {
     setBargainingEnabled(false);
     setMinBargainPrice('');
     setMaxBargainDiscountPercent(20);
+    setVariants({
+      sizes: [],
+      colors: [],
+      weight: { value: '', unit: 'kg', displayValue: '' },
+      dimensions: { length: '', width: '', height: '', unit: 'cm' },
+      material: '',
+      brand: '',
+      sku: '',
+      inventory: ''
+    });
     setError('');
     setOpen(true);
   }
@@ -208,6 +272,16 @@ export default function VendorProductsPage() {
     setBargainingEnabled(p.bargainingEnabled || false);
     setMinBargainPrice(p.minBargainPrice || '');
     setMaxBargainDiscountPercent(p.maxBargainDiscountPercent || 20);
+    setVariants({
+      sizes: p.variants?.sizes || [],
+      colors: p.variants?.colors || [],
+      weight: p.variants?.weight || { value: '', unit: 'kg', displayValue: '' },
+      dimensions: p.variants?.dimensions || { length: '', width: '', height: '', unit: 'cm' },
+      material: p.variants?.material || '',
+      brand: p.variants?.brand || '',
+      sku: p.variants?.sku || '',
+      inventory: p.variants?.inventory || ''
+    });
     setError('');
     setOpen(true);
   }
@@ -275,6 +349,34 @@ export default function VendorProductsPage() {
       }
     }
 
+    // Process variants data
+    const processedVariants: any = {};
+    
+    if (variants.sizes.length > 0) processedVariants.sizes = variants.sizes;
+    if (variants.colors.length > 0) processedVariants.colors = variants.colors;
+    
+    if (variants.weight.value) {
+      processedVariants.weight = {
+        value: Number(variants.weight.value),
+        unit: variants.weight.unit,
+        displayValue: `${variants.weight.value}${variants.weight.unit}`
+      };
+    }
+    
+    if (variants.dimensions.length || variants.dimensions.width || variants.dimensions.height) {
+      processedVariants.dimensions = {
+        length: Number(variants.dimensions.length) || 0,
+        width: Number(variants.dimensions.width) || 0,
+        height: Number(variants.dimensions.height) || 0,
+        unit: variants.dimensions.unit
+      };
+    }
+    
+    if (variants.material) processedVariants.material = variants.material;
+    if (variants.brand) processedVariants.brand = variants.brand;
+    if (variants.sku) processedVariants.sku = variants.sku;
+    if (variants.inventory) processedVariants.inventory = Number(variants.inventory);
+
     const body = { 
       title: title.trim(), 
       price: Number(price), 
@@ -285,12 +387,52 @@ export default function VendorProductsPage() {
       store: selectedStore || undefined,
       bargainingEnabled,
       minBargainPrice: minBargainPrice ? Number(minBargainPrice) : undefined,
-      maxBargainDiscountPercent: maxBargainDiscountPercent ? Number(maxBargainDiscountPercent) : undefined
+      maxBargainDiscountPercent: maxBargainDiscountPercent ? Number(maxBargainDiscountPercent) : undefined,
+      variants: Object.keys(processedVariants).length > 0 ? processedVariants : undefined
     };
     try {
       if (!editing) {
         const created = await apiPost<Product>(`/products`, body);
         setItems([created, ...items]);
+        
+        // Automatically trigger AR generation for new products
+        if (created._id && images.length > 0) {
+          try {
+            const token = localStorage.getItem('excom_token');
+            if (token) {
+              const arResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ar/${created._id}/generate-3d`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              if (arResponse.ok) {
+                console.log('AR generation started automatically for product:', created.title);
+                // Update the product in the list to show generating status
+                setItems(prevItems => 
+                  prevItems.map(item => 
+                    item._id === created._id 
+                      ? { ...item, modelStatus: 'generating' }
+                      : item
+                  )
+                );
+              } else {
+                const errorText = await arResponse.text();
+                console.warn('Failed to start AR generation automatically:', errorText);
+                
+                // Check if it's a subscription error
+                if (arResponse.status === 402) {
+                  console.warn('AR generation requires Meshy.ai subscription upgrade');
+                }
+              }
+            }
+          } catch (arError) {
+            console.error('Error starting automatic AR generation:', arError);
+            // Don't show error to user as this is automatic
+          }
+        }
       } else {
         const updated = await apiPatch<Product>(`/products/${editing._id}`, body);
         setItems(items.map(it => it._id === editing._id ? { ...it, ...updated } : it));
@@ -316,6 +458,31 @@ export default function VendorProductsPage() {
     setPriceRange({ min: '', max: '' });
     setCurrentPage(1);
   }
+
+  // 3D Model management functions
+  const toggle3DSection = (productId: string) => {
+    const newExpanded = new Set(expanded3DSections);
+    if (newExpanded.has(productId)) {
+      newExpanded.delete(productId);
+    } else {
+      newExpanded.add(productId);
+    }
+    setExpanded3DSections(newExpanded);
+  };
+
+  const handle3DModelUpdate = (productId: string, modelData: {
+    modelUrl?: string;
+    modelType?: 'gltf' | 'glb' | 'usdz';
+    modelStatus?: 'none' | 'generating' | 'ready' | 'failed';
+  }) => {
+    setItems(prevItems => 
+      prevItems.map(item => 
+        item._id === productId 
+          ? { ...item, ...modelData }
+          : item
+      )
+    );
+  };
 
   const ProductCard = ({ product }: { product: Product }) => {
     if (viewMode === 'list') {
@@ -358,6 +525,15 @@ export default function VendorProductsPage() {
                         icon={<MonetizationOn fontSize="small" />}
                       />
                     )}
+                    {/* 3D Model Status */}
+                    {product.modelStatus && product.modelStatus !== 'none' && (
+                      <Chip 
+                        label={`3D: ${product.modelStatus}`} 
+                        color={product.modelStatus === 'ready' ? 'success' : product.modelStatus === 'generating' ? 'warning' : 'error'}
+                        size="small" 
+                        icon={<ArIcon fontSize="small" />}
+                      />
+                    )}
                     {product.createdAt && (
                       <Typography variant="caption" color="text.secondary">
                         {t('products.created')} {new Date(product.createdAt).toLocaleDateString()}
@@ -366,6 +542,14 @@ export default function VendorProductsPage() {
                   </Stack>
                 </Box>
                 <Stack direction="row">
+                  <Tooltip title="3D Model Management">
+                    <IconButton 
+                      onClick={() => toggle3DSection(product._id)} 
+                      color={expanded3DSections.has(product._id) ? "primary" : "default"}
+                    >
+                      {expanded3DSections.has(product._id) ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title={t('common.edit')}>
                     <IconButton onClick={() => startEdit(product)} color="primary">
                       <EditIcon />
@@ -380,6 +564,21 @@ export default function VendorProductsPage() {
               </Stack>
             </Box>
           </Stack>
+          
+          {/* 3D Model Management Section */}
+          <Collapse in={expanded3DSections.has(product._id)}>
+            <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+              <Product3DManager
+                productId={product._id}
+                productTitle={product.title}
+                productImage={product.images?.[0]}
+                currentModelUrl={product.modelUrl}
+                currentModelType={product.modelType}
+                currentModelStatus={product.modelStatus}
+                onModelUpdate={(modelData) => handle3DModelUpdate(product._id, modelData)}
+              />
+            </Box>
+          </Collapse>
         </Paper>
       );
     }
@@ -443,6 +642,15 @@ export default function VendorProductsPage() {
                 icon={<MonetizationOn fontSize="small" />}
               />
             )}
+            {/* 3D Model Status */}
+            {product.modelStatus && product.modelStatus !== 'none' && (
+              <Chip 
+                label={`3D: ${product.modelStatus}`} 
+                color={product.modelStatus === 'ready' ? 'success' : product.modelStatus === 'generating' ? 'warning' : 'error'}
+                size="small" 
+                icon={<ArIcon fontSize="small" />}
+              />
+            )}
           </Stack>
           {product.createdAt && (
             <Typography variant="caption" color="text.secondary">
@@ -460,6 +668,15 @@ export default function VendorProductsPage() {
             {t('common.view')}
           </Button>
           <Stack direction="row">
+            <Tooltip title="3D Model Management">
+              <IconButton 
+                size="small"
+                onClick={() => toggle3DSection(product._id)} 
+                color={expanded3DSections.has(product._id) ? "primary" : "default"}
+              >
+                {expanded3DSections.has(product._id) ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
             <Tooltip title={t('common.edit')}>
               <IconButton size="small" onClick={() => startEdit(product)} color="primary">
                 <EditIcon fontSize="small" />
@@ -472,6 +689,22 @@ export default function VendorProductsPage() {
             </Tooltip>
           </Stack>
         </CardActions>
+        
+        {/* 3D Model Management Section */}
+        <Collapse in={expanded3DSections.has(product._id)}>
+          <Box sx={{ px: 2, pb: 2 }}>
+            <Divider sx={{ mb: 2 }} />
+            <Product3DManager
+              productId={product._id}
+              productTitle={product.title}
+              productImage={product.images?.[0]}
+              currentModelUrl={product.modelUrl}
+              currentModelType={product.modelType}
+              currentModelStatus={product.modelStatus}
+              onModelUpdate={(modelData) => handle3DModelUpdate(product._id, modelData)}
+            />
+          </Box>
+        </Collapse>
       </Card>
     );
   };
@@ -998,6 +1231,201 @@ export default function VendorProductsPage() {
               rows={3} 
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
             />
+
+            {/* Product Variants Section */}
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                {t('products.productVariants')}
+              </Typography>
+              
+              {/* Sizes */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t('products.sizes')} (Optional)
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder="Enter sizes separated by commas (e.g., S, M, L, XL)"
+                  value={variants.sizes.join(', ')}
+                  onChange={(e) => {
+                    const sizes = e.target.value.split(',').map(s => s.trim()).filter(s => s);
+                    setVariants(prev => ({ ...prev, sizes }));
+                  }}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  helperText="For clothing and accessories"
+                />
+              </Box>
+
+              {/* Colors */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t('products.colors')} (Optional)
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder="Enter colors separated by commas (e.g., Red, Blue, Green)"
+                  value={variants.colors.join(', ')}
+                  onChange={(e) => {
+                    const colors = e.target.value.split(',').map(c => c.trim()).filter(c => c);
+                    setVariants(prev => ({ ...prev, colors }));
+                  }}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  helperText="Available color options"
+                />
+              </Box>
+
+              {/* Weight */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t('products.weight')} (Optional)
+                </Typography>
+                <Stack direction="row" spacing={1}>
+                  <TextField
+                    label={t('products.weightValue')}
+                    type="number"
+                    value={variants.weight.value}
+                    onChange={(e) => setVariants(prev => ({ 
+                      ...prev, 
+                      weight: { ...prev.weight, value: e.target.value === '' ? '' : Number(e.target.value) }
+                    }))}
+                    size="small"
+                    sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    inputProps={{ min: 0, step: 0.01 }}
+                  />
+                  <FormControl size="small" sx={{ minWidth: 80 }}>
+                    <InputLabel>{t('products.unit')}</InputLabel>
+                    <Select
+                      value={variants.weight.unit}
+                      label={t('products.unit')}
+                      onChange={(e) => setVariants(prev => ({ 
+                        ...prev, 
+                        weight: { ...prev.weight, unit: e.target.value as 'kg' | 'g' | 'lb' | 'oz' }
+                      }))}
+                      sx={{ borderRadius: 2 }}
+                    >
+                      <MenuItem value="kg">kg</MenuItem>
+                      <MenuItem value="g">g</MenuItem>
+                      <MenuItem value="lb">lb</MenuItem>
+                      <MenuItem value="oz">oz</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </Box>
+
+              {/* Dimensions */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t('products.dimensions')} (Optional)
+                </Typography>
+                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                  <TextField
+                    label={t('products.length')}
+                    type="number"
+                    value={variants.dimensions.length}
+                    onChange={(e) => setVariants(prev => ({ 
+                      ...prev, 
+                      dimensions: { ...prev.dimensions, length: e.target.value === '' ? '' : Number(e.target.value) }
+                    }))}
+                    size="small"
+                    sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    inputProps={{ min: 0, step: 0.1 }}
+                  />
+                  <TextField
+                    label={t('products.width')}
+                    type="number"
+                    value={variants.dimensions.width}
+                    onChange={(e) => setVariants(prev => ({ 
+                      ...prev, 
+                      dimensions: { ...prev.dimensions, width: e.target.value === '' ? '' : Number(e.target.value) }
+                    }))}
+                    size="small"
+                    sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    inputProps={{ min: 0, step: 0.1 }}
+                  />
+                  <TextField
+                    label={t('products.height')}
+                    type="number"
+                    value={variants.dimensions.height}
+                    onChange={(e) => setVariants(prev => ({ 
+                      ...prev, 
+                      dimensions: { ...prev.dimensions, height: e.target.value === '' ? '' : Number(e.target.value) }
+                    }))}
+                    size="small"
+                    sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    inputProps={{ min: 0, step: 0.1 }}
+                  />
+                </Stack>
+                <FormControl size="small" sx={{ minWidth: 100 }}>
+                  <InputLabel>{t('products.dimensionUnit')}</InputLabel>
+                  <Select
+                    value={variants.dimensions.unit}
+                    label={t('products.dimensionUnit')}
+                    onChange={(e) => setVariants(prev => ({ 
+                      ...prev, 
+                      dimensions: { ...prev.dimensions, unit: e.target.value as 'cm' | 'in' | 'm' }
+                    }))}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    <MenuItem value="cm">cm</MenuItem>
+                    <MenuItem value="in">in</MenuItem>
+                    <MenuItem value="m">m</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+
+              {/* Additional Info */}
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    label={t('products.brand')}
+                    value={variants.brand}
+                    onChange={(e) => setVariants(prev => ({ ...prev, brand: e.target.value }))}
+                    fullWidth
+                    size="small"
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    label={t('products.material')}
+                    value={variants.material}
+                    onChange={(e) => setVariants(prev => ({ ...prev, material: e.target.value }))}
+                    fullWidth
+                    size="small"
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    label={t('products.sku')}
+                    value={variants.sku}
+                    onChange={(e) => setVariants(prev => ({ ...prev, sku: e.target.value }))}
+                    fullWidth
+                    size="small"
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    helperText="Stock Keeping Unit"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    label={t('products.inventory')}
+                    type="number"
+                    value={variants.inventory}
+                    onChange={(e) => setVariants(prev => ({ 
+                      ...prev, 
+                      inventory: e.target.value === '' ? '' : Number(e.target.value) 
+                    }))}
+                    fullWidth
+                    size="small"
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    inputProps={{ min: 0 }}
+                    helperText="Available quantity"
+                  />
+                </Grid>
+              </Grid>
+            </Box>
 
             {/* Bargaining Settings */}
             <Box>

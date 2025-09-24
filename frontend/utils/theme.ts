@@ -4,9 +4,9 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     mode: 'light',
-    primary: { main: '#7c3aed' }, // violet-600
-    secondary: { main: '#06b6d4' }, // cyan-500
-    success: { main: '#10b981' }, // emerald-500
+    primary: { main: '#22c55e' }, // green-500
+    secondary: { main: '#16a34a' }, // green-600
+    success: { main: '#15803d' }, // green-700
     warning: { main: '#f59e0b' }, // amber-500
     error: { main: '#ef4444' }, // red-500
     // Ensure proper contrast for both light and dark modes
@@ -61,8 +61,8 @@ const theme = createTheme({
         },
         containedPrimary: {
           // Soft gradient for primary actions
-          backgroundImage: 'linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%)',
-          boxShadow: '0 8px 20px rgba(124, 58, 237, 0.25)',
+          backgroundImage: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+          boxShadow: '0 8px 20px rgba(34, 197, 94, 0.25)',
           '&:hover': {
             filter: 'brightness(0.95)'
           }

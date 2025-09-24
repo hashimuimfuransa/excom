@@ -122,7 +122,8 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
     store,
     bargainingEnabled = false,
     minBargainPrice,
-    maxBargainDiscountPercent = 20
+    maxBargainDiscountPercent = 20,
+    variants = {}
   } = req.body || {};
 
   if (!title || !description || typeof price !== 'number' || !category) {
@@ -146,6 +147,39 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
     }
   }
 
+  // Process variants data
+  const processedVariants: any = {};
+  
+  if (variants.sizes && Array.isArray(variants.sizes)) {
+    processedVariants.sizes = variants.sizes.filter((size: any) => typeof size === 'string' && size.trim());
+  }
+  
+  if (variants.colors && Array.isArray(variants.colors)) {
+    processedVariants.colors = variants.colors.filter((color: any) => typeof color === 'string' && color.trim());
+  }
+  
+  if (variants.weight) {
+    processedVariants.weight = {
+      value: variants.weight.value,
+      unit: variants.weight.unit || 'kg',
+      displayValue: variants.weight.displayValue || `${variants.weight.value}${variants.weight.unit || 'kg'}`
+    };
+  }
+  
+  if (variants.dimensions) {
+    processedVariants.dimensions = {
+      length: variants.dimensions.length,
+      width: variants.dimensions.width,
+      height: variants.dimensions.height,
+      unit: variants.dimensions.unit || 'cm'
+    };
+  }
+  
+  if (variants.material) processedVariants.material = variants.material;
+  if (variants.brand) processedVariants.brand = variants.brand;
+  if (variants.sku) processedVariants.sku = variants.sku;
+  if (variants.inventory !== undefined) processedVariants.inventory = variants.inventory;
+
   const doc = await Product.create({
     title,
     description,
@@ -158,7 +192,8 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
     store: store || undefined,
     bargainingEnabled,
     minBargainPrice: minBargainPrice || undefined,
-    maxBargainDiscountPercent
+    maxBargainDiscountPercent,
+    variants: Object.keys(processedVariants).length > 0 ? processedVariants : undefined
   });
 
   res.status(201).json(doc);
@@ -191,7 +226,8 @@ router.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
     store,
     bargainingEnabled,
     minBargainPrice,
-    maxBargainDiscountPercent
+    maxBargainDiscountPercent,
+    variants
   } = req.body || {};
 
   // If store is provided, verify it belongs to the seller
@@ -201,6 +237,42 @@ router.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
     if (!storeDoc) {
       return res.status(400).json({ message: 'Invalid store or store does not belong to you' });
     }
+  }
+
+  // Process variants data if provided
+  let processedVariants: any = undefined;
+  if (variants !== undefined) {
+    processedVariants = {};
+    
+    if (variants.sizes && Array.isArray(variants.sizes)) {
+      processedVariants.sizes = variants.sizes.filter((size: any) => typeof size === 'string' && size.trim());
+    }
+    
+    if (variants.colors && Array.isArray(variants.colors)) {
+      processedVariants.colors = variants.colors.filter((color: any) => typeof color === 'string' && color.trim());
+    }
+    
+    if (variants.weight) {
+      processedVariants.weight = {
+        value: variants.weight.value,
+        unit: variants.weight.unit || 'kg',
+        displayValue: variants.weight.displayValue || `${variants.weight.value}${variants.weight.unit || 'kg'}`
+      };
+    }
+    
+    if (variants.dimensions) {
+      processedVariants.dimensions = {
+        length: variants.dimensions.length,
+        width: variants.dimensions.width,
+        height: variants.dimensions.height,
+        unit: variants.dimensions.unit || 'cm'
+      };
+    }
+    
+    if (variants.material) processedVariants.material = variants.material;
+    if (variants.brand) processedVariants.brand = variants.brand;
+    if (variants.sku) processedVariants.sku = variants.sku;
+    if (variants.inventory !== undefined) processedVariants.inventory = variants.inventory;
   }
 
   // Build update object with only provided fields
@@ -216,6 +288,7 @@ router.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
   if (bargainingEnabled !== undefined) updateData.bargainingEnabled = bargainingEnabled;
   if (minBargainPrice !== undefined) updateData.minBargainPrice = minBargainPrice;
   if (maxBargainDiscountPercent !== undefined) updateData.maxBargainDiscountPercent = maxBargainDiscountPercent;
+  if (processedVariants !== undefined) updateData.variants = processedVariants;
 
   const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true });
   res.json(updatedProduct);

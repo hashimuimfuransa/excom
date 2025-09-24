@@ -306,25 +306,80 @@ router.get('/dashboard', requireAuth, async (req: AuthRequest, res) => {
     // Get all affiliate relationships for this user
     const affiliates = await Affiliate.find({ user: userId })
       .populate('vendor', 'name email')
-      .populate('user', 'name email');
+      .populate('user', 'name email')
+      .populate('store', 'name description logo');
 
     // Get affiliate links
     const affiliateLinks = await AffiliateLink.find({ affiliate: { $in: affiliates.map(a => a._id) } })
       .populate('affiliate', 'referralCode')
-      .populate('vendor', 'name');
+      .populate('vendor', 'name')
+      .populate('targetId', 'title name');
 
     // Get recent commissions
     const commissions = await AffiliateCommission.find({ affiliate: { $in: affiliates.map(a => a._id) } })
       .populate('order', 'total status')
-      .populate('product', 'title')
+      .populate('product', 'title images price')
       .sort({ createdAt: -1 })
       .limit(10);
 
-    // Get recent clicks
+    // Get recent clicks with detailed analytics
     const clicks = await AffiliateClick.find({ affiliate: { $in: affiliates.map(a => a._id) } })
       .populate('affiliate', 'referralCode')
+      .populate('targetId', 'title')
       .sort({ createdAt: -1 })
-      .limit(10);
+      .limit(20);
+
+    // Get products from all vendors the affiliate works with
+    const vendorIds = affiliates.map(a => a.vendor._id);
+    const products = await Product.find({ seller: { $in: vendorIds } })
+      .populate('seller', 'name')
+      .populate('store', 'name')
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    // Get engagement analytics for each affiliate
+    const engagementData = await Promise.all(affiliates.map(async (affiliate) => {
+      // Get clicks for this affiliate in the last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentClicks = await AffiliateClick.find({
+        affiliate: affiliate._id,
+        createdAt: { $gte: thirtyDaysAgo }
+      }).sort({ createdAt: -1 });
+
+      // Get conversion rate
+      const conversions = recentClicks.filter(click => click.converted).length;
+      const conversionRate = recentClicks.length > 0 ? (conversions / recentClicks.length) * 100 : 0;
+
+      // Get top performing products
+      const productClicks = await AffiliateClick.aggregate([
+        { $match: { affiliate: affiliate._id, linkType: 'product' } },
+        { $group: { _id: '$targetId', clicks: { $sum: 1 }, conversions: { $sum: { $cond: ['$converted', 1, 0] } } } },
+        { $sort: { clicks: -1 } },
+        { $limit: 5 }
+      ]);
+
+      // Get top performing products with product details
+      const topProducts = await Promise.all(productClicks.map(async (item) => {
+        const product = await Product.findById(item._id).populate('seller', 'name');
+        return {
+          product,
+          clicks: item.clicks,
+          conversions: item.conversions,
+          conversionRate: item.clicks > 0 ? (item.conversions / item.clicks) * 100 : 0
+        };
+      }));
+
+      return {
+        affiliateId: affiliate._id,
+        referralCode: affiliate.referralCode,
+        recentClicks: recentClicks.length,
+        conversions,
+        conversionRate,
+        topProducts: topProducts.filter(p => p.product)
+      };
+    }));
 
     // Calculate total stats
     const totalStats = affiliates.reduce((acc, affiliate) => ({
@@ -335,12 +390,22 @@ router.get('/dashboard', requireAuth, async (req: AuthRequest, res) => {
       paidEarnings: acc.paidEarnings + affiliate.paidEarnings
     }), { totalClicks: 0, totalConversions: 0, totalEarnings: 0, pendingEarnings: 0, paidEarnings: 0 });
 
+    // Calculate overall conversion rate
+    const overallConversionRate = totalStats.totalClicks > 0 
+      ? (totalStats.totalConversions / totalStats.totalClicks) * 100 
+      : 0;
+
     res.json({
       affiliates,
       affiliateLinks,
       commissions,
       clicks,
-      totalStats
+      products,
+      engagementData,
+      totalStats: {
+        ...totalStats,
+        conversionRate: overallConversionRate
+      }
     });
   } catch (error) {
     console.error('Error fetching affiliate dashboard:', error);
@@ -385,6 +450,81 @@ router.post('/links', requireAuth, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Error creating affiliate link:', error);
     res.status(500).json({ message: 'Failed to create affiliate link' });
+  }
+});
+
+// Generate affiliate link for specific product
+router.post('/generate-product-link', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { productId } = req.body;
+
+    // Find the product and get vendor info
+    const product = await Product.findById(productId).populate('seller', 'name');
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Find affiliate relationship with this vendor
+    const affiliate = await Affiliate.findOne({ 
+      user: userId, 
+      vendor: product.seller._id, 
+      status: 'approved' 
+    });
+    
+    if (!affiliate) {
+      return res.status(400).json({ 
+        message: 'You are not an approved affiliate for this vendor',
+        vendorName: product.seller.name
+      });
+    }
+
+    // Check if link already exists
+    let affiliateLink = await AffiliateLink.findOne({
+      affiliate: affiliate._id,
+      vendor: product.seller._id,
+      linkType: 'product',
+      targetId: productId
+    });
+
+    if (affiliateLink) {
+      return res.json({
+        ...affiliateLink.toObject(),
+        product: product,
+        vendor: product.seller
+      });
+    }
+
+    // Generate unique short code
+    let shortCode = generateShortCode();
+    while (await AffiliateLink.findOne({ shortCode })) {
+      shortCode = generateShortCode();
+    }
+
+    // Create affiliate URL
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const originalUrl = `/product/${productId}`;
+    const affiliateUrl = `${baseUrl}${originalUrl}?ref=${affiliate.referralCode}`;
+
+    // Create affiliate link
+    affiliateLink = await AffiliateLink.create({
+      affiliate: affiliate._id,
+      vendor: product.seller._id,
+      linkType: 'product',
+      targetId: productId,
+      originalUrl,
+      affiliateUrl,
+      shortCode
+    });
+
+    res.status(201).json({
+      ...affiliateLink.toObject(),
+      product: product,
+      vendor: product.seller
+    });
+  } catch (error) {
+    console.error('Error creating product affiliate link:', error);
+    res.status(500).json({ message: 'Failed to create product affiliate link' });
   }
 });
 

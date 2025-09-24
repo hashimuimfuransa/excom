@@ -88,6 +88,7 @@ import { apiGet } from '@utils/api';
 import { addToCart } from '@utils/cart';
 import NextLink from 'next/link';
 import BargainChat from '@components/BargainChat';
+import ARViewer from '@components/ARViewer';
 import { useAuth } from '@utils/auth';
 import { useTranslation } from 'react-i18next';
 
@@ -117,6 +118,32 @@ interface Product {
   views?: number;
   sold?: number;
   tags?: string[];
+  // Product variants
+  variants?: {
+    sizes?: string[];
+    colors?: string[];
+    weight?: {
+      value: number;
+      unit: 'kg' | 'g' | 'lb' | 'oz';
+      displayValue?: string;
+    };
+    dimensions?: {
+      length: number;
+      width: number;
+      height: number;
+      unit: 'cm' | 'in' | 'm';
+    };
+    material?: string;
+    brand?: string;
+    sku?: string;
+    inventory?: number;
+  };
+  // AR/3D Model fields
+  modelUrl?: string;
+  modelType?: 'gltf' | 'glb' | 'usdz';
+  modelStatus?: 'none' | 'generating' | 'ready' | 'failed';
+  modelGeneratedAt?: string;
+  modelGenerationId?: string;
 }
 
 interface Store {
@@ -283,6 +310,10 @@ export default function ProductPage() {
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [productViews, setProductViews] = useState(0);
   const [mockProduct, setMockProduct] = useState<Product | null>(null);
+  
+  // Product variant selection state
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
 
   // Fetch product data
   useEffect(() => {
@@ -375,6 +406,25 @@ export default function ProductPage() {
   const handleAddToCart = useCallback(async () => {
     if (!product) return;
     
+    // Check if required variants are selected
+    if (product.variants?.sizes?.length && !selectedSize) {
+      setSnackbar({ 
+        open: true, 
+        message: t('productDetails.pleaseSelectSize'), 
+        severity: 'warning' 
+      });
+      return;
+    }
+    
+    if (product.variants?.colors?.length && !selectedColor) {
+      setSnackbar({ 
+        open: true, 
+        message: t('productDetails.pleaseSelectColor'), 
+        severity: 'warning' 
+      });
+      return;
+    }
+    
     try {
       setAddingToCart(true);
       const cartItem = {
@@ -382,7 +432,13 @@ export default function ProductPage() {
         title: product.title,
         price: product.price,
         image: product.images[0],
-        quantity
+        quantity,
+        selectedSize: selectedSize || undefined,
+        selectedColor: selectedColor || undefined,
+        variants: {
+          size: selectedSize || undefined,
+          color: selectedColor || undefined
+        }
       };
       
       addToCart(cartItem);
@@ -400,7 +456,7 @@ export default function ProductPage() {
     } finally {
       setAddingToCart(false);
     }
-  }, [product, quantity]);
+  }, [product, quantity, selectedSize, selectedColor, t]);
 
   const handleBuyNow = useCallback(() => {
     if (!product) return;
@@ -631,6 +687,43 @@ export default function ProductPage() {
             setSelectedImageIndex={setSelectedImageIndex}
             setImageDialogOpen={setImageDialogOpen}
           />
+          
+          {/* AR Viewer */}
+          {product.modelStatus === 'ready' && product.modelUrl && (
+            <Box sx={{ mt: 3 }}>
+              <Paper sx={{ p: 3, borderRadius: 3, bgcolor: 'background.paper' }}>
+                <Stack spacing={2}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography variant="h6" fontWeight={700}>
+                      🎯 View in 3D & AR
+                    </Typography>
+                    <Chip 
+                      label={product.modelType?.toUpperCase()} 
+                      size="small" 
+                      color="primary" 
+                      variant="outlined"
+                    />
+                  </Stack>
+                  <ARViewer
+                    modelUrl={product.modelUrl}
+                    modelType={product.modelType || 'glb'}
+                    productTitle={product.title}
+                    productImage={product.images[0]}
+                    onError={(error) => {
+                      setSnackbar({ 
+                        open: true, 
+                        message: `AR Viewer Error: ${error}`, 
+                        severity: 'error' 
+                      });
+                    }}
+                    onLoad={() => {
+                      console.log('3D model loaded successfully');
+                    }}
+                  />
+                </Stack>
+              </Paper>
+            </Box>
+          )}
         </Grid>
 
         {/* Product Info */}
@@ -827,6 +920,71 @@ export default function ProductPage() {
                     </Button>
                   </Stack>
                 </Paper>
+              )}
+
+              {/* Product Variants */}
+              {(product.variants?.sizes?.length || product.variants?.colors?.length) && (
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    {t('productDetails.selectOptions')}
+                  </Typography>
+                  
+                  {/* Size Selection */}
+                  {product.variants?.sizes?.length && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {t('productDetails.size')} {selectedSize && `: ${selectedSize}`}
+                      </Typography>
+                      <Stack direction="row" spacing={1} flexWrap="wrap">
+                        {product.variants.sizes.map((size) => (
+                          <Chip
+                            key={size}
+                            label={size}
+                            onClick={() => setSelectedSize(size)}
+                            variant={selectedSize === size ? "filled" : "outlined"}
+                            color={selectedSize === size ? "primary" : "default"}
+                            sx={{ 
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              '&:hover': {
+                                transform: 'scale(1.05)',
+                                boxShadow: 2
+                              }
+                            }}
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                  )}
+
+                  {/* Color Selection */}
+                  {product.variants?.colors?.length && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {t('productDetails.color')} {selectedColor && `: ${selectedColor}`}
+                      </Typography>
+                      <Stack direction="row" spacing={1} flexWrap="wrap">
+                        {product.variants.colors.map((color) => (
+                          <Chip
+                            key={color}
+                            label={color}
+                            onClick={() => setSelectedColor(color)}
+                            variant={selectedColor === color ? "filled" : "outlined"}
+                            color={selectedColor === color ? "primary" : "default"}
+                            sx={{ 
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              '&:hover': {
+                                transform: 'scale(1.05)',
+                                boxShadow: 2
+                              }
+                            }}
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                  )}
+                </Box>
               )}
 
               {/* Quantity Selector */}
@@ -1399,8 +1557,81 @@ export default function ProductPage() {
                 </AccordionDetails>
               </Accordion>
 
-              {/* Physical Details */}
-              {(product.weight || product.dimensions) && (
+              {/* Product Variants */}
+              {(product.variants?.sizes?.length || product.variants?.colors?.length || product.variants?.weight || product.variants?.dimensions) && (
+                <Accordion>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight={600}>🎨 Product Variants & Specifications</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Stack spacing={2}>
+                      {product.variants?.sizes?.length && (
+                        <Box>
+                          <Typography variant="body2" color="text.secondary" gutterBottom>Available Sizes:</Typography>
+                          <Stack direction="row" spacing={1} flexWrap="wrap">
+                            {product.variants.sizes.map((size) => (
+                              <Chip key={size} label={size} size="small" variant="outlined" />
+                            ))}
+                          </Stack>
+                        </Box>
+                      )}
+                      
+                      {product.variants?.colors?.length && (
+                        <Box>
+                          <Typography variant="body2" color="text.secondary" gutterBottom>Available Colors:</Typography>
+                          <Stack direction="row" spacing={1} flexWrap="wrap">
+                            {product.variants.colors.map((color) => (
+                              <Chip key={color} label={color} size="small" variant="outlined" />
+                            ))}
+                          </Stack>
+                        </Box>
+                      )}
+                      
+                      {product.variants?.weight && (
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">Weight:</Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {product.variants.weight.displayValue || `${product.variants.weight.value}${product.variants.weight.unit}`}
+                          </Typography>
+                        </Stack>
+                      )}
+                      
+                      {product.variants?.dimensions && (
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">Dimensions:</Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {product.variants.dimensions.length} × {product.variants.dimensions.width} × {product.variants.dimensions.height} {product.variants.dimensions.unit}
+                          </Typography>
+                        </Stack>
+                      )}
+                      
+                      {product.variants?.material && (
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">Material:</Typography>
+                          <Typography variant="body2" fontWeight={600}>{product.variants.material}</Typography>
+                        </Stack>
+                      )}
+                      
+                      {product.variants?.brand && (
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">Brand:</Typography>
+                          <Typography variant="body2" fontWeight={600}>{product.variants.brand}</Typography>
+                        </Stack>
+                      )}
+                      
+                      {product.variants?.sku && (
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">SKU:</Typography>
+                          <Typography variant="body2" fontWeight={600}>{product.variants.sku}</Typography>
+                        </Stack>
+                      )}
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+
+              {/* Physical Details - Fallback for old products */}
+              {(product.weight || product.dimensions) && !product.variants && (
                 <Accordion>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography fontWeight={600}>📏 Physical Details</Typography>

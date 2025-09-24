@@ -8,8 +8,8 @@ const KEY = 'excom_theme_mode';
 
 export default function ThemeProviderClient({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light';
-    return (localStorage.getItem(KEY) as 'light' | 'dark') || 'light';
+    if (typeof window === 'undefined') return 'dark';
+    return (localStorage.getItem(KEY) as 'light' | 'dark') || 'dark';
   });
 
   useEffect(() => {
