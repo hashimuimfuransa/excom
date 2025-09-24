@@ -172,6 +172,7 @@ export default {
 
   // Categories
   categories: {
+    "title": "Ibyiciro",
     "Electronics": "Ibikoresho by'Amashanyarazi",
     "Clothing & Fashion": "Imyambaro n'Ubwiza",
     "Home & Garden": "Inzu n'Ubusitani",
@@ -194,6 +195,17 @@ export default {
     "contact": "Tuvugishe",
     "terms": "Amabwiriza yo Gukoresha",
     "privacy": "Amategeko y'Ibanga"
+  },
+  "footer": {
+    "discover": "Shakisha",
+    "company": "Ubucuruzi",
+    "stayConnected": "Komeza Uhuza",
+    "newsletterDescription": "Menya ibya mbere ku bicuruzwa bishya, amahirwe yihariye, n'amakuru y'ubucuruzi.",
+    "subscribeNewsletter": "Kwandikisha Ikinyamakuru",
+    "allRightsReserved": "Uburenganzira bwose burabitswe.",
+    "privacy": "Ibanga",
+    "terms": "Amabwiriza",
+    "cookies": "Cookies"
   },
   "products": {
     "newArrivals": "Ibicuruzwa Bishya",

@@ -10,8 +10,11 @@ import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import NextLink from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 export default function Footer() {
+  const { t } = useTranslation('common');
+  
   return (
     <Box
       component="footer"
@@ -70,7 +73,7 @@ export default function Footer() {
                   Excom
                 </Typography>
                 <Chip 
-                  label="Universal Marketplace" 
+                  label={t('app.tagline')} 
                   size="small" 
                   sx={{ 
                     bgcolor: '#22c55e', 
@@ -91,8 +94,7 @@ export default function Footer() {
                   fontWeight: 500
                 }}
               >
-                Your gateway to everything—products, stays, rentals, and services. 
-                Built for creators, explorers, and entrepreneurs who demand excellence.
+                {t('app.description')}
               </Typography>
               
               {/* Contact Info */}
@@ -122,7 +124,7 @@ export default function Footer() {
           {/* Quick Links */}
           <Grid item xs={6} sm={3} md={2}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#22c55e' }}>
-              Discover
+              {t('footer.discover')}
             </Typography>
             <Stack spacing={2}>
               <Link 
@@ -139,7 +141,7 @@ export default function Footer() {
                   }
                 }}
               >
-                Products
+                {t('navigation.products')}
               </Link>
               <Link 
                 component={NextLink}
@@ -195,7 +197,7 @@ export default function Footer() {
           {/* Company */}
           <Grid item xs={6} sm={3} md={2}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#22c55e' }}>
-              Company
+              {t('footer.company')}
             </Typography>
             <Stack spacing={2}>
               <Link 
@@ -212,7 +214,7 @@ export default function Footer() {
                   }
                 }}
               >
-                About
+                {t('pages.about')}
               </Link>
               <Link 
                 component={NextLink}
@@ -260,7 +262,7 @@ export default function Footer() {
                   }
                 }}
               >
-                Contact
+                {t('pages.contact')}
               </Link>
             </Stack>
           </Grid>
@@ -268,10 +270,10 @@ export default function Footer() {
           {/* Newsletter */}
           <Grid item xs={12} md={4}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#22c55e' }}>
-              Stay Connected
+              {t('footer.stayConnected')}
             </Typography>
             <Typography color="text.secondary" gutterBottom sx={{ mb: 3, lineHeight: 1.6 }}>
-              Be first to know about new arrivals, exclusive deals, and insider stories.
+              {t('footer.newsletterDescription')}
             </Typography>
             
             {/* Social Media */}
@@ -368,7 +370,7 @@ export default function Footer() {
                 }
               }}
             >
-              Subscribe Newsletter
+              {t('footer.subscribeNewsletter')}
             </Button>
           </Grid>
         </Grid>
@@ -386,7 +388,7 @@ export default function Footer() {
             color="text.secondary"
             sx={{ fontWeight: 500 }}
           >
-            © {new Date().getFullYear()} Excom. All rights reserved.
+            © {new Date().getFullYear()} Excom. {t('footer.allRightsReserved')}
           </Typography>
           <Stack direction="row" spacing={4}>
             <Link 
@@ -401,7 +403,7 @@ export default function Footer() {
                 }
               }}
             >
-              Privacy
+              {t('footer.privacy')}
             </Link>
             <Link 
               href="/terms" 
@@ -415,7 +417,7 @@ export default function Footer() {
                 }
               }}
             >
-              Terms
+              {t('footer.terms')}
             </Link>
             <Link 
               href="/cookies" 
@@ -429,7 +431,7 @@ export default function Footer() {
                 }
               }}
             >
-              Cookies
+              {t('footer.cookies')}
             </Link>
           </Stack>
         </Stack>

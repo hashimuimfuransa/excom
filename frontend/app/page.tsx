@@ -150,7 +150,7 @@ export default function HomePage() {
                   }
                 }}
         >
-          View All
+          {t('actions.viewAll')}
         </Button>
       </Stack>
       
@@ -367,7 +367,7 @@ export default function HomePage() {
                           )}
                         </Stack>
                         <Typography variant="caption" color="success.main" fontWeight={600} sx={{ fontSize: '0.7rem' }}>
-                          Free Shipping ✅
+                          {t('products.freeShipping')} ✅
                         </Typography>
                       </Box>
                       
@@ -459,7 +459,7 @@ export default function HomePage() {
                   fontSize: { xs: '1.3rem', md: '1.5rem' }
                 }}
               >
-                Gura ukurikije Icyiciro
+{t('home.shopByCategory')}
               </Typography>
               <Chip 
                 label="Hot" 
@@ -493,7 +493,7 @@ export default function HomePage() {
                 }
               }}
             >
-              View All
+              {t('actions.viewAll')}
             </Button>
           </Stack>
           
@@ -501,37 +501,37 @@ export default function HomePage() {
           <Grid container spacing={2}>
             {[
               { 
-                title: 'Hotels', 
+                title: t('collectionsPage.types.hotels'), 
                 icon: '🏨',
                 href: '/collections?type=hotel',
                 color: '#2196F3'
               },
               { 
-                title: 'Restaurants', 
+                title: t('collectionsPage.types.restaurants'), 
                 icon: '🍽️',
                 href: '/collections?type=restaurant',
                 color: '#FF9800'
               },
               { 
-                title: 'Real Estate', 
+                title: t('collectionsPage.types.realEstate'), 
                 icon: '🏡',
                 href: '/collections?type=real-estate',
                 color: '#4CAF50'
               },
               { 
-                title: 'Car Rentals', 
+                title: t('home.carRentals'), 
                 icon: '🚗',
                 href: '/collections?type=car-rental',
                 color: '#E91E63'
               },
               { 
-                title: 'Education', 
+                title: t('home.tutorsAndCourses'), 
                 icon: '🎓',
                 href: '/collections?type=education',
                 color: '#3F51B5'
               },
               { 
-                title: 'Shopping', 
+                title: t('home.shoppingLifestyle'), 
                 icon: '🛍️',
                 href: '/collections?type=shopping',
                 color: '#9C27B0'
@@ -579,10 +579,10 @@ export default function HomePage() {
         </Box>
 
         {/* New Arrivals (real data) */}
-        <ProductGrid title="🔥 New Arrivals" items={newArrivals} />
+        <ProductGrid title={`🔥 ${t('products.newArrivals')}`} items={newArrivals} />
 
         {/* Top Picks (real data) */}
-        <ProductGrid title="⭐ Top Picks" items={topPicks} />
+        <ProductGrid title={`⭐ ${t('products.topPicks')}`} items={topPicks} />
 
         {/* Modern Testimonials Section */}
         <Box mt={8}>
@@ -599,37 +599,37 @@ export default function HomePage() {
                 fontSize: { xs: '1.8rem', md: '2.2rem' }
               }}
             >
-              💬 What Our Customers Say
+              {t('home.customerTestimonials')}
             </Typography>
             <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500, fontSize: '1.1rem' }}>
-              Real experiences from satisfied customers
+              {t('home.testimonialSubtitle')}
             </Typography>
           </Box>
           
           <Grid container spacing={4}>
             {[
               {
-                name: 'Sarah Johnson',
-                role: 'Fashion Enthusiast',
+                name: t('testimonials.person1.name'),
+                role: t('testimonials.person1.role'),
                 avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: 'Amazing quality products and fast delivery! The shopping experience here is incredible.',
+                text: t('testimonials.person1.text'),
                 verified: true
               },
               {
-                name: 'Michael Chen',
-                role: 'Tech Reviewer',
+                name: t('testimonials.person2.name'),
+                role: t('testimonials.person2.role'),
                 avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: 'Best prices and authentic products. Customer service is top-notch!',
+                text: t('testimonials.person2.text'),
                 verified: true
               },
               {
-                name: 'Emily Rodriguez',
-                role: 'Lifestyle Blogger',
+                name: t('testimonials.person3.name'),
+                role: t('testimonials.person3.role'),
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
                 rating: 5,
-                text: 'Love the variety and quality. This platform has everything I need!',
+                text: t('testimonials.person3.text'),
                 verified: true
               }
             ].map((testimonial, index) => (
@@ -693,7 +693,7 @@ export default function HomePage() {
                           </Typography>
                           {testimonial.verified && (
                             <Chip 
-                              label="✓ Verified" 
+                              label={`✓ ${t('collectionsPage.verification.verified')}`} 
                               size="small" 
                               sx={{ 
                                 bgcolor: '#22c55e', 
@@ -820,20 +820,20 @@ export default function HomePage() {
               <Stack direction="row" alignItems="center" justifyContent="center" spacing={3} mb={4}>
                 <BoltIcon sx={{ fontSize: '4rem', animation: 'pulse 2s infinite', filter: 'drop-shadow(0 4px 8px rgba(255,255,255,0.3))' }} />
                 <Typography variant="h2" fontWeight={900} sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, textShadow: '2px 2px 8px rgba(0,0,0,0.3)' }}>
-                  ⚡ Flash Deals
+                  {t('home.flashDeals')}
                 </Typography>
               </Stack>
               
               <Typography variant="h5" textAlign="center" sx={{ opacity: 0.95, mb: 6, fontWeight: 500, fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
-                Limited time offers - Don't miss out on these incredible savings!
+                {t('home.flashDealsSubtitle')}
               </Typography>
               
               <Grid container spacing={4}>
                 {[
-                  { title: 'Electronics', discount: '30%', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400', originalPrice: '$299', newPrice: '$209' },
-                  { title: 'Fashion', discount: '25%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400', originalPrice: '$89', newPrice: '$67' },
-                  { title: 'Home & Garden', discount: '20%', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400', originalPrice: '$149', newPrice: '$119' },
-                  { title: 'Sports', discount: '35%', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400', originalPrice: '$199', newPrice: '$129' }
+                  { title: t('home.electronics'), discount: '30%', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400', originalPrice: '$299', newPrice: '$209' },
+                  { title: t('home.fashion'), discount: '25%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400', originalPrice: '$89', newPrice: '$67' },
+                  { title: t('home.homeAndGarden'), discount: '20%', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400', originalPrice: '$149', newPrice: '$119' },
+                  { title: t('home.sports'), discount: '35%', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400', originalPrice: '$199', newPrice: '$129' }
                 ].map((deal, index) => (
                   <Grid item xs={12} sm={6} md={3} key={index}>
                     <Card 
@@ -918,7 +918,7 @@ export default function HomePage() {
                           </Typography>
                         </Stack>
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
-                          Save up to {deal.discount} today only!
+                          {t('deals.saveUpTo')} {deal.discount} {t('deals.todayOnly')}!
                         </Typography>
                       </CardContent>
                     </Card>
@@ -953,7 +953,7 @@ export default function HomePage() {
                     }
                   }}
                 >
-                  🛒 Shop All Deals Now
+                  {t('home.shopAllDeals')}
                 </Button>
               </Box>
             </Box>
@@ -1003,10 +1003,10 @@ export default function HomePage() {
                   fontSize: { xs: '2rem', md: '2.5rem' }
                 }}
               >
-                📧 Stay Updated
+                {t('home.newsletter')}
               </Typography>
               <Typography variant="h5" color="text.secondary" mb={5} sx={{ fontWeight: 500, fontSize: { xs: '1.1rem', md: '1.3rem' } }}>
-                Get the latest deals and exclusive offers delivered to your inbox
+                {t('home.newsletterSubtitle')}
               </Typography>
               
               <Stack 
@@ -1017,7 +1017,7 @@ export default function HomePage() {
                 sx={{ maxWidth: 700, mx: 'auto' }}
               >
                 <TextField
-                  placeholder="Enter your email address"
+                  placeholder={t('forms.email')}
                   variant="outlined"
                   sx={{ 
                     flex: 1,
@@ -1056,12 +1056,12 @@ export default function HomePage() {
                     }
                   }}
                 >
-                  Subscribe
+                  {t('home.subscribe')}
                 </Button>
               </Stack>
               
               <Typography variant="caption" color="text.secondary" mt={4} display="block" sx={{ fontSize: '0.9rem', fontWeight: 500 }}>
-                We respect your privacy. Unsubscribe at any time.
+                {t('home.privacyNote')}
               </Typography>
             </Box>
           </Paper>

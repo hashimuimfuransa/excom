@@ -172,6 +172,7 @@ export default {
 
   // Categories
   categories: {
+    "title": "Categories",
     "Electronics": "Electronics",
     "Clothing & Fashion": "Clothing & Fashion",
     "Home & Garden": "Home & Garden",
@@ -194,6 +195,17 @@ export default {
     "contact": "Contact",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy"
+  },
+  "footer": {
+    "discover": "Discover",
+    "company": "Company",
+    "stayConnected": "Stay Connected",
+    "newsletterDescription": "Be first to know about new arrivals, exclusive deals, and insider stories.",
+    "subscribeNewsletter": "Subscribe Newsletter",
+    "allRightsReserved": "All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cookies": "Cookies"
   },
   "products": {
     "newArrivals": "New Arrivals",

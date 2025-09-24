@@ -417,7 +417,7 @@ export default function CategorySlider() {
                 fontSize: { xs: '1.3rem', md: '1.5rem' }
               }}
             >
-              Shop by Category
+{t('home.shopByCategory')}
             </Typography>
             <Chip 
               label="Hot" 
@@ -451,7 +451,7 @@ export default function CategorySlider() {
               }
             }}
           >
-            View All
+            {t('actions.viewAll')}
           </Button>
         </Stack>
       </Box>
@@ -755,7 +755,7 @@ export default function CategorySlider() {
           fullWidth
           sx={{ borderRadius: 2 }}
         >
-          View All Categories
+          {t('actions.viewAll')} {t('categories.title')}
         </Button>
       </Box>
     </Box>
