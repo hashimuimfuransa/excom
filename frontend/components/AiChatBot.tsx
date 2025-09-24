@@ -33,7 +33,11 @@ import {
   Star as StarIcon,
   TrendingUp as TrendingIcon,
   Category as CategoryIcon,
-  AutoAwesome as AiIcon
+  AutoAwesome as AiIcon,
+  Mic as MicIcon,
+  MicOff as MicOffIcon,
+  VolumeUp as VolumeUpIcon,
+  VolumeOff as VolumeOffIcon
 } from '@mui/icons-material';
 import { apiPost } from '@utils/api';
 import { getMainImage } from '@utils/imageHelpers';
@@ -88,8 +92,19 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
   const [isMinimized, setIsMinimized] = useState(false);
   const [recommendations, setRecommendations] = useState<Product[]>([]);
   
+  // Voice-related state
+  const [isRecording, setIsRecording] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
+  const [lastMessageWasVoice, setLastMessageWasVoice] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -105,6 +120,108 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
       loadRecommendations();
     }
   }, [isOpen, isMinimized]);
+
+  // Check microphone permission and initialize voices on component mount
+  useEffect(() => {
+    const checkPermission = async () => {
+      try {
+        const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        setHasPermission(result.state === 'granted');
+      } catch (error) {
+        // Fallback: try to get permission directly
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          setHasPermission(true);
+          stream.getTracks().forEach(track => track.stop());
+        } catch (err) {
+          setHasPermission(false);
+        }
+      }
+    };
+    
+    const initializeVoices = () => {
+      const voices = speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+      
+      // Select the best voice for English and Kinyarwanda
+      const bestVoice = selectBestVoice(voices);
+      setSelectedVoice(bestVoice);
+    };
+    
+    checkPermission();
+    initializeVoices();
+    
+    // Listen for voice changes
+    speechSynthesis.onvoiceschanged = initializeVoices;
+  }, []);
+
+  // Select the best voice for English and Kinyarwanda
+  const selectBestVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
+    if (!voices.length) return null;
+    
+    // Priority order for voice selection
+    const preferredVoices = [
+      // High-quality English voices
+      'Google UK English Female',
+      'Google UK English Male', 
+      'Google US English Female',
+      'Google US English Male',
+      'Microsoft Zira Desktop',
+      'Microsoft David Desktop',
+      'Microsoft Mark Desktop',
+      'Microsoft Susan Desktop',
+      'Alex',
+      'Samantha',
+      'Victoria',
+      'Daniel',
+      'Moira',
+      'Tessa',
+      'Veena',
+      'Karen',
+      'Fiona',
+      'Allison',
+      'Ava',
+      'Tom',
+      'Fred',
+      'Albert',
+      'Bad News',
+      'Bahh',
+      'Bells',
+      'Boing',
+      'Bubbles',
+      'Cellos',
+      'Deranged',
+      'Good News',
+      'Hysterical',
+      'Pipe Organ',
+      'Trinoids',
+      'Whisper',
+      'Zarvox'
+    ];
+    
+    // Find the best available voice
+    for (const preferredName of preferredVoices) {
+      const voice = voices.find(v => 
+        v.name.includes(preferredName) || 
+        v.name.toLowerCase().includes(preferredName.toLowerCase())
+      );
+      if (voice) {
+        console.log(`Selected voice: ${voice.name} (${voice.lang})`);
+        return voice;
+      }
+    }
+    
+    // Fallback to first English voice
+    const englishVoice = voices.find(v => v.lang.startsWith('en'));
+    if (englishVoice) {
+      console.log(`Fallback to English voice: ${englishVoice.name}`);
+      return englishVoice;
+    }
+    
+    // Final fallback to first available voice
+    console.log(`Final fallback voice: ${voices[0].name}`);
+    return voices[0];
+  };
 
   const loadRecommendations = async () => {
     try {
@@ -173,6 +290,15 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         await loadRecommendations();
       }
 
+      // Auto-speak AI response if the last message was from voice
+      if (lastMessageWasVoice) {
+        console.log('Auto-speaking AI response because last message was from voice');
+        setTimeout(() => {
+          speakText(response.reply);
+        }, 1000); // Wait 1 second for the message to appear
+        setLastMessageWasVoice(false); // Reset the flag
+      }
+
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: Message = {
@@ -182,6 +308,14 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
+      
+      // Auto-speak error message if the last message was from voice
+      if (lastMessageWasVoice) {
+        setTimeout(() => {
+          speakText(errorMessage.content);
+        }, 1000);
+        setLastMessageWasVoice(false);
+      }
     } finally {
       setIsTyping(false);
     }
@@ -190,7 +324,245 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      // Reset voice flag when sending text message
+      setLastMessageWasVoice(false);
       sendMessage();
+    }
+  };
+
+  // Voice functionality methods
+  useEffect(() => {
+    // Initialize speech recognition
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'en-US';
+        recognitionRef.current.maxAlternatives = 1;
+
+        recognitionRef.current.onstart = () => {
+          console.log('Voice recognition started');
+          setIsRecording(true);
+          setVoiceError('');
+        };
+
+        recognitionRef.current.onresult = (event: any) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+          
+          // Show interim results in real-time
+          if (interimTranscript) {
+            setInput(interimTranscript);
+          }
+          
+          // Process final transcript
+          if (finalTranscript) {
+            console.log('Final transcript:', finalTranscript);
+            setInput(finalTranscript);
+            // Mark that the next message will be from voice
+            setLastMessageWasVoice(true);
+            // Auto-send the message after a short delay
+            setTimeout(() => {
+              sendMessage(finalTranscript);
+            }, 500);
+          }
+        };
+
+        recognitionRef.current.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          let errorMessage = 'Speech recognition failed. Please try again.';
+          
+          switch (event.error) {
+            case 'no-speech':
+              errorMessage = 'No speech detected. Please try speaking louder.';
+              break;
+            case 'audio-capture':
+              errorMessage = 'Microphone not found. Please check your microphone.';
+              break;
+            case 'not-allowed':
+              errorMessage = 'Microphone permission denied. Please allow microphone access.';
+              break;
+            case 'network':
+              errorMessage = 'Network error. Please check your internet connection.';
+              break;
+            default:
+              errorMessage = `Speech recognition error: ${event.error}`;
+          }
+          
+          setVoiceError(errorMessage);
+          setIsRecording(false);
+        };
+
+        recognitionRef.current.onend = () => {
+          console.log('Voice recognition ended');
+          setIsRecording(false);
+        };
+
+        recognitionRef.current.onspeechstart = () => {
+          console.log('Speech started');
+        };
+
+        recognitionRef.current.onspeechend = () => {
+          console.log('Speech ended');
+        };
+      }
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      if (synthesisRef.current) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setHasPermission(true);
+      setVoiceError('');
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (error) {
+      console.error('Microphone permission denied:', error);
+      setHasPermission(false);
+      setVoiceError('Microphone permission is required for voice input. Please allow microphone access and try again.');
+      return false;
+    }
+  };
+
+  const startRecording = async () => {
+    // Clear any previous errors
+    setVoiceError('');
+    
+    // Check if voice recognition is supported
+    if (!recognitionRef.current) {
+      setVoiceError('Voice recognition not supported on this device. Please use text input instead.');
+      return;
+    }
+
+    // Request permission if not already granted
+    if (!hasPermission) {
+      const permissionGranted = await requestMicrophonePermission();
+      if (!permissionGranted) {
+        return;
+      }
+    }
+
+    try {
+      // Clear input field for new recording
+      setInput('');
+      
+      // Start recognition
+      recognitionRef.current.start();
+      console.log('Starting voice recognition...');
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      setVoiceError('Failed to start recording. Please try again.');
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognitionRef.current && isRecording) {
+      console.log('Stopping voice recognition...');
+      recognitionRef.current.stop();
+    }
+  };
+
+  const speakText = (text: string) => {
+    if (!text) return;
+
+    // Stop any current speech
+    speechSynthesis.cancel();
+
+    // Detect language and prepare text
+    const { processedText, language } = detectLanguageAndProcessText(text);
+    
+    const utterance = new SpeechSynthesisUtterance(processedText);
+    
+    // Use selected voice or fallback
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+      utterance.lang = selectedVoice.lang;
+    } else {
+      utterance.lang = language === 'kinyarwanda' ? 'en-US' : 'en-US'; // Fallback to English
+    }
+    
+    // Optimized voice settings for clarity and attractiveness
+    utterance.rate = 0.85; // Slightly slower for better clarity
+    utterance.pitch = 1.1; // Slightly higher pitch for more attractive sound
+    utterance.volume = 0.9; // High volume for clear speech
+    
+    // Enhanced event handlers
+    utterance.onstart = () => {
+      console.log(`Speaking with voice: ${utterance.voice?.name || 'default'}`);
+      setIsSpeaking(true);
+    };
+    
+    utterance.onend = () => {
+      console.log('Speech completed');
+      setIsSpeaking(false);
+    };
+    
+    utterance.onerror = (event) => {
+      console.error('Speech error:', event.error);
+      setIsSpeaking(false);
+    };
+
+    synthesisRef.current = utterance;
+    speechSynthesis.speak(utterance);
+  };
+
+  // Detect language and process text for better pronunciation
+  const detectLanguageAndProcessText = (text: string) => {
+    // Common Kinyarwanda words and patterns
+    const kinyarwandaPatterns = [
+      'muraho', 'murakoze', 'amakuru', 'ni meza', 'sawa', 'yego', 'oya', 'nta',
+      'ubwoba', 'urugendo', 'amashanyarazi', 'ibicuruzwa', 'amahirwe', 'gucuruza',
+      'shakisha', 'nyereka', 'tanga', 'gerageza', 'nanone', 'byose', 'byose',
+      'rwose', 'byose', 'byose', 'byose', 'byose', 'byose', 'byose', 'byose'
+    ];
+    
+    const hasKinyarwanda = kinyarwandaPatterns.some(pattern => 
+      text.toLowerCase().includes(pattern.toLowerCase())
+    );
+    
+    // Process text for better pronunciation
+    let processedText = text
+      .replace(/[^\w\s.,!?]/g, ' ') // Remove special characters
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+    
+    return {
+      processedText,
+      language: hasKinyarwanda ? 'kinyarwanda' : 'english'
+    };
+  };
+
+  const stopSpeaking = () => {
+    speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
+
+  const handleVoiceClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
     }
   };
 
@@ -207,6 +579,7 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         >
           <Tooltip title={t('ai.tooltipTitle', 'Chat with AI Assistant')} placement="left">
             <IconButton
+              data-ai-assistant="true"
               onClick={onToggle}
               sx={{
                 width: 64,
@@ -439,6 +812,39 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                         <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                           {message.content}
                         </Typography>
+                        
+                        {/* Speaker button for bot messages */}
+                        {message.type === 'bot' && (
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                            <Tooltip title={isSpeaking ? t('voiceAI.stopSpeaking', 'Stop Speaking') : t('voiceAI.speakResponse', 'Speak Response')}>
+                              <IconButton
+                                size="small"
+                                onClick={() => isSpeaking ? stopSpeaking() : speakText(message.content)}
+                                sx={{
+                                  bgcolor: isSpeaking 
+                                    ? 'error.main' 
+                                    : (theme) => theme.palette.mode === 'dark' 
+                                      ? 'rgba(76, 175, 80, 0.8)' 
+                                      : 'success.main',
+                                  color: 'white',
+                                  width: 28,
+                                  height: 28,
+                                  '&:hover': {
+                                    bgcolor: isSpeaking 
+                                      ? 'error.dark' 
+                                      : (theme) => theme.palette.mode === 'dark' 
+                                        ? 'rgba(76, 175, 80, 1)' 
+                                        : 'success.dark',
+                                    transform: 'scale(1.1)'
+                                  },
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                {isSpeaking ? <VolumeOffIcon fontSize="small" /> : <VolumeUpIcon fontSize="small" />}
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        )}
                       </Paper>
                       
                       {/* Inline Product Recommendations */}
@@ -560,6 +966,90 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                 </Box>
               )}
 
+              {/* Auto-Speak Indicator */}
+              {lastMessageWasVoice && isTyping && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 1.5,
+                      bgcolor: 'success.light',
+                      color: 'success.contrastText',
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(76, 175, 80, 0.3)',
+                      animation: 'pulse 2s infinite'
+                    }}
+                  >
+                    <VolumeUpIcon fontSize="small" sx={{ animation: 'pulse 1.5s infinite' }} />
+                    <Typography variant="body2" fontWeight={600}>
+                      🔊 AI will speak the response automatically
+                    </Typography>
+                  </Paper>
+                </Box>
+              )}
+
+              {/* Voice Status Display */}
+              {isRecording && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 1.5,
+                      bgcolor: 'error.light',
+                      color: 'error.contrastText',
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(244, 67, 54, 0.3)',
+                      animation: 'pulse 1.5s infinite'
+                    }}
+                  >
+                    <MicIcon fontSize="small" sx={{ animation: 'pulse 1s infinite' }} />
+                    <Typography variant="body2" fontWeight={600}>
+                      🎤 Listening... Speak now
+                    </Typography>
+                  </Paper>
+                </Box>
+              )}
+
+              {/* Voice Error Display */}
+              {voiceError && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 1.5,
+                      bgcolor: 'error.light',
+                      color: 'error.contrastText',
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(244, 67, 54, 0.3)'
+                    }}
+                  >
+                    <MicOffIcon fontSize="small" />
+                    <Typography variant="body2">
+                      {voiceError}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => setVoiceError('')}
+                      sx={{ color: 'error.contrastText', ml: 'auto' }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Paper>
+                </Box>
+              )}
+
               {/* Typing indicator */}
               {isTyping && (
                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
@@ -620,7 +1110,11 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                       label={t(prompt.key, prompt.text)}
                       size="small"
                       clickable
-                      onClick={() => sendMessage(t(prompt.key, prompt.text))}
+                      onClick={() => {
+                        // Reset voice flag when using quick actions
+                        setLastMessageWasVoice(false);
+                        sendMessage(t(prompt.key, prompt.text));
+                      }}
                       sx={{
                         fontSize: '0.7rem',
                         bgcolor: (theme) => theme.palette.mode === 'dark' 
@@ -709,8 +1203,121 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                   }
                 }}
               />
+              {/* Enhanced Voice Button */}
+              <Tooltip title={
+                isRecording 
+                  ? t('voiceAI.stopRecording', 'Stop Recording') 
+                  : hasPermission 
+                    ? t('voiceAI.startRecording', 'Start Voice Input')
+                    : t('voiceAI.grantPermission', 'Grant Microphone Permission')
+              }>
+                <Box sx={{ position: 'relative', mr: 1 }}>
+                  <IconButton
+                    onClick={handleVoiceClick}
+                    disabled={isTyping}
+                    sx={{
+                      bgcolor: isRecording 
+                        ? (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(244, 67, 54, 0.9)' 
+                          : 'error.main'
+                        : !hasPermission
+                          ? (theme) => theme.palette.mode === 'dark' 
+                            ? 'rgba(255, 152, 0, 0.8)' 
+                            : 'warning.main'
+                          : (theme) => theme.palette.mode === 'dark' 
+                            ? 'rgba(76, 175, 80, 0.9)' 
+                            : 'success.main',
+                      color: 'white',
+                      width: 40,
+                      height: 40,
+                      '&:hover': {
+                        bgcolor: isRecording 
+                          ? (theme) => theme.palette.mode === 'dark' 
+                            ? 'rgba(244, 67, 54, 1)' 
+                            : 'error.dark'
+                          : !hasPermission
+                            ? (theme) => theme.palette.mode === 'dark' 
+                              ? 'rgba(255, 152, 0, 1)' 
+                              : 'warning.dark'
+                            : (theme) => theme.palette.mode === 'dark' 
+                              ? 'rgba(76, 175, 80, 1)' 
+                              : 'success.dark',
+                        transform: 'scale(1.1)'
+                      },
+                      '&:disabled': {
+                        bgcolor: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.1)' 
+                          : 'grey.300',
+                        color: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.3)' 
+                          : 'grey.500'
+                      },
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      backdropFilter: 'blur(10px)',
+                      border: (theme) => theme.palette.mode === 'dark' 
+                        ? '1px solid rgba(255, 255, 255, 0.1)' 
+                        : 'none',
+                      animation: isRecording ? 'voice-pulse 1.5s infinite' : 'none',
+                      boxShadow: isRecording 
+                        ? '0 0 20px rgba(244, 67, 54, 0.5)' 
+                        : !hasPermission
+                          ? '0 0 15px rgba(255, 152, 0, 0.3)'
+                          : '0 0 15px rgba(76, 175, 80, 0.3)'
+                    }}
+                  >
+                    {isRecording ? (
+                      <MicOffIcon sx={{ fontSize: 20 }} />
+                    ) : !hasPermission ? (
+                      <MicIcon sx={{ fontSize: 20, opacity: 0.7 }} />
+                    ) : (
+                      <MicIcon sx={{ fontSize: 20 }} />
+                    )}
+                  </IconButton>
+                  
+                  {/* Recording indicator ring */}
+                  {isRecording && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: -2,
+                        left: -2,
+                        right: -2,
+                        bottom: -2,
+                        borderRadius: '50%',
+                        border: '2px solid',
+                        borderColor: 'error.main',
+                        animation: 'voice-pulse 1.5s infinite',
+                        pointerEvents: 'none'
+                      }}
+                    />
+                  )}
+                  
+                  {/* Permission indicator */}
+                  {!hasPermission && !isRecording && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: -2,
+                        right: -2,
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        bgcolor: 'warning.main',
+                        border: '1px solid white',
+                        animation: 'pulse 2s infinite'
+                      }}
+                    />
+                  )}
+                </Box>
+              </Tooltip>
+
+              {/* Send Button */}
               <IconButton
-                onClick={() => sendMessage()}
+                onClick={() => {
+                  // Reset voice flag when sending text message
+                  setLastMessageWasVoice(false);
+                  sendMessage();
+                }}
                 disabled={!input.trim() || isTyping}
                 sx={{
                   bgcolor: (theme) => theme.palette.mode === 'dark' 

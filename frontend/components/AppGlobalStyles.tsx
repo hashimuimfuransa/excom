@@ -30,6 +30,50 @@ export default function AppGlobalStyles() {
             minHeight: '100vh',
             minHeight: '100dvh' // Dynamic viewport height for mobile
           }
+        },
+        // Voice AI Animations
+        '@keyframes slide-down': {
+          from: {
+            transform: 'translateY(-100%)',
+            opacity: 0
+          },
+          to: {
+            transform: 'translateY(0)',
+            opacity: 1
+          }
+        },
+        '.animate-slide-down': {
+          animation: 'slide-down 0.5s ease-out'
+        },
+        // Voice button pulse animation
+        '@keyframes voice-pulse': {
+          '0%': {
+            boxShadow: '0 0 0 0 rgba(59, 130, 246, 0.7)'
+          },
+          '70%': {
+            boxShadow: '0 0 0 10px rgba(59, 130, 246, 0)'
+          },
+          '100%': {
+            boxShadow: '0 0 0 0 rgba(59, 130, 246, 0)'
+          }
+        },
+        '.voice-pulse': {
+          animation: 'voice-pulse 2s infinite'
+        },
+        // Popup animation
+        '@keyframes popupIn': {
+          '0%': {
+            opacity: 0,
+            transform: 'scale(0.8) translateY(-20px) rotateX(10deg)'
+          },
+          '50%': {
+            opacity: 0.8,
+            transform: 'scale(1.05) translateY(-5px) rotateX(2deg)'
+          },
+          '100%': {
+            opacity: 1,
+            transform: 'scale(1) translateY(0) rotateX(0deg)'
+          }
         }
       })}
     />

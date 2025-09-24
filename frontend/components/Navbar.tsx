@@ -39,7 +39,8 @@ import {
   Favorite as FavoriteIcon,
   Person as PersonIcon,
   MonetizationOn as BargainIcon,
-  TrendingUp as AffiliateIcon
+  TrendingUp as AffiliateIcon,
+  Mic as MicIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import DarkModeToggle from './DarkModeToggle';
@@ -92,6 +93,14 @@ export default function Navbar() {
     { text: t('navigation.viewVendors'), href: '/vendors', icon: <StoreIcon /> },
     { text: t('navigation.products'), href: '/product', icon: <SearchIcon /> },
     { text: t('wishlist.title'), href: '/wishlist', icon: <FavoriteIcon /> },
+    { text: t('voiceAI.voiceShopping', 'Voice Shopping'), href: '#', icon: <MicIcon />, onClick: () => {
+      // Open the AI assistant instead of voice popup
+      console.log('Mobile voice button clicked - opening AI assistant');
+      const aiButton = document.querySelector('[data-ai-assistant="true"]') as HTMLElement;
+      if (aiButton) {
+        aiButton.click();
+      }
+    }, dataVoiceTrigger: true },
   ];
 
   // Profile menu items for logged-in users
@@ -132,9 +141,15 @@ export default function Navbar() {
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton 
-              component={NextLink}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
+              component={item.onClick ? 'div' : NextLink}
+              href={item.onClick ? undefined : item.href}
+              data-voice-trigger={item.dataVoiceTrigger ? 'true' : undefined}
+              onClick={() => {
+                setMobileOpen(false);
+                if (item.onClick) {
+                  item.onClick();
+                }
+              }}
               sx={{ 
                 borderRadius: 2, 
                 mx: 2, 
@@ -547,6 +562,34 @@ export default function Navbar() {
                 }}
               >
                 {t('navigation.products')}
+              </Button>
+              <Button 
+                data-voice-trigger="true"
+                onClick={() => {
+                  // Open the AI assistant instead of voice popup
+                  console.log('Desktop voice button clicked - opening AI assistant');
+                  const aiButton = document.querySelector('[data-ai-assistant="true"]') as HTMLElement;
+                  if (aiButton) {
+                    aiButton.click();
+                  }
+                }}
+                startIcon={<MicIcon />}
+                sx={{ 
+                  borderRadius: 2,
+                  px: 2,
+                  color: 'white',
+                  fontWeight: 600,
+                  transition: 'all 0.3s ease',
+                  background: 'linear-gradient(45deg, #3B82F6, #8B5CF6)',
+                  '&:hover': {
+                    bgcolor: 'rgba(59, 130, 246, 0.8)', 
+                    color: 'white',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)'
+                  }
+                }}
+              >
+                {t('voiceAI.voiceShopping', 'Voice Shopping')}
               </Button>
             </Stack>
           )}

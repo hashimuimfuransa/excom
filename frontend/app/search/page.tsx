@@ -29,7 +29,9 @@ import {
   TrendingUp as TrendingIcon,
   AutoAwesome as AiIcon,
   Home as HomeIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Mic as MicIcon,
+  VolumeUp as VolumeUpIcon
 } from '@mui/icons-material';
 import { useSearchParams, useRouter } from 'next/navigation';
 import NextLink from 'next/link';
@@ -76,6 +78,7 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get('q') || '';
+  const isVoiceSearch = searchParams.get('voice') === 'true';
 
   const [searchResults, setSearchResults] = useState<SmartSearchResponse | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -226,14 +229,28 @@ export default function SearchPage() {
           {query && (
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                {t('searchPage.searchingFor', 'Searching for:')}
+                {isVoiceSearch 
+                  ? t('searchPage.voiceSearchingFor', '🎤 Voice search for:')
+                  : t('searchPage.searchingFor', 'Searching for:')
+                }
               </Typography>
-              <Chip
-                label={`"${query}"`}
-                color="primary"
-                variant="outlined"
-                sx={{ fontSize: '1rem', fontWeight: 600, px: 2, py: 1 }}
-              />
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Chip
+                  label={`"${query}"`}
+                  color="primary"
+                  variant="outlined"
+                  sx={{ fontSize: '1rem', fontWeight: 600, px: 2, py: 1 }}
+                />
+                {isVoiceSearch && (
+                  <Chip
+                    icon={<MicIcon />}
+                    label={t('searchPage.voiceSearch', 'Voice Search')}
+                    color="secondary"
+                    variant="filled"
+                    sx={{ fontWeight: 600 }}
+                  />
+                )}
+              </Stack>
             </Box>
           )}
 
@@ -246,6 +263,44 @@ export default function SearchPage() {
             />
           </Box>
         </Paper>
+
+        {/* Voice Search Success Message */}
+        {isVoiceSearch && searchResults && !isLoading && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              mb: 3,
+              borderRadius: 3,
+              background: (theme) => theme.palette.mode === 'dark' 
+                ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(139, 195, 74, 0.15) 100%)'
+                : 'linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(139, 195, 74, 0.05) 100%)',
+              border: '1px solid',
+              borderColor: (theme) => theme.palette.mode === 'dark' ? 'success.main' : 'success.200'
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <Avatar
+                sx={{
+                  bgcolor: 'success.main',
+                  background: 'linear-gradient(45deg, #4CAF50, #8BC34A)',
+                  width: 40,
+                  height: 40
+                }}
+              >
+                <MicIcon sx={{ fontSize: 20 }} />
+              </Avatar>
+              <Box>
+                <Typography variant="h6" fontWeight={700} color="success.main">
+                  {t('searchPage.voiceSearchSuccess', '🎤 Voice Search Successful!')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t('searchPage.voiceSearchDescription', 'Your voice command was processed and we found relevant products for you.')}
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
+        )}
 
         {/* Enhanced Loading State */}
         {isLoading && (

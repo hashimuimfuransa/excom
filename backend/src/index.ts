@@ -29,6 +29,7 @@ import adminAffiliateRoutes from './routes/admin-affiliate';
 import affiliateAiRoutes from './routes/affiliate-ai';
 import affiliateGamificationRoutes from './routes/affiliate-gamification';
 import arRoutes from './routes/ar';
+import voiceAIRoutes from './routes/voice-ai';
 
 console.log('Environment variables loaded:', {
   PORT: process.env.PORT,
@@ -90,6 +91,7 @@ app.use('/api/admin/affiliate', adminAffiliateRoutes);
 app.use('/api/affiliate-ai', affiliateAiRoutes);
 app.use('/api/affiliate-gamification', affiliateGamificationRoutes);
 app.use('/api/ar', arRoutes);
+app.use('/api/ai', voiceAIRoutes);
 
 const PORT = process.env.PORT || 4000;
 
