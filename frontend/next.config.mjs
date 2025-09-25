@@ -18,7 +18,7 @@ const nextConfig = {
     typedRoutes: true
   },
   // Add output configuration for better deployment
-  // output: 'standalone', // Commented out for Render compatibility
+  // output: 'standalone', // Use standard output for Render
   // Ensure proper static file serving
   trailingSlash: false,
   // Add proper headers for security
