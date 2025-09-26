@@ -7,10 +7,16 @@ import base from '../utils/theme';
 const KEY = 'excom_theme_mode';
 
 export default function ThemeProviderClient({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem(KEY) as 'light' | 'dark') || 'dark';
-  });
+  const [mode, setMode] = useState<'light' | 'dark'>('dark');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedMode = localStorage.getItem(KEY) as 'light' | 'dark';
+    if (savedMode) {
+      setMode(savedMode);
+    }
+  }, []);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -51,6 +57,15 @@ export default function ThemeProviderClient({ children }: { children: React.Reac
       }),
     },
   } as any), [mode]);
+
+  if (!mounted) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>

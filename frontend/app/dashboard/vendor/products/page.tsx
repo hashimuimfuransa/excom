@@ -30,6 +30,8 @@ import {
 import { apiDelete, apiGet, apiPost, apiPatch } from '@utils/api';
 import { useTranslation } from 'react-i18next';
 import Product3DManager from '@components/Product3DManager';
+import LanguageSwitcher from '@components/LanguageSwitcher';
+import DarkModeToggle from '@components/DarkModeToggle';
 
 interface Product { 
   _id: string; 
@@ -762,6 +764,10 @@ export default function VendorProductsPage() {
           justifyContent={{ xs: 'space-between', sm: 'flex-end' }}
           alignItems="center"
         >
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <LanguageSwitcher />
+            <DarkModeToggle />
+          </Stack>
           <Paper sx={{ 
             p: { xs: 0.5, sm: 1 }, 
             display: 'flex', 

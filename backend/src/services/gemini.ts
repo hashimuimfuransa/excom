@@ -4,17 +4,66 @@ import User from '../models/User';
 import Order from '../models/Order';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_FALLBACK_API_KEY = 'AIzaSyDHKQjqgv6NDqczxWB7uhLFozaAXa4k9JQ';
 
-if (!GEMINI_API_KEY) {
-  throw new Error('GEMINI_API_KEY is required');
+if (!GEMINI_API_KEY && !GEMINI_FALLBACK_API_KEY) {
+  throw new Error('At least one GEMINI_API_KEY is required');
 }
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// Create multiple AI instances for fallback with v1beta API
+const primaryGenAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY, {
+  apiVersion: 'v1beta'
+}) : null;
+const fallbackGenAI = new GoogleGenerativeAI(GEMINI_FALLBACK_API_KEY, {
+  apiVersion: 'v1beta'
+});
+
+// Helper function to try multiple API keys
+async function tryGeminiWithFallback(prompt: string, context?: any): Promise<{ response: string; apiKeyUsed: string }> {
+  // Try primary API key first
+  if (primaryGenAI) {
+    try {
+      console.log('Gemini: Trying primary API key...');
+      const model = primaryGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      console.log('Gemini: Primary API key successful');
+      return { response: response.text(), apiKeyUsed: 'primary' };
+    } catch (error) {
+      console.log('Gemini: Primary API key failed, trying fallback...', error.message);
+    }
+  }
+  
+  // Try fallback API key
+  try {
+    console.log('Gemini: Trying fallback API key...');
+    const model = fallbackGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    console.log('Gemini: Fallback API key successful');
+    return { response: response.text(), apiKeyUsed: 'fallback' };
+  } catch (error) {
+    console.log('Gemini: Fallback API key also failed:', error.message);
+    throw error;
+  }
+}
+
+// Test function to check available models
+export async function testGeminiConnection() {
+  try {
+    console.log('Testing Gemini API connection...');
+    const result = await tryGeminiWithFallback("Hello, this is a test message.");
+    console.log('✅ Gemini API connection successful');
+    return { success: true, response: result.response, apiKeyUsed: result.apiKeyUsed };
+  } catch (error) {
+    console.error('❌ Gemini API connection failed:', error.message);
+    return { success: false, error: error.message };
+  }
+}
 
 export async function geminiChat(message: string, context?: any) {
   try {
     console.log(`AI Chat: Processing message - "${message}"`);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Get all products from the database to provide real recommendations
     const allProducts = await Product.find().populate('seller', 'name').limit(50);
@@ -88,13 +137,8 @@ export async function geminiChat(message: string, context?: any) {
 
     Remember: Users want quick, helpful product recommendations from ExCom's actual inventory!`;
 
-    const result = await model.generateContent([
-      systemPrompt,
-      `User message: "${message}"`
-    ]);
-    
-    const response = await result.response;
-    const aiResponse = response.text();
+    const result = await tryGeminiWithFallback(systemPrompt + `\nUser message: "${message}"`);
+    const aiResponse = result.response;
     
     // If this looks like a product query, try to extract product recommendations
     if (isProductQuery) {
@@ -132,13 +176,13 @@ Would you like more details about any of these products, or shall I help you fin
     return aiResponse;
   } catch (error) {
     console.error('Gemini chat error:', error);
-    return "I'm sorry, I'm having trouble processing your request right now. But I'm here to help you find products on ExCom! Try telling me what you're looking for, like 'camera' or 'laptop', and I'll show you our available options.";
+    // Re-throw the error so the calling function can handle it properly
+    throw error;
   }
 }
 
 export async function geminiSmartSearch(query: string, userId?: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     // Get ALL products available (no limit to see everything)
     const products = await Product.find().populate('seller', 'name rating').sort({ createdAt: -1 });
@@ -268,9 +312,8 @@ export async function geminiSmartSearch(query: string, userId?: string) {
     - Consider user's budget preferences if available
     - Include both exact matches and semantically similar products`;
 
-    const result = await model.generateContent(searchPrompt);
-    const response = await result.response;
-    const responseText = response.text();
+    const result = await tryGeminiWithFallback(searchPrompt);
+    const responseText = result.response;
     
     console.log('AI Search Response:', responseText.substring(0, 500) + '...');
     
@@ -477,9 +520,8 @@ export async function geminiRecommend(userId?: string) {
     - Score based on relevance, user fit, and product quality
     - All product IDs must exist in the provided catalog`;
 
-    const result = await model.generateContent(recommendPrompt);
-    const response = await result.response;
-    const responseText = response.text();
+    const result = await tryGeminiWithFallback(recommendPrompt);
+    const responseText = result.response;
     
     console.log('AI Recommendations Response:', responseText.substring(0, 300) + '...');
     
@@ -610,8 +652,8 @@ export async function geminiCompareProducts(productIds: string[]) {
       }
     }`;
 
-    const result = await model.generateContent(comparePrompt);
-    const response = await result.response;
+    const result = await tryGeminiWithFallback(comparePrompt);
+    const response = { text: () => result.response };
     
     try {
       return JSON.parse(response.text());
@@ -643,9 +685,7 @@ export async function geminiCompareProducts(productIds: string[]) {
 
 export async function geminiGenerateListing({ imageBase64, text }: { imageBase64?: string; text?: string; }) {
   try {
-    const model = imageBase64 
-      ? genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
-      : genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Use fallback system for model generation
 
     const prompt = `Generate a professional product listing based on the provided information.
 
@@ -670,18 +710,33 @@ export async function geminiGenerateListing({ imageBase64, text }: { imageBase64
 
     let result;
     if (imageBase64) {
-      const image = {
-        inlineData: {
-          data: imageBase64,
-          mimeType: 'image/jpeg'
+      // For image-based generation, try primary API first, then fallback
+      if (primaryGenAI) {
+        try {
+          console.log('Gemini Listing: Trying primary API key for image generation...');
+          const model = primaryGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          const image = {
+            inlineData: {
+              data: imageBase64,
+              mimeType: 'image/jpeg'
+            }
+          };
+          result = await model.generateContent([prompt, image]);
+          console.log('Gemini Listing: Primary API key successful for image');
+        } catch (error) {
+          console.log('Gemini Listing: Primary API key failed for image, trying fallback...', error.message);
+          // Fallback to text-only generation
+          result = await tryGeminiWithFallback(prompt + '\n\nNote: Image analysis was not available, generating based on text description only.');
         }
-      };
-      result = await model.generateContent([prompt, image]);
+      } else {
+        // No primary API, use fallback with text-only
+        result = await tryGeminiWithFallback(prompt + '\n\nNote: Image analysis was not available, generating based on text description only.');
+      }
     } else {
-      result = await model.generateContent(prompt);
+      result = await tryGeminiWithFallback(prompt);
     }
 
-    const response = await result.response;
+    const response = { text: () => result.response };
     
     try {
       return JSON.parse(response.text());

@@ -157,10 +157,19 @@ export default function AdminDashboardPage() {
       <Box sx={{ p: 3 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" fontWeight={800} gutterBottom>
+          <Typography 
+            variant="h4" 
+            fontWeight={800} 
+            gutterBottom
+            sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}
+          >
             {t('admin.welcomeBack')}
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography 
+            variant="body1" 
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+          >
             {t('admin.platformOverview')}
           </Typography>
         </Box>
@@ -172,8 +181,8 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Stats Grid */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: 4 }}>
+          <Grid item xs={6} sm={6} md={3}>
             <StatsCard
               title={t('admin.totalUsers')}
               value={stats?.totalUsers || 0}
@@ -187,7 +196,7 @@ export default function AdminDashboardPage() {
             />
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <StatsCard
               title={t('admin.activeStores')}
               value={stats?.activeStores || 0}
@@ -205,7 +214,7 @@ export default function AdminDashboardPage() {
             />
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <StatsCard
               title={t('admin.totalProducts')}
               value={stats?.totalProducts || 0}
@@ -219,7 +228,7 @@ export default function AdminDashboardPage() {
             />
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <StatsCard
               title={t('admin.pendingReviews')}
               value={stats?.pendingStores || 0}
@@ -236,19 +245,33 @@ export default function AdminDashboardPage() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, sm: 3 }}>
           {/* Recent Store Applications */}
           <Grid item xs={12} lg={6}>
-            <Card sx={{ height: 400 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-                  <Typography variant="h6" fontWeight={700}>
+            <Card sx={{ height: { xs: 'auto', sm: 400 } }}>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    mb: 3,
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    fontWeight={700}
+                    sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                  >
                     {t('admin.storeApplications')}
                   </Typography>
                   <Chip 
                     size="small" 
                     label={recentStores.length} 
                     color="warning"
+                    sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                   />
                 </Box>
                 
@@ -319,13 +342,29 @@ export default function AdminDashboardPage() {
 
           {/* Activity Feed */}
           <Grid item xs={12} lg={6}>
-            <Card sx={{ height: 400 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-                  <Typography variant="h6" fontWeight={700}>
+            <Card sx={{ height: { xs: 'auto', sm: 400 } }}>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    mb: 3,
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    fontWeight={700}
+                    sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                  >
                     {t('admin.recentActivity')}
                   </Typography>
-                  <Notifications color="action" />
+                  <Notifications 
+                    color="action" 
+                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
+                  />
                 </Box>
                 
                 <List sx={{ maxHeight: 280, overflow: 'auto' }}>
@@ -374,15 +413,30 @@ export default function AdminDashboardPage() {
           {/* Quick Actions */}
           <Grid item xs={12}>
             <Card>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" fontWeight={700} gutterBottom>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Typography 
+                  variant="h6" 
+                  fontWeight={700} 
+                  gutterBottom
+                  sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                >
                   {t('admin.quickActions')}
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    gap: { xs: 1, sm: 2 }, 
+                    flexWrap: 'wrap',
+                    flexDirection: { xs: 'column', sm: 'row' }
+                  }}
+                >
                   <Button
                     variant="contained"
                     startIcon={<Store />}
                     onClick={() => window.location.href = '/dashboard/admin/stores'}
+                    fullWidth={{ xs: true, sm: false }}
+                    size="small"
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   >
                     {t('admin.manageStores')}
                   </Button>
@@ -390,6 +444,9 @@ export default function AdminDashboardPage() {
                     variant="outlined"
                     startIcon={<People />}
                     onClick={() => window.location.href = '/dashboard/admin/users'}
+                    fullWidth={{ xs: true, sm: false }}
+                    size="small"
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   >
                     {t('admin.manageUsers')}
                   </Button>
@@ -397,6 +454,9 @@ export default function AdminDashboardPage() {
                     variant="outlined"
                     startIcon={<ShoppingBag />}
                     onClick={() => window.location.href = '/dashboard/admin/products'}
+                    fullWidth={{ xs: true, sm: false }}
+                    size="small"
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   >
                     {t('admin.products')}
                   </Button>
@@ -404,6 +464,9 @@ export default function AdminDashboardPage() {
                     variant="outlined"
                     startIcon={<Analytics />}
                     onClick={() => window.location.href = '/dashboard/admin/analytics'}
+                    fullWidth={{ xs: true, sm: false }}
+                    size="small"
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   >
                     {t('admin.viewAnalytics')}
                   </Button>

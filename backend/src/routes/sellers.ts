@@ -41,11 +41,25 @@ router.get('/my-stores', requireAuth, async (req: AuthRequest, res) => {
 // Vendor store: create (pending approval)
 router.post('/stores', requireAuth, async (req: AuthRequest, res) => {
   const sellerId = req.user!.sub;
-  const { name, description, category, logo, banner } = req.body;
+  const { 
+    name, 
+    description, 
+    category, 
+    logo, 
+    banner,
+    contactInfo,
+    location,
+    businessHours
+  } = req.body;
   
   // Check if store name already exists for this user
   const exists = await Store.findOne({ owner: sellerId, name });
   if (exists) return res.status(400).json({ message: 'Store with this name already exists' });
+  
+  // Validate required location fields
+  if (!location || !location.address || !location.city || !location.country || !location.coordinates) {
+    return res.status(400).json({ message: 'Location information is required' });
+  }
   
   const doc = await Store.create({ 
     owner: sellerId, 
@@ -54,6 +68,9 @@ router.post('/stores', requireAuth, async (req: AuthRequest, res) => {
     category,
     logo,
     banner,
+    contactInfo: contactInfo || {},
+    location,
+    businessHours: businessHours || {},
     approved: false,
     isActive: true
   });
@@ -106,16 +123,61 @@ router.post('/stores', requireAuth, async (req: AuthRequest, res) => {
 router.put('/stores/:id', requireAuth, async (req: AuthRequest, res) => {
   const sellerId = req.user!.sub;
   const { id } = req.params;
-  const { name, description, category, logo, banner, isActive } = req.body;
+  const { 
+    name, 
+    description, 
+    category, 
+    logo, 
+    banner, 
+    isActive,
+    contactInfo,
+    location,
+    businessHours
+  } = req.body;
+
+  console.log('Store update request:', { id, sellerId, body: req.body });
   
   // Check if store belongs to the user
   const store = await Store.findOne({ _id: id, owner: sellerId });
-  if (!store) return res.status(404).json({ message: 'Store not found or not owned by user' });
+  if (!store) {
+    console.log('Store not found or not owned by user:', { id, sellerId });
+    return res.status(404).json({ message: 'Store not found or not owned by user' });
+  }
   
   // Check if name already exists for this user (if name is being changed)
+  console.log('Checking name uniqueness:', { 
+    providedName: name, 
+    currentStoreName: store.name, 
+    nameChanged: name !== store.name 
+  });
+  
   if (name && name !== store.name) {
     const exists = await Store.findOne({ owner: sellerId, name, _id: { $ne: id } });
-    if (exists) return res.status(400).json({ message: 'Store with this name already exists' });
+    console.log('Name uniqueness check result:', { exists: !!exists, existingStoreId: exists?._id });
+    if (exists) {
+      console.log('Store name already exists for this user');
+      return res.status(400).json({ message: 'Store with this name already exists' });
+    }
+  }
+  
+  // Validate location if provided
+  console.log('Location validation:', { 
+    hasLocation: !!location,
+    address: location?.address,
+    city: location?.city,
+    country: location?.country,
+    coordinates: location?.coordinates
+  });
+  
+  if (location && (!location.address || !location.city || !location.country || !location.coordinates)) {
+    console.log('Location validation failed - missing required fields:', location);
+    return res.status(400).json({ message: 'Complete location information is required' });
+  }
+  
+  // If location is being updated, ensure coordinates are provided
+  if (location && (!location.coordinates || typeof location.coordinates.lat !== 'number' || typeof location.coordinates.lng !== 'number')) {
+    console.log('Location validation failed - invalid coordinates:', location.coordinates);
+    return res.status(400).json({ message: 'Valid coordinates (lat, lng) are required for location' });
   }
   
   const updateData: any = {};
@@ -125,9 +187,20 @@ router.put('/stores/:id', requireAuth, async (req: AuthRequest, res) => {
   if (logo !== undefined) updateData.logo = logo;
   if (banner !== undefined) updateData.banner = banner;
   if (isActive !== undefined) updateData.isActive = isActive;
+  if (contactInfo !== undefined) updateData.contactInfo = contactInfo;
+  if (location !== undefined) updateData.location = location;
+  if (businessHours !== undefined) updateData.businessHours = businessHours;
   
-  const updatedStore = await Store.findByIdAndUpdate(id, updateData, { new: true });
-  res.json(updatedStore);
+  console.log('Update data:', updateData);
+  
+  try {
+    const updatedStore = await Store.findByIdAndUpdate(id, updateData, { new: true });
+    console.log('Store updated successfully:', updatedStore);
+    res.json(updatedStore);
+  } catch (error) {
+    console.error('Error updating store:', error);
+    res.status(500).json({ message: 'Internal server error while updating store' });
+  }
 });
 
 // Admin: list pending stores (with owner info)
@@ -365,6 +438,210 @@ router.post('/create-affiliate-programs', async (req, res) => {
   } catch (error) {
     console.error('Error creating affiliate programs:', error);
     res.status(500).json({ message: 'Failed to create affiliate programs' });
+  }
+});
+
+// Get vendor settings
+router.get('/settings', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const sellerId = req.user!.sub;
+    const user = await User.findById(sellerId).select('-passwordHash -oauthId');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get vendor's stores
+    const stores = await Store.find({ owner: sellerId });
+
+    // Return vendor settings with default values if not set
+    const settings = {
+      profile: {
+        businessName: user.businessName || '',
+        businessType: user.businessType || 'retail',
+        description: user.bio || '',
+        phone: user.phone || '',
+        address: user.address || '',
+        city: user.city || '',
+        state: user.state || '',
+        zipCode: user.zipCode || '',
+        country: user.country || 'US',
+        website: user.website || '',
+        taxId: user.taxId || ''
+      },
+      store: {
+        storeName: stores[0]?.name || '',
+        storeDescription: stores[0]?.description || '',
+        storeLogo: stores[0]?.logo || '',
+        bannerImage: stores[0]?.banner || '',
+        autoApproveProducts: user.vendorSettings?.autoApproveProducts || false,
+        allowBargaining: user.vendorSettings?.allowBargaining || true,
+        minimumBargainDiscount: user.vendorSettings?.minimumBargainDiscount || 5,
+        maximumBargainDiscount: user.vendorSettings?.maximumBargainDiscount || 30
+      },
+      payments: {
+        payoutMethod: user.vendorSettings?.payoutMethod || 'bank',
+        bankAccount: user.vendorSettings?.bankAccount || '',
+        paypalEmail: user.vendorSettings?.paypalEmail || '',
+        stripeAccount: user.vendorSettings?.stripeAccount || '',
+        taxRate: user.vendorSettings?.taxRate || 0,
+        currency: user.vendorSettings?.currency || 'USD'
+      },
+      notifications: {
+        emailNotifications: user.notifications?.emailNotifications || true,
+        orderNotifications: user.notifications?.orderNotifications || true,
+        lowStockAlerts: user.notifications?.lowStockAlerts || true,
+        newReviewNotifications: user.notifications?.newReviewNotifications || true,
+        bargainNotifications: user.notifications?.bargainNotifications || true,
+        payoutNotifications: user.notifications?.payoutNotifications || true
+      },
+      shipping: {
+        freeShippingThreshold: user.vendorSettings?.freeShippingThreshold || 50,
+        shippingCost: user.vendorSettings?.shippingCost || 5.99,
+        processingTime: user.vendorSettings?.processingTime || 2,
+        returnPolicy: user.vendorSettings?.returnPolicy || '',
+        shippingRegions: user.vendorSettings?.shippingRegions || ['US']
+      },
+      analytics: {
+        trackSales: user.vendorSettings?.trackSales || true,
+        trackInventory: user.vendorSettings?.trackInventory || true,
+        trackCustomerBehavior: user.vendorSettings?.trackCustomerBehavior || false,
+        shareDataWithPlatform: user.vendorSettings?.shareDataWithPlatform || true
+      }
+    };
+
+    res.json({ settings });
+  } catch (error) {
+    console.error('Error fetching vendor settings:', error);
+    res.status(500).json({ message: 'Failed to fetch settings' });
+  }
+});
+
+// Update vendor settings
+router.put('/settings', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const sellerId = req.user!.sub;
+    const { settings } = req.body;
+
+    if (!settings) {
+      return res.status(400).json({ message: 'Settings data is required' });
+    }
+
+    // Prepare update data
+    const updateData: any = {};
+
+    // Update profile information
+    if (settings.profile) {
+      if (settings.profile.businessName) updateData.businessName = settings.profile.businessName;
+      if (settings.profile.businessType) updateData.businessType = settings.profile.businessType;
+      if (settings.profile.description) updateData.bio = settings.profile.description;
+      if (settings.profile.phone) updateData.phone = settings.profile.phone;
+      if (settings.profile.address) updateData.address = settings.profile.address;
+      if (settings.profile.city) updateData.city = settings.profile.city;
+      if (settings.profile.state) updateData.state = settings.profile.state;
+      if (settings.profile.zipCode) updateData.zipCode = settings.profile.zipCode;
+      if (settings.profile.country) updateData.country = settings.profile.country;
+      if (settings.profile.website) updateData.website = settings.profile.website;
+      if (settings.profile.taxId) updateData.taxId = settings.profile.taxId;
+    }
+
+    // Update vendor-specific settings
+    if (settings.store || settings.payments || settings.shipping || settings.analytics) {
+      updateData.vendorSettings = {
+        ...updateData.vendorSettings,
+        ...(settings.store && {
+          autoApproveProducts: settings.store.autoApproveProducts,
+          allowBargaining: settings.store.allowBargaining,
+          minimumBargainDiscount: settings.store.minimumBargainDiscount,
+          maximumBargainDiscount: settings.store.maximumBargainDiscount
+        }),
+        ...(settings.payments && {
+          payoutMethod: settings.payments.payoutMethod,
+          bankAccount: settings.payments.bankAccount,
+          paypalEmail: settings.payments.paypalEmail,
+          stripeAccount: settings.payments.stripeAccount,
+          taxRate: settings.payments.taxRate,
+          currency: settings.payments.currency
+        }),
+        ...(settings.shipping && {
+          freeShippingThreshold: settings.shipping.freeShippingThreshold,
+          shippingCost: settings.shipping.shippingCost,
+          processingTime: settings.shipping.processingTime,
+          returnPolicy: settings.shipping.returnPolicy,
+          shippingRegions: settings.shipping.shippingRegions
+        }),
+        ...(settings.analytics && {
+          trackSales: settings.analytics.trackSales,
+          trackInventory: settings.analytics.trackInventory,
+          trackCustomerBehavior: settings.analytics.trackCustomerBehavior,
+          shareDataWithPlatform: settings.analytics.shareDataWithPlatform
+        })
+      };
+    }
+
+    // Update notification settings
+    if (settings.notifications) {
+      updateData.notifications = {
+        ...updateData.notifications,
+        emailNotifications: settings.notifications.emailNotifications,
+        orderNotifications: settings.notifications.orderNotifications,
+        lowStockAlerts: settings.notifications.lowStockAlerts,
+        newReviewNotifications: settings.notifications.newReviewNotifications,
+        bargainNotifications: settings.notifications.bargainNotifications,
+        payoutNotifications: settings.notifications.payoutNotifications
+      };
+    }
+
+    // Update store information if provided
+    if (settings.store && (settings.store.storeName || settings.store.storeDescription)) {
+      const stores = await Store.find({ owner: sellerId });
+      if (stores.length > 0) {
+        const storeUpdateData: any = {};
+        if (settings.store.storeName) storeUpdateData.name = settings.store.storeName;
+        if (settings.store.storeDescription) storeUpdateData.description = settings.store.storeDescription;
+        if (settings.store.storeLogo) storeUpdateData.logo = settings.store.storeLogo;
+        if (settings.store.bannerImage) storeUpdateData.banner = settings.store.bannerImage;
+
+        await Store.findByIdAndUpdate(stores[0]._id, storeUpdateData);
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      sellerId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-passwordHash -oauthId');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ 
+      message: 'Settings updated successfully',
+      settings: {
+        profile: {
+          businessName: user.businessName || '',
+          businessType: user.businessType || 'retail',
+          description: user.bio || '',
+          phone: user.phone || '',
+          address: user.address || '',
+          city: user.city || '',
+          state: user.state || '',
+          zipCode: user.zipCode || '',
+          country: user.country || 'US',
+          website: user.website || '',
+          taxId: user.taxId || ''
+        },
+        store: user.vendorSettings?.store || {},
+        payments: user.vendorSettings?.payments || {},
+        notifications: user.notifications || {},
+        shipping: user.vendorSettings?.shipping || {},
+        analytics: user.vendorSettings?.analytics || {}
+      }
+    });
+  } catch (error) {
+    console.error('Error updating vendor settings:', error);
+    res.status(500).json({ message: 'Failed to update settings' });
   }
 });
 

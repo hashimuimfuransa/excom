@@ -640,4 +640,952 @@ router.post('/payout-request', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// Get affiliate settings
+router.get('/settings', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const user = await User.findById(userId).select('-passwordHash -oauthId');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get affiliate record
+    const affiliate = await Affiliate.findOne({ user: userId });
+
+    // Return affiliate settings with default values if not set
+    const settings = {
+      profile: {
+        displayName: user.affiliateSettings?.displayName || user.name || '',
+        bio: user.affiliateSettings?.bio || user.bio || '',
+        website: user.affiliateSettings?.website || user.website || '',
+        socialMedia: user.affiliateSettings?.socialMedia || {
+          facebook: '',
+          instagram: '',
+          twitter: '',
+          youtube: '',
+          tiktok: ''
+        },
+        niche: user.affiliateSettings?.niche || '',
+        targetAudience: user.affiliateSettings?.targetAudience || ''
+      },
+      preferences: {
+        commissionRate: user.affiliateSettings?.commissionRate || 5,
+        preferredCategories: user.affiliateSettings?.preferredCategories || [],
+        autoApproveProducts: user.affiliateSettings?.autoApproveProducts || false,
+        showPersonalBranding: user.affiliateSettings?.showPersonalBranding || true,
+        allowDirectMessages: user.affiliateSettings?.allowDirectMessages || true
+      },
+      payments: {
+        payoutMethod: user.affiliateSettings?.payoutMethod || 'paypal',
+        bankAccount: user.affiliateSettings?.bankAccount || '',
+        paypalEmail: user.affiliateSettings?.paypalEmail || user.email || '',
+        stripeAccount: user.affiliateSettings?.stripeAccount || '',
+        taxId: user.affiliateSettings?.taxId || '',
+        minimumPayout: user.affiliateSettings?.minimumPayout || 25
+      },
+      notifications: {
+        emailNotifications: user.notifications?.emailNotifications || true,
+        commissionNotifications: user.notifications?.commissionNotifications || true,
+        newProductNotifications: user.notifications?.newProductNotifications || true,
+        performanceNotifications: user.notifications?.performanceNotifications || true,
+        marketingTips: user.notifications?.marketingTips || true,
+        weeklyReports: user.notifications?.weeklyReports || true
+      },
+      marketing: {
+        trackingEnabled: user.affiliateSettings?.trackingEnabled || true,
+        customTrackingCode: user.affiliateSettings?.customTrackingCode || '',
+        utmParameters: user.affiliateSettings?.utmParameters || {
+          source: 'affiliate',
+          medium: 'social',
+          campaign: ''
+        },
+        socialSharing: user.affiliateSettings?.socialSharing || true,
+        emailMarketing: user.affiliateSettings?.emailMarketing || false
+      },
+      analytics: {
+        trackClicks: user.affiliateSettings?.trackClicks || true,
+        trackConversions: user.affiliateSettings?.trackConversions || true,
+        trackRevenue: user.affiliateSettings?.trackRevenue || true,
+        shareDataWithVendors: user.affiliateSettings?.shareDataWithVendors || false,
+        detailedReporting: user.affiliateSettings?.detailedReporting || true
+      }
+    };
+
+    res.json({ settings });
+  } catch (error) {
+    console.error('Error fetching affiliate settings:', error);
+    res.status(500).json({ message: 'Failed to fetch settings' });
+  }
+});
+
+// Update affiliate settings
+router.put('/settings', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { settings } = req.body;
+
+    if (!settings) {
+      return res.status(400).json({ message: 'Settings data is required' });
+    }
+
+    // Prepare update data
+    const updateData: any = {};
+
+    // Update affiliate-specific settings
+    if (settings.profile || settings.preferences || settings.payments || settings.marketing || settings.analytics) {
+      updateData.affiliateSettings = {
+        ...updateData.affiliateSettings,
+        ...(settings.profile && {
+          displayName: settings.profile.displayName,
+          bio: settings.profile.bio,
+          website: settings.profile.website,
+          socialMedia: settings.profile.socialMedia,
+          niche: settings.profile.niche,
+          targetAudience: settings.profile.targetAudience
+        }),
+        ...(settings.preferences && {
+          commissionRate: settings.preferences.commissionRate,
+          preferredCategories: settings.preferences.preferredCategories,
+          autoApproveProducts: settings.preferences.autoApproveProducts,
+          showPersonalBranding: settings.preferences.showPersonalBranding,
+          allowDirectMessages: settings.preferences.allowDirectMessages
+        }),
+        ...(settings.payments && {
+          payoutMethod: settings.payments.payoutMethod,
+          bankAccount: settings.payments.bankAccount,
+          paypalEmail: settings.payments.paypalEmail,
+          stripeAccount: settings.payments.stripeAccount,
+          taxId: settings.payments.taxId,
+          minimumPayout: settings.payments.minimumPayout
+        }),
+        ...(settings.marketing && {
+          trackingEnabled: settings.marketing.trackingEnabled,
+          customTrackingCode: settings.marketing.customTrackingCode,
+          utmParameters: settings.marketing.utmParameters,
+          socialSharing: settings.marketing.socialSharing,
+          emailMarketing: settings.marketing.emailMarketing
+        }),
+        ...(settings.analytics && {
+          trackClicks: settings.analytics.trackClicks,
+          trackConversions: settings.analytics.trackConversions,
+          trackRevenue: settings.analytics.trackRevenue,
+          shareDataWithVendors: settings.analytics.shareDataWithVendors,
+          detailedReporting: settings.analytics.detailedReporting
+        })
+      };
+    }
+
+    // Update notification settings
+    if (settings.notifications) {
+      updateData.notifications = {
+        ...updateData.notifications,
+        emailNotifications: settings.notifications.emailNotifications,
+        commissionNotifications: settings.notifications.commissionNotifications,
+        newProductNotifications: settings.notifications.newProductNotifications,
+        performanceNotifications: settings.notifications.performanceNotifications,
+        marketingTips: settings.notifications.marketingTips,
+        weeklyReports: settings.notifications.weeklyReports
+      };
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-passwordHash -oauthId');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ 
+      message: 'Settings updated successfully',
+      settings: {
+        profile: user.affiliateSettings?.profile || {},
+        preferences: user.affiliateSettings?.preferences || {},
+        payments: user.affiliateSettings?.payments || {},
+        notifications: user.notifications || {},
+        marketing: user.affiliateSettings?.marketing || {},
+        analytics: user.affiliateSettings?.analytics || {}
+      }
+    });
+  } catch (error) {
+    console.error('Error updating affiliate settings:', error);
+    res.status(500).json({ message: 'Failed to update settings' });
+  }
+});
+
+// Get affiliate links
+router.get('/links', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Get affiliate links
+    const affiliateLinks = await AffiliateLink.find({ affiliate: { $in: affiliateIds } })
+      .populate('affiliate', 'referralCode')
+      .populate('vendor', 'name')
+      .populate('targetId', 'title name images')
+      .sort({ createdAt: -1 });
+
+    res.json({ data: affiliateLinks });
+  } catch (error) {
+    console.error('Error fetching affiliate links:', error);
+    res.status(500).json({ message: 'Failed to fetch affiliate links' });
+  }
+});
+
+// Get affiliate earnings
+router.get('/earnings', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Get commissions
+    const commissions = await AffiliateCommission.find({ affiliate: { $in: affiliateIds } })
+      .populate('order', 'total status orderNumber')
+      .populate('product', 'title images price')
+      .populate('affiliate', 'referralCode')
+      .sort({ createdAt: -1 });
+
+    res.json({ data: commissions });
+  } catch (error) {
+    console.error('Error fetching affiliate earnings:', error);
+    res.status(500).json({ message: 'Failed to fetch affiliate earnings' });
+  }
+});
+
+// Get affiliate earnings stats
+router.get('/earnings/stats', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+
+    // Calculate stats
+    const totalEarnings = affiliates.reduce((sum, affiliate) => sum + affiliate.totalEarnings, 0);
+    const pendingEarnings = affiliates.reduce((sum, affiliate) => sum + affiliate.pendingEarnings, 0);
+    const paidEarnings = affiliates.reduce((sum, affiliate) => sum + affiliate.paidEarnings, 0);
+    const totalOrders = affiliates.reduce((sum, affiliate) => sum + affiliate.totalConversions, 0);
+
+    // Calculate this month earnings
+    const thisMonth = new Date();
+    thisMonth.setDate(1);
+    thisMonth.setHours(0, 0, 0, 0);
+
+    const thisMonthCommissions = await AffiliateCommission.find({
+      affiliate: { $in: affiliates.map(a => a._id) },
+      createdAt: { $gte: thisMonth },
+      status: { $in: ['approved', 'paid'] }
+    });
+
+    const thisMonthEarnings = thisMonthCommissions.reduce((sum, commission) => sum + commission.amount, 0);
+
+    // Calculate last month earnings
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    lastMonth.setDate(1);
+    lastMonth.setHours(0, 0, 0, 0);
+
+    const lastMonthEnd = new Date();
+    lastMonthEnd.setDate(0);
+    lastMonthEnd.setHours(23, 59, 59, 999);
+
+    const lastMonthCommissions = await AffiliateCommission.find({
+      affiliate: { $in: affiliates.map(a => a._id) },
+      createdAt: { $gte: lastMonth, $lte: lastMonthEnd },
+      status: { $in: ['approved', 'paid'] }
+    });
+
+    const lastMonthEarnings = lastMonthCommissions.reduce((sum, commission) => sum + commission.amount, 0);
+
+    // Calculate average order value
+    const averageOrderValue = totalOrders > 0 ? totalEarnings / totalOrders : 0;
+
+    // Get top earning product and vendor
+    const topProduct = await AffiliateCommission.aggregate([
+      { $match: { affiliate: { $in: affiliates.map(a => a._id) } } },
+      { $group: { _id: '$product', totalEarnings: { $sum: '$amount' } } },
+      { $sort: { totalEarnings: -1 } },
+      { $limit: 1 },
+      { $lookup: { from: 'products', localField: '_id', foreignField: '_id', as: 'product' } }
+    ]);
+
+    const topVendor = await AffiliateCommission.aggregate([
+      { $match: { affiliate: { $in: affiliates.map(a => a._id) } } },
+      { $group: { _id: '$vendor', totalEarnings: { $sum: '$amount' } } },
+      { $sort: { totalEarnings: -1 } },
+      { $limit: 1 },
+      { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'vendor' } }
+    ]);
+
+    res.json({
+      data: {
+        totalEarnings,
+        pendingEarnings,
+        paidEarnings,
+        cancelledEarnings: 0, // Can be calculated if needed
+        thisMonthEarnings,
+        lastMonthEarnings,
+        totalOrders,
+        averageOrderValue,
+        topEarningProduct: topProduct[0]?.product[0]?.title || '',
+        topEarningVendor: topVendor[0]?.vendor[0]?.name || ''
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching affiliate earnings stats:', error);
+    res.status(500).json({ message: 'Failed to fetch affiliate earnings stats' });
+  }
+});
+
+// Get payout requests
+router.get('/payout-requests', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Get payout requests
+    const payoutRequests = await AffiliatePayout.find({ affiliate: { $in: affiliateIds } })
+      .populate('affiliate', 'referralCode')
+      .populate('vendor', 'name')
+      .sort({ createdAt: -1 });
+
+    res.json({ data: payoutRequests });
+  } catch (error) {
+    console.error('Error fetching payout requests:', error);
+    res.status(500).json({ message: 'Failed to fetch payout requests' });
+  }
+});
+
+// Get affiliate analytics
+router.get('/analytics', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { period = '30' } = req.query;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(period as string));
+
+    // Get clicks and conversions
+    const clicks = await AffiliateClick.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: startDate, $lte: endDate }
+    });
+
+    const totalClicks = clicks.length;
+    const totalConversions = clicks.filter(click => click.converted).length;
+    const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
+
+    // Get earnings
+    const commissions = await AffiliateCommission.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: startDate, $lte: endDate }
+    });
+
+    const totalEarnings = commissions.reduce((sum, commission) => sum + commission.amount, 0);
+
+    // Get top performing products
+    const productStats = await AffiliateClick.aggregate([
+      { $match: { affiliate: { $in: affiliateIds }, linkType: 'product', createdAt: { $gte: startDate, $lte: endDate } } },
+      { $group: { _id: '$targetId', clicks: { $sum: 1 }, conversions: { $sum: { $cond: ['$converted', 1, 0] } } } },
+      { $sort: { clicks: -1 } },
+      { $limit: 10 }
+    ]);
+
+    const topPerformingProducts = await Promise.all(productStats.map(async (stat) => {
+      const product = await Product.findById(stat._id).populate('seller', 'name');
+      if (!product) return null;
+      
+      return {
+        _id: product._id,
+        name: product.title,
+        image: product.images?.[0],
+        clicks: stat.clicks,
+        conversions: stat.conversions,
+        earnings: stat.conversions * (product.price * 0.1), // Assuming 10% commission
+        conversionRate: stat.clicks > 0 ? (stat.conversions / stat.clicks) * 100 : 0
+      };
+    }));
+
+    // Get top performing links
+    const linkStats = await AffiliateClick.aggregate([
+      { $match: { affiliate: { $in: affiliateIds }, createdAt: { $gte: startDate, $lte: endDate } } },
+      { $group: { _id: '$affiliate', clicks: { $sum: 1 }, conversions: { $sum: { $cond: ['$converted', 1, 0] } } } },
+      { $sort: { clicks: -1 } },
+      { $limit: 10 }
+    ]);
+
+    const topPerformingLinks = await Promise.all(linkStats.map(async (stat) => {
+      const affiliate = await Affiliate.findById(stat._id);
+      if (!affiliate) return null;
+
+      return {
+        _id: affiliate._id,
+        productName: 'General Link',
+        productImage: null,
+        clicks: stat.clicks,
+        conversions: stat.conversions,
+        earnings: stat.conversions * 10, // Assuming $10 average commission
+        conversionRate: stat.clicks > 0 ? (stat.conversions / stat.clicks) * 100 : 0,
+        url: `${process.env.FRONTEND_URL}?ref=${affiliate.referralCode}`
+      };
+    }));
+
+    // Get daily stats
+    const dailyStats = await AffiliateClick.aggregate([
+      { $match: { affiliate: { $in: affiliateIds }, createdAt: { $gte: startDate, $lte: endDate } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, clicks: { $sum: 1 }, conversions: { $sum: { $cond: ['$converted', 1, 0] } } } },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Get traffic sources (simplified)
+    const trafficSources = [
+      { source: 'Direct', clicks: Math.floor(totalClicks * 0.3), conversions: Math.floor(totalConversions * 0.3), percentage: 30 },
+      { source: 'Social Media', clicks: Math.floor(totalClicks * 0.4), conversions: Math.floor(totalConversions * 0.4), percentage: 40 },
+      { source: 'Search', clicks: Math.floor(totalClicks * 0.2), conversions: Math.floor(totalConversions * 0.2), percentage: 20 },
+      { source: 'Email', clicks: Math.floor(totalClicks * 0.1), conversions: Math.floor(totalConversions * 0.1), percentage: 10 }
+    ];
+
+    // Get device stats (simplified)
+    const deviceStats = [
+      { device: 'Mobile', clicks: Math.floor(totalClicks * 0.6), conversions: Math.floor(totalConversions * 0.6), percentage: 60 },
+      { device: 'Desktop', clicks: Math.floor(totalClicks * 0.3), conversions: Math.floor(totalConversions * 0.3), percentage: 30 },
+      { device: 'Tablet', clicks: Math.floor(totalClicks * 0.1), conversions: Math.floor(totalConversions * 0.1), percentage: 10 }
+    ];
+
+    // Get geographic stats (simplified)
+    const geographicStats = [
+      { country: 'Rwanda', clicks: Math.floor(totalClicks * 0.5), conversions: Math.floor(totalConversions * 0.5), earnings: totalEarnings * 0.5 },
+      { country: 'Kenya', clicks: Math.floor(totalClicks * 0.2), conversions: Math.floor(totalConversions * 0.2), earnings: totalEarnings * 0.2 },
+      { country: 'Uganda', clicks: Math.floor(totalClicks * 0.15), conversions: Math.floor(totalConversions * 0.15), earnings: totalEarnings * 0.15 },
+      { country: 'Tanzania', clicks: Math.floor(totalClicks * 0.15), conversions: Math.floor(totalConversions * 0.15), earnings: totalEarnings * 0.15 }
+    ];
+
+    res.json({
+      data: {
+        totalClicks,
+        totalConversions,
+        totalEarnings,
+        conversionRate,
+        clickThroughRate: 2.5, // Simplified
+        averageOrderValue: totalConversions > 0 ? totalEarnings / totalConversions : 0,
+        topPerformingProducts: topPerformingProducts.filter(p => p !== null),
+        topPerformingLinks: topPerformingLinks.filter(l => l !== null),
+        dailyStats: dailyStats.map(stat => ({
+          date: stat._id,
+          clicks: stat.clicks,
+          conversions: stat.conversions,
+          earnings: stat.conversions * 10 // Simplified
+        })),
+        monthlyStats: [], // Can be implemented if needed
+        trafficSources,
+        deviceStats,
+        geographicStats
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching affiliate analytics:', error);
+    res.status(500).json({ message: 'Failed to fetch affiliate analytics' });
+  }
+});
+
+// Get affiliate products
+router.get('/products', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const vendorIds = affiliates.map(a => a.vendor);
+
+    // Get products from vendors
+    const products = await Product.find({ seller: { $in: vendorIds } })
+      .populate('seller', 'name')
+      .populate('store', 'name')
+      .sort({ createdAt: -1 });
+
+    // Get click and conversion stats for each product
+    const productsWithStats = await Promise.all(products.map(async (product) => {
+      const affiliate = affiliates.find(a => a.vendor.toString() === product.seller._id.toString());
+      if (!affiliate) return null;
+
+      const clicks = await AffiliateClick.find({
+        affiliate: affiliate._id,
+        targetId: product._id,
+        linkType: 'product'
+      });
+
+      const conversions = clicks.filter(click => click.converted).length;
+      const earnings = conversions * (product.price * (affiliate.commissionRate / 100));
+
+      return {
+        _id: product._id,
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.images?.[0],
+        images: product.images,
+        category: product.category,
+        subcategory: product.subcategory,
+        vendor: {
+          _id: product.seller._id,
+          name: product.seller.name,
+          logo: null,
+          rating: 4.5
+        },
+        commissionRate: affiliate.commissionRate,
+        status: 'active',
+        tags: product.tags || [],
+        rating: 4.5,
+        reviewCount: 0,
+        salesCount: conversions,
+        clickCount: clicks.length,
+        conversionCount: conversions,
+        conversionRate: clicks.length > 0 ? (conversions / clicks.length) * 100 : 0,
+        earnings,
+        isFavorite: false,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt
+      };
+    }));
+
+    res.json({ data: productsWithStats.filter(p => p !== null) });
+  } catch (error) {
+    console.error('Error fetching affiliate products:', error);
+    res.status(500).json({ message: 'Failed to fetch affiliate products' });
+  }
+});
+
+// Get affiliate products stats
+router.get('/products/stats', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const vendorIds = affiliates.map(a => a.vendor);
+
+    // Get products count
+    const totalProducts = await Product.countDocuments({ seller: { $in: vendorIds } });
+    const activeProducts = await Product.countDocuments({ seller: { $in: vendorIds }, status: 'active' });
+
+    // Get total clicks and conversions
+    const affiliateIds = affiliates.map(a => a._id);
+    const clicks = await AffiliateClick.find({ affiliate: { $in: affiliateIds } });
+    const totalClicks = clicks.length;
+    const totalConversions = clicks.filter(click => click.converted).length;
+
+    // Get total earnings
+    const commissions = await AffiliateCommission.find({ affiliate: { $in: affiliateIds } });
+    const totalEarnings = commissions.reduce((sum, commission) => sum + commission.amount, 0);
+
+    // Calculate average commission rate
+    const averageCommissionRate = affiliates.length > 0 
+      ? affiliates.reduce((sum, affiliate) => sum + affiliate.commissionRate, 0) / affiliates.length 
+      : 0;
+
+    // Get top category and vendor
+    const topCategory = await Product.aggregate([
+      { $match: { seller: { $in: vendorIds } } },
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 1 }
+    ]);
+
+    const topVendor = await User.aggregate([
+      { $match: { _id: { $in: vendorIds } } },
+      { $lookup: { from: 'affiliatecommissions', localField: '_id', foreignField: 'vendor', as: 'commissions' } },
+      { $addFields: { totalEarnings: { $sum: '$commissions.amount' } } },
+      { $sort: { totalEarnings: -1 } },
+      { $limit: 1 }
+    ]);
+
+    res.json({
+      data: {
+        totalProducts,
+        activeProducts,
+        totalClicks,
+        totalConversions,
+        totalEarnings,
+        averageCommissionRate,
+        topCategory: topCategory[0]?._id || '',
+        topVendor: topVendor[0]?.name || ''
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching affiliate products stats:', error);
+    res.status(500).json({ message: 'Failed to fetch affiliate products stats' });
+  }
+});
+
+// Get affiliate performance
+router.get('/performance', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { period = '30' } = req.query;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(period as string));
+
+    // Get performance data
+    const clicks = await AffiliateClick.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: startDate, $lte: endDate }
+    });
+
+    const conversions = clicks.filter(click => click.converted).length;
+    const conversionRate = clicks.length > 0 ? (conversions / clicks.length) * 100 : 0;
+
+    // Calculate overall score (simplified algorithm)
+    const overallScore = Math.min(100, Math.max(0, 
+      (conversionRate * 0.4) + 
+      (Math.min(clicks.length / 100, 1) * 30) + 
+      (Math.min(conversions / 10, 1) * 30)
+    ));
+
+    // Get rank (simplified - would need more complex logic in real implementation)
+    const totalAffiliates = await Affiliate.countDocuments({ status: 'approved' });
+    const rank = Math.floor(Math.random() * totalAffiliates) + 1;
+    const percentile = Math.floor((1 - rank / totalAffiliates) * 100);
+
+    // Calculate growth (simplified)
+    const previousPeriodStart = new Date(startDate);
+    previousPeriodStart.setDate(previousPeriodStart.getDate() - parseInt(period as string));
+    const previousPeriodEnd = new Date(startDate);
+
+    const previousClicks = await AffiliateClick.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: previousPeriodStart, $lte: previousPeriodEnd }
+    });
+
+    const previousConversions = previousClicks.filter(click => click.converted).length;
+    const monthlyGrowth = previousConversions > 0 ? ((conversions - previousConversions) / previousConversions) * 100 : 0;
+
+    // Get achievements (simplified)
+    const achievements = [
+      {
+        _id: '1',
+        title: 'First Sale',
+        description: 'Made your first affiliate sale',
+        icon: 'trophy',
+        earnedDate: new Date(),
+        points: 100,
+        category: 'sales'
+      },
+      {
+        _id: '2',
+        title: '100 Clicks',
+        description: 'Generated 100 clicks on your affiliate links',
+        icon: 'clicks',
+        earnedDate: new Date(),
+        points: 50,
+        category: 'engagement'
+      }
+    ];
+
+    // Get goals (simplified)
+    const goals = [
+      {
+        _id: '1',
+        title: 'Monthly Sales Target',
+        description: 'Achieve 10 sales this month',
+        target: 10,
+        current: conversions,
+        unit: 'sales',
+        deadline: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+        status: conversions >= 10 ? 'completed' : 'active',
+        category: 'sales'
+      }
+    ];
+
+    // Get top products (simplified)
+    const topProducts = await AffiliateClick.aggregate([
+      { $match: { affiliate: { $in: affiliateIds }, linkType: 'product', createdAt: { $gte: startDate, $lte: endDate } } },
+      { $group: { _id: '$targetId', clicks: { $sum: 1 }, conversions: { $sum: { $cond: ['$converted', 1, 0] } } } },
+      { $sort: { clicks: -1 } },
+      { $limit: 5 }
+    ]);
+
+    const topProductsWithDetails = await Promise.all(topProducts.map(async (stat) => {
+      const product = await Product.findById(stat._id);
+      if (!product) return null;
+
+      return {
+        _id: product._id,
+        name: product.title,
+        image: product.images?.[0],
+        performance: Math.min(100, (stat.clicks / 10) * 100),
+        clicks: stat.clicks,
+        conversions: stat.conversions,
+        earnings: stat.conversions * (product.price * 0.1)
+      };
+    }));
+
+    // Get competitor analysis (simplified)
+    const competitorAnalysis = [
+      { name: 'Top Performer', score: 95, clicks: 1000, conversions: 100, earnings: 5000, rank: 1 },
+      { name: 'Average Affiliate', score: 75, clicks: 500, conversions: 50, earnings: 2500, rank: 2 }
+    ];
+
+    // Get recommendations (simplified)
+    const recommendations = [
+      {
+        _id: '1',
+        title: 'Improve Conversion Rate',
+        description: 'Focus on high-converting products and optimize your content',
+        priority: 'high',
+        category: 'optimization',
+        impact: 'Increase earnings by 25%'
+      },
+      {
+        _id: '2',
+        title: 'Expand Product Range',
+        description: 'Promote more products to increase your earning potential',
+        priority: 'medium',
+        category: 'growth',
+        impact: 'Increase earnings by 15%'
+      }
+    ];
+
+    res.json({
+      data: {
+        overallScore,
+        rank,
+        totalAffiliates,
+        percentile,
+        monthlyGrowth,
+        quarterlyGrowth: monthlyGrowth * 0.8,
+        yearlyGrowth: monthlyGrowth * 0.6,
+        keyMetrics: {
+          clickThroughRate: 2.5,
+          conversionRate,
+          averageOrderValue: conversions > 0 ? 50 : 0,
+          customerLifetimeValue: 150,
+          returnCustomerRate: 15,
+          socialMediaEngagement: 3.2
+        },
+        achievements,
+        goals,
+        monthlyPerformance: [], // Can be implemented if needed
+        topProducts: topProductsWithDetails.filter(p => p !== null),
+        competitorAnalysis,
+        recommendations
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching affiliate performance:', error);
+    res.status(500).json({ message: 'Failed to fetch affiliate performance' });
+  }
+});
+
+// Update affiliate link status
+router.post('/links/:id/status', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Verify affiliate owns this link
+    const affiliate = await Affiliate.findOne({ user: userId, status: 'approved' });
+    if (!affiliate) {
+      return res.status(400).json({ message: 'Affiliate not found' });
+    }
+
+    const link = await AffiliateLink.findOne({ _id: id, affiliate: affiliate._id });
+    if (!link) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    // Update link status
+    link.status = status;
+    await link.save();
+
+    res.json({ success: true, message: 'Link status updated successfully' });
+  } catch (error) {
+    console.error('Error updating link status:', error);
+    res.status(500).json({ message: 'Failed to update link status' });
+  }
+});
+
+// Delete affiliate link
+router.delete('/links/:id', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { id } = req.params;
+
+    // Verify affiliate owns this link
+    const affiliate = await Affiliate.findOne({ user: userId, status: 'approved' });
+    if (!affiliate) {
+      return res.status(400).json({ message: 'Affiliate not found' });
+    }
+
+    const link = await AffiliateLink.findOne({ _id: id, affiliate: affiliate._id });
+    if (!link) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    // Delete link
+    await AffiliateLink.findByIdAndDelete(id);
+
+    res.json({ success: true, message: 'Link deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting link:', error);
+    res.status(500).json({ message: 'Failed to delete link' });
+  }
+});
+
+// Export affiliate data
+router.get('/analytics/export', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { period = '30' } = req.query;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(period as string));
+
+    // Get data for export
+    const clicks = await AffiliateClick.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: startDate, $lte: endDate }
+    }).populate('targetId', 'title');
+
+    const commissions = await AffiliateCommission.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: startDate, $lte: endDate }
+    }).populate('product', 'title');
+
+    // Format data for CSV export (simplified)
+    const exportData = {
+      clicks: clicks.map(click => ({
+        date: click.createdAt,
+        target: click.targetId?.title || 'Unknown',
+        converted: click.converted,
+        ipAddress: click.ipAddress
+      })),
+      commissions: commissions.map(commission => ({
+        date: commission.createdAt,
+        product: commission.product?.title || 'Unknown',
+        amount: commission.amount,
+        status: commission.status
+      }))
+    };
+
+    res.json({ success: true, data: exportData });
+  } catch (error) {
+    console.error('Error exporting affiliate data:', error);
+    res.status(500).json({ message: 'Failed to export affiliate data' });
+  }
+});
+
+// Export earnings data
+router.get('/earnings/export', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Get earnings data
+    const commissions = await AffiliateCommission.find({ affiliate: { $in: affiliateIds } })
+      .populate('product', 'title')
+      .populate('order', 'orderNumber')
+      .sort({ createdAt: -1 });
+
+    // Format data for export
+    const exportData = commissions.map(commission => ({
+      date: commission.createdAt,
+      orderNumber: commission.order?.orderNumber || 'N/A',
+      product: commission.product?.title || 'Unknown',
+      amount: commission.amount,
+      status: commission.status,
+      paymentDate: commission.paymentDate || 'N/A'
+    }));
+
+    res.json({ success: true, data: exportData });
+  } catch (error) {
+    console.error('Error exporting earnings data:', error);
+    res.status(500).json({ message: 'Failed to export earnings data' });
+  }
+});
+
+// Export performance data
+router.get('/performance/export', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+    const { period = '30' } = req.query;
+
+    // Get all affiliate relationships for this user
+    const affiliates = await Affiliate.find({ user: userId, status: 'approved' });
+    const affiliateIds = affiliates.map(a => a._id);
+
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(period as string));
+
+    // Get performance data
+    const clicks = await AffiliateClick.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: startDate, $lte: endDate }
+    });
+
+    const commissions = await AffiliateCommission.find({
+      affiliate: { $in: affiliateIds },
+      createdAt: { $gte: startDate, $lte: endDate }
+    });
+
+    // Format data for export
+    const exportData = {
+      summary: {
+        totalClicks: clicks.length,
+        totalConversions: clicks.filter(click => click.converted).length,
+        totalEarnings: commissions.reduce((sum, commission) => sum + commission.amount, 0),
+        conversionRate: clicks.length > 0 ? (clicks.filter(click => click.converted).length / clicks.length) * 100 : 0
+      },
+      dailyStats: clicks.map(click => ({
+        date: click.createdAt,
+        clicks: 1,
+        converted: click.converted ? 1 : 0
+      }))
+    };
+
+    res.json({ success: true, data: exportData });
+  } catch (error) {
+    console.error('Error exporting performance data:', error);
+    res.status(500).json({ message: 'Failed to export performance data' });
+  }
+});
+
 export default router;

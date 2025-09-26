@@ -35,9 +35,11 @@ import {
   FilterList as FilterIcon,
   Search as SearchIcon
 } from '@mui/icons-material';
-import { apiGet, apiPost } from '@utils/api';
+import { apiGet, apiPost } from '@/utils/api';
 import AffiliateOnboardingGuard from '@/components/AffiliateOnboardingGuard';
 import BackButton from '@/components/BackButton';
+import AffiliateLayout from '@/components/AffiliateLayout';
+import { useTranslation } from 'react-i18next';
 
 interface AffiliateStats {
   totalClicks: number;
@@ -160,6 +162,7 @@ interface AffiliateClick {
 }
 
 export default function AffiliateDashboardPage() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AffiliateStats>({
     totalClicks: 0,
@@ -222,16 +225,16 @@ export default function AffiliateDashboardPage() {
         productId: product._id
       });
       
-      setGeneratedLink(response.affiliateUrl);
+      setGeneratedLink((response as any).affiliateUrl);
       setSelectedProduct(product);
       setShareDialogOpen(true);
-      setSnackbarMessage('Affiliate link generated successfully!');
+      setSnackbarMessage(t('affiliate.linkGeneratedSuccessfully'));
       setSnackbarOpen(true);
       
       // Refresh data to get updated links
       fetchAffiliateData();
     } catch (error: any) {
-      setSnackbarMessage(error.message || 'Failed to generate affiliate link');
+      setSnackbarMessage(error.message || t('affiliate.failedToGenerateLink'));
       setSnackbarOpen(true);
     } finally {
       setGeneratingLink(false);
@@ -240,7 +243,7 @@ export default function AffiliateDashboardPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    setSnackbarMessage('Link copied to clipboard!');
+    setSnackbarMessage(t('affiliate.linkCopiedToClipboard'));
     setSnackbarOpen(true);
   };
 
@@ -301,132 +304,227 @@ export default function AffiliateDashboardPage() {
 
   return (
     <AffiliateOnboardingGuard>
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+      <AffiliateLayout>
+        <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box mb={4}>
-          <Box display="flex" alignItems="center" gap={2} mb={2}>
+          <Box 
+            display="flex" 
+            alignItems={{ xs: 'flex-start', sm: 'center' }} 
+            gap={2} 
+            mb={2}
+            flexDirection={{ xs: 'column', sm: 'row' }}
+          >
             <BackButton href="/dashboard" tooltip="Back to Dashboard" />
-            <Typography variant="h4" fontWeight={700}>
-              🎯 Affiliate Dashboard
+            <Typography 
+              variant="h4" 
+              fontWeight={700}
+              sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}
+            >
+              🎯 {t('affiliate.affiliateDashboard')}
             </Typography>
           </Box>
-          <Typography variant="body1" color="text.secondary">
-            Track your performance, manage products, and maximize your earnings
+          <Typography 
+            variant="body1" 
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+          >
+            {t('affiliate.trackYourPerformance')}
           </Typography>
         </Box>
 
         {/* Enhanced Stats Overview */}
-        <Grid container spacing={3} mb={4}>
-          <Grid item xs={12} sm={6} md={2.4}>
+        <Grid container spacing={{ xs: 2, sm: 3 }} mb={4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <Card sx={{ 
               textAlign: 'center', 
-              p: 2, 
+              p: { xs: 1.5, sm: 2 }, 
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
               color: 'white',
               border: 'none',
               boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)'
             }}>
-              <CardContent>
-                <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mx: 'auto', mb: 2 }}>
-                  <EyeIcon />
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+                <Avatar sx={{ 
+                  bgcolor: 'rgba(255,255,255,0.2)', 
+                  mx: 'auto', 
+                  mb: { xs: 1, sm: 2 },
+                  width: { xs: 32, sm: 40 },
+                  height: { xs: 32, sm: 40 }
+                }}>
+                  <EyeIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />
                 </Avatar>
-                <Typography variant="h4" fontWeight={700}>
+                <Typography 
+                  variant="h4" 
+                  fontWeight={700}
+                  sx={{ fontSize: { xs: '1.25rem', sm: '2rem' } }}
+                >
                   {stats.totalClicks}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Total Clicks
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    opacity: 0.9,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
+                >
+                  {t('affiliate.totalClicks')}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <Card sx={{ 
               textAlign: 'center', 
-              p: 2, 
+              p: { xs: 1.5, sm: 2 }, 
               background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
               color: 'white',
               border: 'none',
               boxShadow: '0 8px 32px rgba(240, 147, 251, 0.3)'
             }}>
-              <CardContent>
-                <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mx: 'auto', mb: 2 }}>
-                  <ShoppingCartIcon />
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+                <Avatar sx={{ 
+                  bgcolor: 'rgba(255,255,255,0.2)', 
+                  mx: 'auto', 
+                  mb: { xs: 1, sm: 2 },
+                  width: { xs: 32, sm: 40 },
+                  height: { xs: 32, sm: 40 }
+                }}>
+                  <ShoppingCartIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />
                 </Avatar>
-                <Typography variant="h4" fontWeight={700}>
+                <Typography 
+                  variant="h4" 
+                  fontWeight={700}
+                  sx={{ fontSize: { xs: '1.25rem', sm: '2rem' } }}
+                >
                   {stats.totalConversions}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Conversions
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    opacity: 0.9,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
+                >
+                  {t('affiliate.conversions')}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <Card sx={{ 
               textAlign: 'center', 
-              p: 2, 
+              p: { xs: 1.5, sm: 2 }, 
               background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', 
               color: 'white',
               border: 'none',
               boxShadow: '0 8px 32px rgba(79, 172, 254, 0.3)'
             }}>
-              <CardContent>
-                <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mx: 'auto', mb: 2 }}>
-                  <TrendingUpIcon />
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+                <Avatar sx={{ 
+                  bgcolor: 'rgba(255,255,255,0.2)', 
+                  mx: 'auto', 
+                  mb: { xs: 1, sm: 2 },
+                  width: { xs: 32, sm: 40 },
+                  height: { xs: 32, sm: 40 }
+                }}>
+                  <TrendingUpIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />
                 </Avatar>
-                <Typography variant="h4" fontWeight={700}>
+                <Typography 
+                  variant="h4" 
+                  fontWeight={700}
+                  sx={{ fontSize: { xs: '1.25rem', sm: '2rem' } }}
+                >
                   {stats.conversionRate.toFixed(1)}%
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Conversion Rate
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    opacity: 0.9,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
+                >
+                  {t('affiliate.conversionRate')}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <Card sx={{ 
               textAlign: 'center', 
-              p: 2, 
+              p: { xs: 1.5, sm: 2 }, 
               background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', 
               color: 'white',
               border: 'none',
               boxShadow: '0 8px 32px rgba(67, 233, 123, 0.3)'
             }}>
-              <CardContent>
-                <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mx: 'auto', mb: 2 }}>
-                  <DollarSignIcon />
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+                <Avatar sx={{ 
+                  bgcolor: 'rgba(255,255,255,0.2)', 
+                  mx: 'auto', 
+                  mb: { xs: 1, sm: 2 },
+                  width: { xs: 32, sm: 40 },
+                  height: { xs: 32, sm: 40 }
+                }}>
+                  <DollarSignIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />
                 </Avatar>
-                <Typography variant="h4" fontWeight={700}>
+                <Typography 
+                  variant="h4" 
+                  fontWeight={700}
+                  sx={{ fontSize: { xs: '1.25rem', sm: '2rem' } }}
+                >
                   ${stats.totalEarnings.toFixed(2)}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Total Earnings
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    opacity: 0.9,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
+                >
+                  {t('affiliate.totalEarnings')}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <Card sx={{ 
               textAlign: 'center', 
-              p: 2, 
+              p: { xs: 1.5, sm: 2 }, 
               background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', 
               color: 'white',
               border: 'none',
               boxShadow: '0 8px 32px rgba(250, 112, 154, 0.3)'
             }}>
-              <CardContent>
-                <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mx: 'auto', mb: 2 }}>
-                  <ClockIcon />
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+                <Avatar sx={{ 
+                  bgcolor: 'rgba(255,255,255,0.2)', 
+                  mx: 'auto', 
+                  mb: { xs: 1, sm: 2 },
+                  width: { xs: 32, sm: 40 },
+                  height: { xs: 32, sm: 40 }
+                }}>
+                  <ClockIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />
                 </Avatar>
-                <Typography variant="h4" fontWeight={700}>
+                <Typography 
+                  variant="h4" 
+                  fontWeight={700}
+                  sx={{ fontSize: { xs: '1.25rem', sm: '2rem' } }}
+                >
                   ${stats.pendingEarnings.toFixed(2)}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Pending
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    opacity: 0.9,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
+                >
+                  {t('affiliate.pending')}
                 </Typography>
               </CardContent>
             </Card>
@@ -452,6 +550,8 @@ export default function AffiliateDashboardPage() {
               '& .MuiTab-root': {
                 color: 'text.secondary',
                 fontWeight: 600,
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                minHeight: { xs: 40, sm: 48 },
                 '&.Mui-selected': {
                   color: 'primary.main',
                 }
@@ -464,48 +564,103 @@ export default function AffiliateDashboardPage() {
             }}
             variant="scrollable"
             scrollButtons="auto"
+            allowScrollButtonsMobile
           >
-            <Tab label="My Programs" icon={<UsersIcon />} />
-            <Tab label="Products" icon={<InventoryIcon />} />
-            <Tab label="Analytics" icon={<AnalyticsIcon />} />
-            <Tab label="Links" icon={<LinkIcon />} />
-            <Tab label="Commissions" icon={<DollarSignIcon />} />
+            <Tab 
+              label={t('affiliate.myPrograms')} 
+              icon={<UsersIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />} 
+              iconPosition="start"
+            />
+            <Tab 
+              label={t('affiliate.products')} 
+              icon={<InventoryIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />} 
+              iconPosition="start"
+            />
+            <Tab 
+              label={t('affiliate.analytics')} 
+              icon={<AnalyticsIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />} 
+              iconPosition="start"
+            />
+            <Tab 
+              label={t('affiliate.myLinks')} 
+              icon={<LinkIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />} 
+              iconPosition="start"
+            />
+            <Tab 
+              label={t('affiliate.recentCommissions')} 
+              icon={<DollarSignIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />} 
+              iconPosition="start"
+            />
           </Tabs>
 
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 2, sm: 3 } }}>
             {/* My Programs Tab */}
             {activeTab === 0 && (
               <Box>
-                <Typography variant="h6" fontWeight={600} gutterBottom>
-                  My Affiliate Programs
+                <Typography 
+                  variant="h6" 
+                  fontWeight={600} 
+                  gutterBottom
+                  sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                >
+                  {t('affiliate.myAffiliatePrograms')}
                 </Typography>
-                <Grid container spacing={3}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                   {affiliates.map((affiliate) => (
                     <Grid item xs={12} md={6} key={affiliate._id}>
                       <Card sx={{ height: '100%', border: 1, borderColor: 'divider' }}>
                         <CardHeader
                           avatar={
-                            <Avatar sx={{ bgcolor: 'primary.main' }}>
-                              <StoreIcon />
+                            <Avatar sx={{ 
+                              bgcolor: 'primary.main',
+                              width: { xs: 32, sm: 40 },
+                              height: { xs: 32, sm: 40 }
+                            }}>
+                              <StoreIcon sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }} />
                             </Avatar>
                           }
-                          title={affiliate.vendor.name}
-                          subheader={affiliate.store?.name || 'Store'}
+                          title={
+                            <Typography 
+                              variant="subtitle1" 
+                              sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                            >
+                              {affiliate.vendor.name}
+                            </Typography>
+                          }
+                          subheader={
+                            <Typography 
+                              variant="body2" 
+                              sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                            >
+                              {affiliate.store?.name || 'Store'}
+                            </Typography>
+                          }
                           action={
                             <Chip 
                               label={affiliate.status}
                               color={getStatusColor(affiliate.status)}
                               variant="outlined"
+                              size="small"
+                              sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                             />
                           }
                         />
-                        <CardContent>
-                          <Grid container spacing={2}>
+                        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                          <Grid container spacing={{ xs: 1, sm: 2 }}>
                             <Grid item xs={6}>
-                              <Typography variant="body2" color="text.secondary">
-                                Commission Rate
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary"
+                                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                              >
+                                {t('affiliate.commissionRate')}
                               </Typography>
-                              <Typography variant="h6" fontWeight={600} color="primary">
+                              <Typography 
+                                variant="h6" 
+                                fontWeight={600} 
+                                color="primary"
+                                sx={{ fontSize: { xs: '0.875rem', sm: '1.25rem' } }}
+                              >
                                 {affiliate.commissionType === 'percentage' 
                                   ? `${affiliate.commissionRate}%` 
                                   : `$${affiliate.commissionRate}`
@@ -513,34 +668,68 @@ export default function AffiliateDashboardPage() {
                               </Typography>
                             </Grid>
                             <Grid item xs={6}>
-                              <Typography variant="body2" color="text.secondary">
-                                Referral Code
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary"
+                                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                              >
+                                {t('affiliate.referralCode')}
                               </Typography>
-                              <Typography variant="h6" fontWeight={600} fontFamily="monospace">
+                              <Typography 
+                                variant="h6" 
+                                fontWeight={600} 
+                                fontFamily="monospace"
+                                sx={{ fontSize: { xs: '0.875rem', sm: '1.25rem' } }}
+                              >
                                 {affiliate.referralCode}
                               </Typography>
                             </Grid>
                             <Grid item xs={4}>
-                              <Typography variant="body2" color="text.secondary">
-                                Clicks
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary"
+                                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                              >
+                                {t('affiliate.clicks')}
                               </Typography>
-                              <Typography variant="subtitle1" fontWeight={600}>
+                              <Typography 
+                                variant="subtitle1" 
+                                fontWeight={600}
+                                sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                              >
                                 {affiliate.totalClicks}
                               </Typography>
                             </Grid>
                             <Grid item xs={4}>
-                              <Typography variant="body2" color="text.secondary">
-                                Conversions
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary"
+                                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                              >
+                                {t('affiliate.conversions')}
                               </Typography>
-                              <Typography variant="subtitle1" fontWeight={600}>
+                              <Typography 
+                                variant="subtitle1" 
+                                fontWeight={600}
+                                sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                              >
                                 {affiliate.totalConversions}
                               </Typography>
                             </Grid>
                             <Grid item xs={4}>
-                              <Typography variant="body2" color="text.secondary">
-                                Earnings
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary"
+                                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                              >
+                                {t('affiliate.earnings')}
                               </Typography>
-                              <Typography variant="subtitle1" fontWeight={600} color="success.main">
+                              <Typography 
+                                variant="subtitle1" 
+                                fontWeight={600} 
+                                color="success.main"
+                                sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                              >
                                 ${affiliate.totalEarnings.toFixed(2)}
                               </Typography>
                             </Grid>
@@ -556,28 +745,52 @@ export default function AffiliateDashboardPage() {
             {/* Products Tab */}
             {activeTab === 1 && (
               <Box>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                  <Typography variant="h6" fontWeight={600}>
-                    Available Products
+                <Box 
+                  display="flex" 
+                  justifyContent="space-between" 
+                  alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                  mb={3}
+                  flexDirection={{ xs: 'column', sm: 'row' }}
+                  gap={{ xs: 2, sm: 0 }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    fontWeight={600}
+                    sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                  >
+                    {t('affiliate.availableProducts')}
                   </Typography>
-                  <Box display="flex" gap={2}>
+                  <Box 
+                    display="flex" 
+                    gap={2}
+                    flexDirection={{ xs: 'column', sm: 'row' }}
+                    width={{ xs: '100%', sm: 'auto' }}
+                  >
                     <TextField
                       size="small"
-                      placeholder="Search products..."
+                      placeholder={t('affiliate.searchProducts')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
+                      fullWidth
+                      sx={{ minWidth: { xs: 'auto', sm: 200 } }}
                       InputProps={{
                         startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
                       }}
                     />
-                    <FormControl size="small" sx={{ minWidth: 150 }}>
-                      <InputLabel>Filter by Vendor</InputLabel>
+                    <FormControl 
+                      size="small" 
+                      sx={{ 
+                        minWidth: { xs: '100%', sm: 150 },
+                        width: { xs: '100%', sm: 'auto' }
+                      }}
+                    >
+                      <InputLabel>{t('affiliate.filterByVendor')}</InputLabel>
                       <Select
                         value={filterVendor}
                         onChange={(e) => setFilterVendor(e.target.value)}
-                        label="Filter by Vendor"
+                        label={t('affiliate.filterByVendor')}
                       >
-                        <MenuItem value="">All Vendors</MenuItem>
+                        <MenuItem value="">{t('affiliate.allVendors')}</MenuItem>
                         {affiliates.map((affiliate) => (
                           <MenuItem key={affiliate._id} value={affiliate.vendor._id}>
                             {affiliate.vendor.name}
@@ -588,44 +801,76 @@ export default function AffiliateDashboardPage() {
                   </Box>
                 </Box>
 
-                <Grid container spacing={3}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                   {filteredProducts.map((product) => (
                     <Grid item xs={12} sm={6} md={4} key={product._id}>
                       <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <CardMedia
+                        <Box
                           component="img"
-                          height="200"
-                          image={product.images[0] || '/placeholder-product.svg'}
+                          src={product.images[0] || '/placeholder-product.svg'}
                           alt={product.title}
-                          sx={{ objectFit: 'cover' }}
+                          sx={{ 
+                            objectFit: 'cover',
+                            height: { xs: 150, sm: 200 },
+                            width: '100%'
+                          }}
                         />
-                        <CardContent sx={{ flexGrow: 1 }}>
-                          <Typography variant="h6" fontWeight={600} gutterBottom>
+                        <CardContent sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+                          <Typography 
+                            variant="h6" 
+                            fontWeight={600} 
+                            gutterBottom
+                            sx={{ fontSize: { xs: '0.875rem', sm: '1.25rem' } }}
+                          >
                             {product.title}
                           </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary" 
+                            sx={{ 
+                              mb: 2,
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                            }}
+                          >
                             {product.description.substring(0, 100)}...
                           </Typography>
-                          <Box display="flex" justifyContent="space-between" alignItems="center">
-                            <Typography variant="h6" color="primary" fontWeight={600}>
+                          <Box 
+                            display="flex" 
+                            justifyContent="space-between" 
+                            alignItems="center"
+                            flexDirection={{ xs: 'column', sm: 'row' }}
+                            gap={{ xs: 1, sm: 0 }}
+                          >
+                            <Typography 
+                              variant="h6" 
+                              color="primary" 
+                              fontWeight={600}
+                              sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                            >
                               ${product.price}
                             </Typography>
                             <Chip 
                               label={product.seller.name}
                               size="small"
                               variant="outlined"
+                              sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                             />
                           </Box>
                         </CardContent>
-                        <CardActions>
+                        <CardActions sx={{ p: { xs: 2, sm: 3 } }}>
                           <Button
                             fullWidth
                             variant="contained"
+                            size="small"
                             startIcon={generatingLink ? <CircularProgress size={16} /> : <ShareIcon />}
                             onClick={() => generateProductLink(product)}
                             disabled={generatingLink}
+                            sx={{ 
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                              py: { xs: 1, sm: 1.5 }
+                            }}
                           >
-                            Generate Link
+{t('affiliate.generateLink')}
                           </Button>
                         </CardActions>
                       </Card>
@@ -639,21 +884,21 @@ export default function AffiliateDashboardPage() {
             {activeTab === 2 && (
               <Box>
                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                  Engagement Analytics
+                  {t('affiliate.engagementAnalytics')}
                 </Typography>
                 <Grid container spacing={3}>
                   {engagementData.map((data) => (
                     <Grid item xs={12} md={6} key={data.affiliateId}>
                       <Card>
                         <CardHeader
-                          title={`Program Analytics`}
-                          subheader={`Referral Code: ${data.referralCode}`}
+                          title={t('affiliate.programAnalytics')}
+                          subheader={`${t('affiliate.referralCode')}: ${data.referralCode}`}
                         />
                         <CardContent>
                           <Grid container spacing={2}>
                             <Grid item xs={4}>
                               <Typography variant="body2" color="text.secondary">
-                                Recent Clicks
+                                {t('affiliate.recentClicks')}
                               </Typography>
                               <Typography variant="h6" fontWeight={600}>
                                 {data.recentClicks}
@@ -661,7 +906,7 @@ export default function AffiliateDashboardPage() {
                             </Grid>
                             <Grid item xs={4}>
                               <Typography variant="body2" color="text.secondary">
-                                Conversions
+                                {t('affiliate.conversions')}
                               </Typography>
                               <Typography variant="h6" fontWeight={600} color="success.main">
                                 {data.conversions}
@@ -669,7 +914,7 @@ export default function AffiliateDashboardPage() {
                             </Grid>
                             <Grid item xs={4}>
                               <Typography variant="body2" color="text.secondary">
-                                Conversion Rate
+                                {t('affiliate.conversionRate')}
                               </Typography>
                               <Typography variant="h6" fontWeight={600} color="primary">
                                 {data.conversionRate.toFixed(1)}%
@@ -680,7 +925,7 @@ export default function AffiliateDashboardPage() {
                           {data.topProducts.length > 0 && (
                             <Box mt={3}>
                               <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                Top Performing Products
+                                {t('affiliate.topPerformingProducts')}
                               </Typography>
                               <List dense>
                                 {data.topProducts.slice(0, 3).map((item, index) => (
@@ -692,7 +937,7 @@ export default function AffiliateDashboardPage() {
                                     </ListItemAvatar>
                                     <ListItemText
                                       primary={item.product.title}
-                                      secondary={`${item.clicks} clicks, ${item.conversions} conversions`}
+                                      secondary={`${item.clicks} ${t('affiliate.clicks')}, ${item.conversions} ${t('affiliate.conversions')}`}
                                     />
                                     <ListItemSecondaryAction>
                                       <Typography variant="body2" color="primary" fontWeight={600}>
@@ -716,7 +961,7 @@ export default function AffiliateDashboardPage() {
             {activeTab === 3 && (
               <Box>
                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                  My Affiliate Links
+                  {t('affiliate.myAffiliateLinks')}
                 </Typography>
                 <Grid container spacing={3}>
                   {affiliateLinks.map((link) => (
@@ -726,7 +971,7 @@ export default function AffiliateDashboardPage() {
                           <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
                             <Box flex={1}>
                               <Typography variant="subtitle1" fontWeight={600}>
-                                {link.linkType.charAt(0).toUpperCase() + link.linkType.slice(1)} Link
+                                {link.linkType.charAt(0).toUpperCase() + link.linkType.slice(1)} {t('affiliate.linkType')}
                               </Typography>
                               {link.targetId && (
                                 <Typography variant="body2" color="text.secondary">
@@ -744,10 +989,10 @@ export default function AffiliateDashboardPage() {
                                 startIcon={<CopyAllIcon />}
                                 onClick={() => copyToClipboard(link.affiliateUrl)}
                               >
-                                Copy
+{t('affiliate.copy')}
                               </Button>
                               <Chip 
-                                label={link.isActive ? 'Active' : 'Inactive'}
+                                label={link.isActive ? t('affiliate.active') : t('affiliate.inactive')}
                                 color={link.isActive ? 'success' : 'default'}
                                 variant="outlined"
                               />
@@ -756,7 +1001,7 @@ export default function AffiliateDashboardPage() {
                           <Grid container spacing={2}>
                             <Grid item xs={3}>
                               <Typography variant="body2" color="text.secondary">
-                                Clicks
+                                {t('affiliate.clicks')}
                               </Typography>
                               <Typography variant="h6" fontWeight={600}>
                                 {link.clicks}
@@ -764,7 +1009,7 @@ export default function AffiliateDashboardPage() {
                             </Grid>
                             <Grid item xs={3}>
                               <Typography variant="body2" color="text.secondary">
-                                Conversions
+                                {t('affiliate.conversions')}
                               </Typography>
                               <Typography variant="h6" fontWeight={600} color="success.main">
                                 {link.conversions}
@@ -772,7 +1017,7 @@ export default function AffiliateDashboardPage() {
                             </Grid>
                             <Grid item xs={3}>
                               <Typography variant="body2" color="text.secondary">
-                                Earnings
+                                {t('affiliate.earnings')}
                               </Typography>
                               <Typography variant="h6" fontWeight={600} color="primary">
                                 ${link.earnings.toFixed(2)}
@@ -780,7 +1025,7 @@ export default function AffiliateDashboardPage() {
                             </Grid>
                             <Grid item xs={3}>
                               <Typography variant="body2" color="text.secondary">
-                                Conversion Rate
+                                {t('affiliate.conversionRate')}
                               </Typography>
                               <Typography variant="h6" fontWeight={600}>
                                 {link.clicks > 0 ? ((link.conversions / link.clicks) * 100).toFixed(1) : 0}%
@@ -799,7 +1044,7 @@ export default function AffiliateDashboardPage() {
             {activeTab === 4 && (
               <Box>
                 <Typography variant="h6" fontWeight={600} gutterBottom>
-                  Recent Commissions
+                  {t('affiliate.recentCommissions')}
                 </Typography>
                 <Grid container spacing={3}>
                   {commissions.map((commission) => (
@@ -812,7 +1057,7 @@ export default function AffiliateDashboardPage() {
                                 {commission.product.title}
                               </Typography>
                               <Typography variant="body2" color="text.secondary">
-                                Order #{commission.order._id.slice(-8)}
+                                {t('affiliate.order')} #{commission.order._id.slice(-8)}
                               </Typography>
                             </Box>
                             <Box textAlign="right">
@@ -829,10 +1074,10 @@ export default function AffiliateDashboardPage() {
                           </Box>
                           <Box display="flex" justifyContent="space-between" alignItems="center">
                             <Typography variant="body2" color="text.secondary">
-                              Earned: {new Date(commission.earnedDate).toLocaleDateString()}
+                              {t('affiliate.earnedDate')}: {new Date(commission.earnedDate).toLocaleDateString()}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Order Total: ${commission.order.total.toFixed(2)}
+                              {t('affiliate.orderTotal')}: ${commission.order.total.toFixed(2)}
                             </Typography>
                           </Box>
                         </CardContent>
@@ -850,7 +1095,7 @@ export default function AffiliateDashboardPage() {
           <DialogTitle>
             <Box display="flex" alignItems="center" gap={1}>
               <ShareIcon />
-              Share Product
+              {t('affiliate.shareProduct')}
             </Box>
           </DialogTitle>
           <DialogContent>
@@ -859,7 +1104,7 @@ export default function AffiliateDashboardPage() {
                 {selectedProduct?.title}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Your affiliate link:
+                {t('affiliate.yourAffiliateLink')}
               </Typography>
               <TextField
                 fullWidth
@@ -876,7 +1121,7 @@ export default function AffiliateDashboardPage() {
             </Box>
             
             <Typography variant="subtitle2" gutterBottom>
-              Share on social media:
+              {t('affiliate.shareOnSocialMedia')}
             </Typography>
             <Box display="flex" gap={1} flexWrap="wrap">
               <Button
@@ -921,7 +1166,7 @@ export default function AffiliateDashboardPage() {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setShareDialogOpen(false)}>Close</Button>
+            <Button onClick={() => setShareDialogOpen(false)}>{t('common.close')}</Button>
           </DialogActions>
         </Dialog>
 
@@ -932,7 +1177,8 @@ export default function AffiliateDashboardPage() {
           onClose={() => setSnackbarOpen(false)}
           message={snackbarMessage}
         />
-      </Container>
+        </Container>
+      </AffiliateLayout>
     </AffiliateOnboardingGuard>
   );
 }
