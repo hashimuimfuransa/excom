@@ -189,9 +189,9 @@ function ProductListPageContent() {
     let alive = true;
     setIsLoading(true);
     
-    apiGet<Product[]>("/products").then((list) => {
+    apiGet<{products: Product[], pagination: any}>("/products").then((response) => {
       if (!alive) return;
-      setItems(list);
+      setItems(response?.products || []);
       setIsLoading(false);
     }).catch(() => {
       setItems([]);

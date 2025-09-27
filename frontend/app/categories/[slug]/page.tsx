@@ -303,11 +303,11 @@ export default function CategoryPage() {
     try {
       setLoading(true);
       // Try to fetch products from API
-      const response = await apiGet<Product[]>('/products');
+      const response = await apiGet<{products: Product[], pagination: any}>('/products');
       
-      if (response && response.length > 0) {
+      if (response?.products && response.products.length > 0) {
         // Filter products by category from API response
-        const filteredProducts = response.filter(product => 
+        const filteredProducts = response.products.filter(product => 
           product.category.toLowerCase() === categoryInfo?.name.toLowerCase() ||
           product.category.toLowerCase().includes(slug.toLowerCase())
         );

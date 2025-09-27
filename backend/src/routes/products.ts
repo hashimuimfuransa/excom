@@ -5,33 +5,124 @@ import { requireAuth, AuthRequest } from '../middleware/auth';
 const router = Router();
 
 // Public: list recent products
-router.get('/', async (_req, res) => {
-  const list = await Product.find().limit(50).sort({ createdAt: -1 });
-  res.json(list);
+router.get('/', async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 24, 
+      category, 
+      minPrice, 
+      maxPrice, 
+      lat, 
+      lng, 
+      radius,
+      populate = 'store'
+    } = req.query;
+
+    // Build query
+    const query: any = {};
+    
+    if (category) {
+      query.category = category;
+    }
+    
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice as string);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice as string);
+    }
+
+    // Location-based filtering
+    if (lat && lng && radius) {
+      const latNum = parseFloat(lat as string);
+      const lngNum = parseFloat(lng as string);
+      const radiusNum = parseFloat(radius as string);
+      
+      // For now, we'll filter by location in the application layer
+      // In production, you'd want to use MongoDB's geospatial queries
+    }
+
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    
+    // Build populate options
+    let populateOptions: any = {};
+    if (populate === 'store') {
+      populateOptions = {
+        path: 'store',
+        select: 'name location businessHours contactInfo'
+      };
+    }
+
+    const list = await Product.find(query)
+      .populate(populateOptions)
+      .skip(skip)
+      .limit(parseInt(limit as string))
+      .sort({ createdAt: -1 });
+
+    const total = await Product.countDocuments(query);
+
+    res.json({
+      products: list,
+      pagination: {
+        page: parseInt(page as string),
+        limit: parseInt(limit as string),
+        total,
+        pages: Math.ceil(total / parseInt(limit as string))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: 'Failed to fetch products' });
+  }
 });
 
-// Public: get single product by id
-router.get('/:id', async (req, res) => {
+// Public: get mostly purchased/trending products
+router.get('/trending', async (req, res) => {
   try {
-    const productId = req.params.id;
+    const { limit = 12, category } = req.query;
     
-    // Validate productId parameter
-    if (!productId || productId === 'undefined' || productId === 'null') {
-      return res.status(400).json({ message: 'Invalid product ID' });
+    // Build query
+    const query: any = {};
+    if (category) {
+      query.category = category;
     }
-
-    // Validate ObjectId format
-    if (!productId.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ message: 'Invalid product ID format' });
-    }
-
-    const item = await Product.findById(productId);
-    if (!item) return res.status(404).json({ message: 'Product not found' });
     
-    res.json(item);
+    // Find products sorted by views and sold count (simulating popularity)
+    // In a real app, you'd have actual purchase/order data
+    const trendingProducts = await Product.find(query)
+      .sort({ 
+        views: -1,  // Sort by views descending
+        sold: -1,   // Then by sold count descending
+        createdAt: -1 // Then by newest
+      })
+      .limit(parseInt(limit as string));
+    
+    res.json(trendingProducts);
   } catch (error) {
-    console.error('Error fetching product:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error fetching trending products:', error);
+    res.status(500).json({ message: 'Failed to fetch trending products' });
+  }
+});
+
+// Public: get popular products by category
+router.get('/popular/:category', async (req, res) => {
+  try {
+    const { category } = req.params;
+    const { limit = 8 } = req.query;
+    
+    // Find popular products in specific category
+    const popularProducts = await Product.find({ category })
+      .sort({ 
+        views: -1,  // Sort by views descending
+        sold: -1,   // Then by sold count descending
+        createdAt: -1 // Then by newest
+      })
+      .limit(parseInt(limit as string));
+    
+    res.json(popularProducts);
+  } catch (error) {
+    console.error('Error fetching popular products:', error);
+    res.status(500).json({ message: 'Failed to fetch popular products' });
   }
 });
 
@@ -64,6 +155,33 @@ router.get('/store/:storeId', async (req, res) => {
   }
 });
 
+// Public: get products by IDs (for recently viewed)
+router.post('/by-ids', async (req, res) => {
+  try {
+    const { ids } = req.body;
+    
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.json([]);
+    }
+    
+    // Validate ObjectId format for all IDs
+    const validIds = ids.filter(id => id && typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/));
+    
+    if (validIds.length === 0) {
+      return res.json([]);
+    }
+    
+    const products = await Product.find({ _id: { $in: validIds } })
+      .populate('seller', 'name')
+      .populate('store', 'name location');
+    
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching products by IDs:', error);
+    res.status(500).json({ message: 'Failed to fetch products' });
+  }
+});
+
 // Public: get related products by category (excluding current product)
 router.get('/related/:id', async (req, res) => {
   try {
@@ -87,6 +205,34 @@ router.get('/related/:id', async (req, res) => {
     res.json(relatedProducts);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch related products' });
+  }
+});
+
+// Public: get single product by id
+router.get('/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+    
+    // Validate productId parameter
+    if (!productId || productId === 'undefined' || productId === 'null') {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+
+    // Validate ObjectId format
+    if (!productId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Invalid product ID format' });
+    }
+
+    const item = await Product.findById(productId);
+    if (!item) return res.status(404).json({ message: 'Product not found' });
+    
+    // Increment view count
+    await Product.findByIdAndUpdate(productId, { $inc: { views: 1 } });
+    
+    res.json(item);
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 

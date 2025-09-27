@@ -52,7 +52,7 @@ export default function HeroSlider() {
       try {
         // Fetch both products and collections
         const [products, collectionsResponse] = await Promise.all([
-          apiGet<Product[]>("/products").catch(() => []),
+          apiGet<{products: Product[], pagination: any}>("/products").then(response => response?.products || []).catch(() => []),
           apiGet<{ collections: Collection[] }>("/collections").catch(() => ({ collections: [] }))
         ]);
         

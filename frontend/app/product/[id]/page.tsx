@@ -47,7 +47,9 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import {
   ShoppingCart as ShoppingCartIcon,
@@ -82,9 +84,10 @@ import {
   Inventory as InventoryIcon,
   LocalAtm as MoneyIcon,
   VerifiedUser as VerifiedIcon,
-  Diamond as PremiumIcon
+  Diamond as PremiumIcon,
+  ArrowForward as ArrowForwardIcon
 } from '@mui/icons-material';
-import { apiGet } from '@utils/api';
+import { apiGet, apiPost } from '@utils/api';
 import { addToCart } from '@utils/cart';
 import NextLink from 'next/link';
 import BargainChat from '@components/BargainChat';
@@ -175,13 +178,16 @@ const RelatedProductCard = ({ product: relatedProduct, router }: { product: Prod
     }}
     onClick={() => router.push(`/product/${relatedProduct._id}`)}
   >
-    <CardMedia
-      component="img"
-      height={{ xs: 140, md: 150 }}
-      image={relatedProduct.images[0]}
-      alt={relatedProduct.title}
-      sx={{ objectFit: 'cover' }}
-    />
+        <CardMedia
+          component="img"
+          height="150"
+          image={relatedProduct.images[0]}
+          alt={relatedProduct.title}
+          sx={{ 
+            objectFit: 'cover',
+            height: { xs: 140, md: 150 }
+          }}
+        />
     <CardContent sx={{ p: { xs: 1.5, md: 2 } }}>
       <Typography 
         variant="subtitle2" 
@@ -262,12 +268,13 @@ const ProductImageGallery = ({
       >
         <CardMedia
           component="img"
-          height={{ xs: 250, sm: 300, md: 400 }}
+          height="400"
           image={product.images[selectedImageIndex]}
           alt={product.title}
           sx={{ 
             objectFit: 'cover',
-            transition: 'transform 0.3s ease'
+            transition: 'transform 0.3s ease',
+            height: { xs: 250, sm: 300, md: 400 }
           }}
         />
         <IconButton
@@ -408,11 +415,13 @@ export default function ProductPage() {
   const [isComparing, setIsComparing] = useState(false);
   const [notifyOnStock, setNotifyOnStock] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [compareDialogOpen, setCompareDialogOpen] = useState(false);
   const [deliveryOption, setDeliveryOption] = useState('standard');
   const [currentPromotion, setCurrentPromotion] = useState<any>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [frequentlyBought, setFrequentlyBought] = useState<Product[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+  const [mostlyPurchased, setMostlyPurchased] = useState<Product[]>([]);
   const [productViews, setProductViews] = useState(0);
   const [mockProduct, setMockProduct] = useState<Product | null>(null);
   
@@ -435,19 +444,13 @@ export default function ProductPage() {
   // Recently viewed tracking with view count and analytics
   useEffect(() => {
     if (product) {
-      // Update recently viewed products
+      // Update recently viewed products with product IDs only
       const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
       const updated = [
-        product,
-        ...recentlyViewed.filter((p: Product) => p._id !== product._id)
+        product._id,
+        ...recentlyViewed.filter((id: string) => id !== product._id)
       ].slice(0, 10)
       localStorage.setItem('recentlyViewed', JSON.stringify(updated))
-
-      // Simulate view count increment (would be backend API call)
-      setMockProduct(prev => prev ? {
-        ...prev,
-        views: (prev.views || 0) + 1
-      } : prev)
 
       // Track product view analytics
       const viewHistory = JSON.parse(localStorage.getItem('productViewHistory') || '{}')
@@ -614,13 +617,59 @@ export default function ProductPage() {
     if (product) {
       // Increment view count
       setProductViews(prev => prev + 1);
-      
-      // Add to recently viewed (localStorage)
-      const recent = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-      const filtered = recent.filter((id: string) => id !== productId);
-      localStorage.setItem('recentlyViewed', JSON.stringify([productId, ...filtered.slice(0, 9)]));
     }
   }, [product, productId]);
+
+  // Fetch similar products and mostly purchased products
+  useEffect(() => {
+    if (product) {
+      // Fetch similar products from API
+      apiGet<Product[]>(`/products/related/${product._id}`)
+        .then(similar => {
+          setSimilarProducts(similar || []);
+        })
+        .catch((error) => {
+          console.error('Error fetching similar products:', error);
+          // Fallback to mock data if API fails
+          const mockSimilar = Array.from({ length: 4 }, (_, i) => ({
+            _id: `similar-${i}`,
+            title: `Similar Product ${i + 1}`,
+            description: `This is a similar product to ${product.title}`,
+            price: product.price + (Math.random() - 0.5) * 50,
+            currency: product.currency || 'USD',
+            images: [`https://picsum.photos/300/200?random=${i + 100}`],
+            category: product.category,
+            seller: product.seller || 'Unknown Seller',
+            rating: { 
+              average: 4.0 + Math.random(), 
+              count: Math.floor(Math.random() * 100),
+              breakdown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+            } as Product['rating'],
+            sold: Math.floor(Math.random() * 50),
+            createdAt: new Date().toISOString()
+          }));
+          setSimilarProducts(mockSimilar);
+        });
+
+      // Fetch mostly purchased products from API
+      apiGet<Product[]>(`/products/trending?category=${product.category}&limit=6`)
+        .then(purchased => {
+          setMostlyPurchased(purchased || []);
+        })
+        .catch((error) => {
+          console.error('Error fetching trending products:', error);
+          // If API fails, try to get any products from the same category
+          apiGet<Product[]>(`/products?category=${product.category}&limit=6`)
+            .then(fallbackProducts => {
+              setMostlyPurchased(fallbackProducts || []);
+            })
+            .catch(() => {
+              // If both APIs fail, show empty state
+              setMostlyPurchased([]);
+            });
+        });
+    }
+  }, [product]);
 
   // Wishlist handlers
   const handleToggleWishlist = useCallback(async () => {
@@ -666,7 +715,7 @@ export default function ProductPage() {
   // Notify when in stock
   const handleNotifyToggle = useCallback(async () => {
     if (!user) {
-      router.push('/auth/signin');
+      router.push('/auth/login');
       return;
     }
     
@@ -892,7 +941,7 @@ export default function ProductPage() {
             elevation={0}
             sx={{ 
               p: { xs: 2, md: 3 }, 
-              borderRadius: 3, 
+              borderRadius: { xs: 2, md: 3 }, 
               height: 'fit-content', 
               position: { xs: 'static', md: 'sticky' }, 
               top: { md: 20 },
@@ -902,7 +951,10 @@ export default function ProductPage() {
               backdropFilter: 'blur(10px)',
               background: (theme) => theme.palette.mode === 'dark' 
                 ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
-                : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+              // Mobile-specific improvements
+              mx: { xs: 0, md: 0 },
+              mb: { xs: 2, md: 0 }
             }}
           >
             <Stack spacing={{ xs: 2, md: 3 }}>
@@ -912,7 +964,7 @@ export default function ProductPage() {
                   direction="row" 
                   spacing={{ xs: 0.5, md: 1 }} 
                   alignItems="center" 
-                  mb={{ xs: 1, md: 1.5 }}
+                  mb={{ xs: 0.75, md: 1.5 }}
                   flexWrap="wrap"
                 >
                   <Chip 
@@ -925,7 +977,8 @@ export default function ProductPage() {
                         ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
                         : 'linear-gradient(45deg, #2196F3, #21CBF3)',
                       fontWeight: 600,
-                      fontSize: { xs: '0.7rem', md: '0.75rem' }
+                      fontSize: { xs: '0.65rem', md: '0.75rem' },
+                      height: { xs: 24, md: 28 }
                     }}
                   />
                   <Chip 
@@ -935,7 +988,8 @@ export default function ProductPage() {
                     variant="outlined"
                     sx={{ 
                       fontWeight: 500,
-                      fontSize: { xs: '0.7rem', md: '0.75rem' }
+                      fontSize: { xs: '0.65rem', md: '0.75rem' },
+                      height: { xs: 24, md: 28 }
                     }}
                   />
                   {product.bargainingEnabled && (
@@ -946,7 +1000,8 @@ export default function ProductPage() {
                       variant="outlined"
                       sx={{ 
                         fontWeight: 500,
-                        fontSize: { xs: '0.7rem', md: '0.75rem' }
+                        fontSize: { xs: '0.65rem', md: '0.75rem' },
+                        height: { xs: 24, md: 28 }
                       }}
                     />
                   )}
@@ -956,7 +1011,7 @@ export default function ProductPage() {
                   fontWeight={800} 
                   gutterBottom
                   sx={{
-                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+                    fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2.5rem' },
                     background: (theme) => theme.palette.mode === 'dark' 
                       ? 'linear-gradient(45deg, #ffffff, #e0e0e0)'
                       : 'linear-gradient(45deg, #1a1a1a, #4a4a4a)',
@@ -964,7 +1019,7 @@ export default function ProductPage() {
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     lineHeight: 1.2,
-                    mb: { xs: 1, md: 1.5 }
+                    mb: { xs: 0.75, md: 1.5 }
                   }}
                 >
                   {product.title}
@@ -992,19 +1047,24 @@ export default function ProductPage() {
                     </Typography>
                   </Stack>
 
-                  {/* Social Proof Indicators */}
+                  {/* Social Proof Indicators - Mobile Optimized */}
                   <Stack 
-                    direction={{ xs: 'column', sm: 'row' }} 
-                    spacing={{ xs: 1, sm: 2 }} 
-                    alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                    direction={{ xs: 'row', sm: 'row' }} 
+                    spacing={{ xs: 1.5, sm: 2 }} 
+                    alignItems="center" 
                     flexWrap="wrap"
+                    justifyContent={{ xs: 'space-between', sm: 'flex-start' }}
+                    sx={{ mt: { xs: 1, md: 1.5 } }}
                   >
                     <Stack direction="row" alignItems="center" spacing={0.5}>
-                      <ViewIcon fontSize="small" color="action" />
+                      <ViewIcon sx={{ fontSize: { xs: 14, md: 16 }, color: 'action.main' }} />
                       <Typography 
                         variant="caption" 
                         color="text.secondary"
-                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                        sx={{ 
+                          fontSize: { xs: '0.65rem', md: '0.75rem' },
+                          fontWeight: 500
+                        }}
                       >
                         {(product.views || productViews || 245).toLocaleString()} {t('productDetails.views')}
                       </Typography>
@@ -1012,12 +1072,12 @@ export default function ProductPage() {
                     
                     {(product.sold || 0) > 0 && (
                       <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <TrendingIcon fontSize="small" color="success" />
+                        <TrendingIcon sx={{ fontSize: { xs: 14, md: 16 }, color: 'success.main' }} />
                         <Typography 
                           variant="caption" 
                           color="success.main" 
                           fontWeight={600}
-                          sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                          sx={{ fontSize: { xs: '0.65rem', md: '0.75rem' } }}
                         >
                           {product.sold} {t('productDetails.soldThisMonth')}
                         </Typography>
@@ -1025,12 +1085,12 @@ export default function ProductPage() {
                     )}
                     
                     <Stack direction="row" alignItems="center" spacing={0.5}>
-                      <TimerIcon fontSize="small" color="warning" />
+                      <TimerIcon sx={{ fontSize: { xs: 14, md: 16 }, color: 'warning.main' }} />
                       <Typography 
                         variant="caption" 
                         color="warning.main" 
                         fontWeight={600}
-                        sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
+                        sx={{ fontSize: { xs: '0.65rem', md: '0.75rem' } }}
                       >
                         ⚡ 23 {t('productDetails.peopleViewingThis')}
                       </Typography>
@@ -1045,7 +1105,7 @@ export default function ProductPage() {
                   elevation={0}
                   sx={{ 
                     p: { xs: 1.5, md: 2 }, 
-                    borderRadius: 3, 
+                    borderRadius: { xs: 2, md: 3 }, 
                     border: '1px solid',
                     borderColor: 'primary.main',
                     bgcolor: 'primary.50',
@@ -1066,7 +1126,7 @@ export default function ProductPage() {
                         variant="h2" 
                         fontWeight={900}
                         sx={{
-                          fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                          fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' },
                           background: (theme) => theme.palette.mode === 'dark' 
                             ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
                             : 'linear-gradient(45deg, #2196F3, #21CBF3)',
@@ -1081,7 +1141,7 @@ export default function ProductPage() {
                         variant="h6" 
                         color="text.secondary" 
                         fontWeight={500}
-                        sx={{ fontSize: { xs: '0.9rem', md: '1.25rem' } }}
+                        sx={{ fontSize: { xs: '0.8rem', md: '1.25rem' } }}
                       >
                         {product.currency || t('productDetails.usd')}
                       </Typography>
@@ -1094,41 +1154,62 @@ export default function ProductPage() {
                           variant="filled"
                           sx={{ 
                             ml: 'auto',
-                            fontSize: { xs: '0.7rem', md: '0.75rem' }
+                            fontSize: { xs: '0.65rem', md: '0.75rem' },
+                            height: { xs: 24, md: 28 }
                           }}
                         />
                       )}
                     </Box>
                     
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography variant="body2" color="success.main" fontWeight={600}>
+                      <Typography variant="body2" color="success.main" fontWeight={600} sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
                         💰 {t('productDetails.bestPriceGuaranteed')}
                       </Typography>
                       {product.bargainingEnabled && product.minBargainPrice && (
-                        <Typography variant="caption" color="warning.dark" fontWeight={600}>
+                        <Typography variant="caption" color="warning.dark" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
                           {t('productDetails.min')} ${product.minBargainPrice.toFixed(2)}
                         </Typography>
                       )}
                     </Stack>
 
-                    <Stack direction="row" spacing={1} mt={1}>
+                    {/* Mobile-optimized feature chips */}
+                    <Stack 
+                      direction={{ xs: 'column', sm: 'row' }} 
+                      spacing={{ xs: 0.75, sm: 1 }} 
+                      sx={{ mt: { xs: 1, md: 1 } }}
+                    >
                       <Chip 
                         label={`🚚 ${t('productDetails.freeShipping')}`} 
                         size="small" 
                         color="success" 
                         variant="outlined"
+                        sx={{ 
+                          fontSize: { xs: '0.7rem', md: '0.75rem' },
+                          height: { xs: 28, md: 32 },
+                          '& .MuiChip-label': { px: { xs: 1, md: 1.5 } }
+                        }}
                       />
                       <Chip 
                         label={`📦 ${t('productDetails.inStock')}`} 
                         size="small" 
                         color="primary" 
                         variant="outlined"
+                        sx={{ 
+                          fontSize: { xs: '0.7rem', md: '0.75rem' },
+                          height: { xs: 28, md: 32 },
+                          '& .MuiChip-label': { px: { xs: 1, md: 1.5 } }
+                        }}
                       />
                       <Chip 
                         label={`⚡ ${t('productDetails.fastDelivery')}`} 
                         size="small" 
                         color="warning" 
                         variant="outlined"
+                        sx={{ 
+                          fontSize: { xs: '0.7rem', md: '0.75rem' },
+                          height: { xs: 28, md: 32 },
+                          '& .MuiChip-label': { px: { xs: 1, md: 1.5 } }
+                        }}
                       />
                     </Stack>
                   </Stack>
@@ -1482,8 +1563,9 @@ export default function ProductPage() {
                   onClick={handleAddToCart}
                   disabled={addingToCart}
                   sx={{ 
-                    borderRadius: 3, 
+                    borderRadius: { xs: 2, md: 3 }, 
                     py: { xs: 1.5, md: 2 },
+                    px: { xs: 2, md: 3 },
                     fontSize: { xs: '1rem', md: '1.1rem' },
                     fontWeight: 'bold',
                     background: (theme) => theme.palette.mode === 'dark' 
@@ -1501,6 +1583,14 @@ export default function ProductPage() {
                       background: (theme) => theme.palette.mode === 'dark' 
                         ? 'linear-gradient(45deg, #42A5F5, #64B5F6)'
                         : 'linear-gradient(45deg, #1976D2, #2196F3)'
+                    },
+                    '&:disabled': {
+                      background: (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : 'rgba(0, 0, 0, 0.1)',
+                      color: (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.5)' 
+                        : 'rgba(0, 0, 0, 0.5)'
                     }
                   }}
                 >
@@ -1512,8 +1602,9 @@ export default function ProductPage() {
                   size="large"
                   onClick={handleBuyNow}
                   sx={{ 
-                    borderRadius: 3, 
+                    borderRadius: { xs: 2, md: 3 }, 
                     py: { xs: 1.5, md: 2 },
+                    px: { xs: 2, md: 3 },
                     fontSize: { xs: '1rem', md: '1.1rem' },
                     fontWeight: 'bold',
                     borderWidth: 2,
@@ -1532,6 +1623,51 @@ export default function ProductPage() {
                 >
                   ⚡ {t('productDetails.buyNow')}
                 </Button>
+
+                {/* Mobile-optimized secondary actions */}
+                <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                  <Stack direction="row" spacing={1} justifyContent="center">
+                    <IconButton
+                      onClick={handleToggleWishlist}
+                      sx={{
+                        bgcolor: isWishlisted ? 'error.main' : 'error.50',
+                        color: isWishlisted ? 'white' : 'error.main',
+                        '&:hover': {
+                          bgcolor: isWishlisted ? 'error.dark' : 'error.100',
+                          transform: 'scale(1.1)'
+                        }
+                      }}
+                    >
+                      {isWishlisted ? <FavoriteFilledIcon /> : <FavoriteIcon />}
+                    </IconButton>
+                    <IconButton
+                      onClick={() => setShareDialogOpen(true)}
+                      sx={{
+                        bgcolor: 'success.50',
+                        color: 'success.main',
+                        '&:hover': {
+                          bgcolor: 'success.100',
+                          transform: 'scale(1.1)'
+                        }
+                      }}
+                    >
+                      <ShareIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => setCompareDialogOpen(true)}
+                      sx={{
+                        bgcolor: 'warning.50',
+                        color: 'warning.main',
+                        '&:hover': {
+                          bgcolor: 'warning.100',
+                          transform: 'scale(1.1)'
+                        }
+                      }}
+                    >
+                      <CompareIcon />
+                    </IconButton>
+                  </Stack>
+                </Box>
 
                 {/* Enhanced Action Buttons */}
                 <Paper 
@@ -2887,17 +3023,96 @@ export default function ProductPage() {
       </Box>
 
       {/* Recently Viewed Products Section */}
-      <Container maxWidth="lg" sx={{ mt: { xs: 4, md: 6 } }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
         <Box>
-          <Typography 
-            variant="h5" 
-            fontWeight={700} 
-            gutterBottom
-            sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}
+          <Stack 
+            direction="row" 
+            alignItems="center" 
+            justifyContent="space-between" 
+            sx={{ mb: { xs: 2, md: 3 } }}
           >
-          👁️ Recently Viewed Products
-        </Typography>
-        <RecentlyViewedProducts currentProductId={productId} />
+            <Typography 
+              variant="h5" 
+              fontWeight={700} 
+              sx={{ 
+                fontSize: { xs: '1.25rem', md: '2rem' },
+                background: (theme) => theme.palette.mode === 'dark' 
+                  ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
+                  : 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              👁️ {t('productDetails.recentlyViewedProducts')}
+            </Typography>
+            
+            {/* Mobile view all button */}
+            <Button
+              variant="text"
+              size="small"
+              sx={{
+                display: { xs: 'block', md: 'none' },
+                fontSize: '0.75rem',
+                color: 'primary.main',
+                fontWeight: 600,
+                '&:hover': {
+                  backgroundColor: 'primary.50'
+                }
+              }}
+            >
+              {t('productDetails.viewAll')}
+            </Button>
+          </Stack>
+          
+          <RecentlyViewedProducts currentProductId={productId} />
+        </Box>
+      </Container>
+
+      {/* Mostly Purchased Products Section */}
+      <Container maxWidth="lg" sx={{ mt: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+        <Box>
+          <Stack 
+            direction="row" 
+            alignItems="center" 
+            justifyContent="space-between" 
+            sx={{ mb: { xs: 2, md: 3 } }}
+          >
+            <Typography 
+              variant="h5" 
+              fontWeight={700} 
+              sx={{ 
+                fontSize: { xs: '1.25rem', md: '2rem' },
+                background: (theme) => theme.palette.mode === 'dark' 
+                  ? 'linear-gradient(45deg, #4CAF50, #66BB6A)'
+                  : 'linear-gradient(45deg, #2E7D32, #4CAF50)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              🛒 {t('productDetails.mostlyPurchasedProducts')}
+            </Typography>
+            
+            {/* Mobile view all button */}
+            <Button
+              variant="text"
+              size="small"
+              sx={{
+                display: { xs: 'block', md: 'none' },
+                fontSize: '0.75rem',
+                color: 'success.main',
+                fontWeight: 600,
+                '&:hover': {
+                  backgroundColor: 'success.50'
+                }
+              }}
+            >
+              {t('productDetails.viewAll')}
+            </Button>
+          </Stack>
+          
+          <MostlyPurchasedProducts products={mostlyPurchased} />
         </Box>
       </Container>
       </Container>
@@ -3150,37 +3365,225 @@ export default function ProductPage() {
 
 // Recently Viewed Products Component
 const RecentlyViewedProducts = ({ currentProductId }: { currentProductId: string }) => {
+  const { t } = useTranslation()
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   
   useEffect(() => {
-    const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
-    // Filter out current product and limit to 4 items
-    const filtered = viewed.filter((p: Product) => p.id !== currentProductId).slice(0, 4)
-    setRecentlyViewed(filtered)
-  }, [currentProductId])
+    const fetchRecentlyViewed = async () => {
+      try {
+        // Get recently viewed product IDs from localStorage
+        const viewedIds = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
+        
+        if (viewedIds.length === 0) {
+          setRecentlyViewed([])
+          setIsLoading(false)
+          return
+        }
+
+        // Filter out current product and limit to 6 items for mobile, 4 for desktop
+        const filteredIds = viewedIds.filter((id: string) => id !== currentProductId).slice(0, isMobile ? 6 : 4)
+        
+        if (filteredIds.length === 0) {
+          setRecentlyViewed([])
+          setIsLoading(false)
+          return
+        }
+
+        // Fetch real product data for all IDs at once
+        const products = await apiPost<Product[]>(`/products/by-ids`, { ids: filteredIds })
+        
+        const validProducts = products || []
+        
+        setRecentlyViewed(validProducts)
+      } catch (error) {
+        console.error('Error loading recently viewed products:', error)
+        setRecentlyViewed([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchRecentlyViewed()
+  }, [currentProductId, isMobile])
+  
+  if (isLoading) {
+    return (
+      <Grid container spacing={{ xs: 1.5, md: 2 }}>
+        {Array.from({ length: isMobile ? 6 : 4 }).map((_, index) => (
+          <Grid item xs={6} sm={4} md={3} key={index}>
+            <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <Skeleton variant="rectangular" height="140" sx={{ height: { xs: 120, md: 140 } }} />
+              <CardContent sx={{ p: 1.5 }}>
+                <Skeleton width="80%" height={20} />
+                <Skeleton width="60%" height={16} sx={{ mt: 1 }} />
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    )
+  }
   
   if (recentlyViewed.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary">
-        No recently viewed products yet
-      </Typography>
+      <Paper
+        sx={{
+          p: 4,
+          textAlign: 'center',
+          borderRadius: 3,
+          bgcolor: theme.palette.mode === 'dark' 
+            ? 'rgba(255, 255, 255, 0.02)' 
+            : 'rgba(0, 0, 0, 0.02)',
+          border: `2px dashed ${theme.palette.divider}`
+        }}
+      >
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          👁️ {t('productDetails.noRecentlyViewed')}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('productDetails.noRecentlyViewedMessage')}
+        </Typography>
+      </Paper>
     )
   }
   
   return (
-    <Grid container spacing={3}>
-      {recentlyViewed.map((product) => (
-        <Grid item xs={6} sm={4} md={3} key={product._id}>
-          <RecentlyViewedProductCard product={product} />
+    <Box>
+      {/* Mobile horizontal scroll for better UX */}
+      {isMobile ? (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1.5,
+            overflowX: 'auto',
+            pb: 1,
+            '&::-webkit-scrollbar': {
+              height: 4,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.1)' 
+                : 'rgba(0, 0, 0, 0.1)',
+              borderRadius: 2,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: theme.palette.primary.main,
+              borderRadius: 2,
+            },
+          }}
+        >
+          {recentlyViewed.map((product) => (
+            <Box
+              key={product._id}
+              sx={{
+                minWidth: 140,
+                flexShrink: 0,
+              }}
+            >
+              <RecentlyViewedProductCard product={product} />
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        <Grid container spacing={{ xs: 1.5, md: 2 }}>
+          {recentlyViewed.map((product) => (
+            <Grid item xs={6} sm={4} md={3} key={product._id}>
+              <RecentlyViewedProductCard product={product} />
+            </Grid>
+          ))}
         </Grid>
-      ))}
-    </Grid>
+      )}
+    </Box>
   )
 }
 
-// Recently Viewed Product Card Component
-const RecentlyViewedProductCard = ({ product }: { product: Product }) => {
+// Mostly Purchased Products Component
+const MostlyPurchasedProducts = ({ products }: { products: Product[] }) => {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  
+  if (products.length === 0) {
+    return (
+      <Paper
+        sx={{
+          p: 4,
+          textAlign: 'center',
+          borderRadius: 3,
+          bgcolor: theme.palette.mode === 'dark' 
+            ? 'rgba(255, 255, 255, 0.02)' 
+            : 'rgba(0, 0, 0, 0.02)',
+          border: `2px dashed ${theme.palette.divider}`
+        }}
+      >
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          🛒 {t('productDetails.noPurchaseData')}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('productDetails.noPurchaseDataMessage')}
+        </Typography>
+      </Paper>
+    )
+  }
+  
+  return (
+    <Box>
+      {/* Mobile horizontal scroll for better UX */}
+      {isMobile ? (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1.5,
+            overflowX: 'auto',
+            pb: 1,
+            '&::-webkit-scrollbar': {
+              height: 4,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.1)' 
+                : 'rgba(0, 0, 0, 0.1)',
+              borderRadius: 2,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: theme.palette.success.main,
+              borderRadius: 2,
+            },
+          }}
+        >
+          {products.slice(0, 6).map((product) => (
+            <Box
+              key={product._id}
+              sx={{
+                minWidth: 140,
+                flexShrink: 0,
+              }}
+            >
+              <MostlyPurchasedProductCard product={product} />
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        <Grid container spacing={{ xs: 1.5, md: 2 }}>
+          {products.slice(0, 4).map((product) => (
+            <Grid item xs={6} sm={4} md={3} key={product._id}>
+              <MostlyPurchasedProductCard product={product} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </Box>
+  )
+}
+
+// Mostly Purchased Product Card Component
+const MostlyPurchasedProductCard = ({ product }: { product: Product }) => {
   const router = useRouter()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   
   return (
     <Card 
@@ -3188,28 +3591,101 @@ const RecentlyViewedProductCard = ({ product }: { product: Product }) => {
       sx={{ 
         height: '100%', 
         cursor: 'pointer',
-        transition: 'all 0.3s ease',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         border: '1px solid',
-        borderColor: 'divider',
+        borderColor: 'success.main',
         backdropFilter: 'blur(10px)',
-        background: (theme) => theme.palette.mode === 'dark' 
-                      ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
-                      : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%)'
+          : 'linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.02) 100%)',
+        borderRadius: { xs: 2, md: 3 },
+        overflow: 'hidden',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 12px 40px rgba(76, 175, 80, 0.3)'
+            : '0 12px 40px rgba(76, 175, 80, 0.2)',
+          borderColor: 'success.dark',
         }
       }}
-      onClick={() => router.push(`/product/${product.id}`)}
+      onClick={() => router.push(`/product/${product._id}`)}
     >
-      <CardMedia
-        component="img"
-        height={{ xs: 140, md: 160 }}
-        image={product.images?.[0] || '/placeholder-product.jpg'}
-        alt={product.title}
-        sx={{ objectFit: 'cover' }}
-      />
-      <CardContent sx={{ p: { xs: 1.5, md: 2 }, pb: '16px !important' }}>
+      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+        <CardMedia
+          component="img"
+          height="160"
+          image={product.images?.[0] || '/placeholder-product.jpg'}
+          alt={product.title}
+          sx={{ 
+            objectFit: 'cover',
+            transition: 'transform 0.3s ease',
+            height: { xs: 120, md: 160 },
+            '&:hover': {
+              transform: 'scale(1.05)'
+            }
+          }}
+        />
+        
+        {/* Popular badge */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            bgcolor: 'success.main',
+            color: 'white',
+            px: 1,
+            py: 0.5,
+            borderRadius: 1,
+            fontSize: '0.7rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5
+          }}
+        >
+          🔥 Popular
+        </Box>
+        
+        {/* Quick action overlay */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            opacity: 0,
+            transition: 'opacity 0.3s ease',
+            '.MuiCard-root:hover &': {
+              opacity: 1,
+            }
+          }}
+        >
+          <IconButton
+            size="small"
+            sx={{
+              bgcolor: theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.9)' 
+                : 'rgba(255,255,255,0.9)',
+              color: theme.palette.mode === 'dark' ? 'black' : 'inherit',
+              width: 28,
+              height: 28,
+              '&:hover': {
+                bgcolor: 'success.main',
+                color: 'white',
+                transform: 'scale(1.1)'
+              }
+            }}
+          >
+            <ArrowForwardIcon sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Box>
+      </Box>
+      
+      <CardContent sx={{ 
+        p: { xs: 1.5, md: 2 }, 
+        pb: { xs: '12px !important', md: '16px !important' },
+        '&:last-child': { pb: { xs: 1.5, md: 2 } }
+      }}>
         <Typography 
           variant="body2" 
           fontWeight={600}
@@ -3219,34 +3695,239 @@ const RecentlyViewedProductCard = ({ product }: { product: Product }) => {
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            fontSize: { xs: '0.8rem', md: '0.875rem' }
+            fontSize: { xs: '0.8rem', md: '0.875rem' },
+            lineHeight: 1.3,
+            minHeight: { xs: '2.6em', md: '2.6em' }
           }}
         >
           {product.title}
         </Typography>
-        <Typography 
-          variant="h6" 
-          fontWeight={700} 
-          color="primary"
-          sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
-        >
-          ${product.price}
-        </Typography>
-        {product.rating && (
-          <Stack direction="row" alignItems="center" spacing={0.5} mt={1}>
-            <Rating 
-              size="small" 
-              value={product.rating.average} 
-              readOnly 
-              precision={0.1}
+        
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+          <Typography 
+            variant="h6" 
+            fontWeight={700} 
+            color="success.main"
+            sx={{ 
+              fontSize: { xs: '1rem', md: '1.25rem' },
+              background: theme.palette.mode === 'dark' 
+                ? 'linear-gradient(45deg, #4CAF50, #66BB6A)'
+                : 'linear-gradient(45deg, #2E7D32, #4CAF50)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            ${product.price?.toFixed(2) || '0.00'}
+          </Typography>
+          
+          {product.rating && (
+            <Stack direction="row" alignItems="center" spacing={0.3}>
+              <StarIcon sx={{ 
+                fontSize: { xs: 14, md: 16 }, 
+                color: 'warning.main' 
+              }} />
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ 
+                  fontSize: { xs: '0.7rem', md: '0.75rem' },
+                  fontWeight: 600
+                }}
+              >
+                {product.rating.average?.toFixed(1) || '4.0'}
+              </Typography>
+            </Stack>
+          )}
+        </Stack>
+        
+        {/* Mobile-specific quick info */}
+        {isMobile && (
+          <Stack direction="row" alignItems="center" spacing={1} mt={1}>
+            <Chip
+              label={product.category || 'Product'}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontSize: '0.65rem',
+                height: 20,
+                '& .MuiChip-label': {
+                  px: 0.5
+                }
+              }}
             />
-            <Typography 
-              variant="caption" 
-              color="text.secondary"
-              sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}
-            >
-              ({product.rating.count})
-            </Typography>
+            {product.sold && product.sold > 0 && (
+              <Typography variant="caption" color="success.main" fontWeight={600}>
+                {product.sold} sold
+              </Typography>
+            )}
+          </Stack>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// Recently Viewed Product Card Component
+const RecentlyViewedProductCard = ({ product }: { product: Product }) => {
+  const router = useRouter()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  
+  return (
+    <Card 
+      elevation={0}
+      sx={{ 
+        height: '100%', 
+        cursor: 'pointer',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        border: '1px solid',
+        borderColor: 'divider',
+        backdropFilter: 'blur(10px)',
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+          : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        borderRadius: { xs: 2, md: 3 },
+        overflow: 'hidden',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 12px 40px rgba(0,0,0,0.3)'
+            : '0 12px 40px rgba(0,0,0,0.15)',
+          borderColor: 'primary.main',
+        }
+      }}
+      onClick={() => router.push(`/product/${product._id}`)}
+    >
+      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+        <CardMedia
+          component="img"
+          height="160"
+          image={product.images?.[0] || '/placeholder-product.jpg'}
+          alt={product.title}
+          sx={{ 
+            objectFit: 'cover',
+            transition: 'transform 0.3s ease',
+            height: { xs: 120, md: 160 },
+            '&:hover': {
+              transform: 'scale(1.05)'
+            }
+          }}
+        />
+        {/* Quick action overlay */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            opacity: 0,
+            transition: 'opacity 0.3s ease',
+            '.MuiCard-root:hover &': {
+              opacity: 1,
+            }
+          }}
+        >
+          <IconButton
+            size="small"
+            sx={{
+              bgcolor: theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.9)' 
+                : 'rgba(255,255,255,0.9)',
+              color: theme.palette.mode === 'dark' ? 'black' : 'inherit',
+              width: 28,
+              height: 28,
+              '&:hover': {
+                bgcolor: 'primary.main',
+                color: 'white',
+                transform: 'scale(1.1)'
+              }
+            }}
+          >
+            <ArrowForwardIcon sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Box>
+      </Box>
+      
+      <CardContent sx={{ 
+        p: { xs: 1.5, md: 2 }, 
+        pb: { xs: '12px !important', md: '16px !important' },
+        '&:last-child': { pb: { xs: 1.5, md: 2 } }
+      }}>
+        <Typography 
+          variant="body2" 
+          fontWeight={600}
+          sx={{ 
+            mb: 1,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            fontSize: { xs: '0.8rem', md: '0.875rem' },
+            lineHeight: 1.3,
+            minHeight: { xs: '2.6em', md: '2.6em' }
+          }}
+        >
+          {product.title}
+        </Typography>
+        
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+          <Typography 
+            variant="h6" 
+            fontWeight={700} 
+            color="primary"
+            sx={{ 
+              fontSize: { xs: '1rem', md: '1.25rem' },
+              background: theme.palette.mode === 'dark' 
+                ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
+                : 'linear-gradient(45deg, #2196F3, #21CBF3)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            ${product.price?.toFixed(2) || '0.00'}
+          </Typography>
+          
+          {product.rating && (
+            <Stack direction="row" alignItems="center" spacing={0.3}>
+              <StarIcon sx={{ 
+                fontSize: { xs: 14, md: 16 }, 
+                color: 'warning.main' 
+              }} />
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ 
+                  fontSize: { xs: '0.7rem', md: '0.75rem' },
+                  fontWeight: 600
+                }}
+              >
+                {product.rating.average?.toFixed(1) || '4.0'}
+              </Typography>
+            </Stack>
+          )}
+        </Stack>
+        
+        {/* Mobile-specific quick info */}
+        {isMobile && (
+          <Stack direction="row" alignItems="center" spacing={1} mt={1}>
+            <Chip
+              label={product.category || 'Product'}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontSize: '0.65rem',
+                height: 20,
+                '& .MuiChip-label': {
+                  px: 0.5
+                }
+              }}
+            />
+            {product.sold && product.sold > 0 && (
+              <Typography variant="caption" color="success.main" fontWeight={600}>
+                {product.sold} sold
+              </Typography>
+            )}
           </Stack>
         )}
       </CardContent>

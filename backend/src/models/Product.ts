@@ -33,6 +33,14 @@ export interface IProduct extends Document {
     sku?: string; // Stock Keeping Unit
     inventory?: number; // Available quantity
   };
+  // Analytics and tracking fields
+  views?: number; // Number of times this product has been viewed
+  sold?: number; // Number of times this product has been sold
+  rating?: {
+    average: number; // Average rating (1-5)
+    count: number; // Number of ratings
+    breakdown: { [key: number]: number }; // Breakdown by rating (1, 2, 3, 4, 5)
+  };
   // AR/3D Model fields
   modelUrl?: string; // URL to the 3D model file
   modelType?: 'gltf' | 'glb' | 'usdz'; // Type of 3D model
@@ -73,6 +81,14 @@ const ProductSchema = new Schema<IProduct>({
     brand: { type: String },
     sku: { type: String },
     inventory: { type: Number, default: 0 }
+  },
+  // Analytics and tracking fields
+  views: { type: Number, default: 0 },
+  sold: { type: Number, default: 0 },
+  rating: {
+    average: { type: Number, default: 0 },
+    count: { type: Number, default: 0 },
+    breakdown: { type: Map, of: Number, default: new Map() }
   },
   // AR/3D Model fields
   modelUrl: { type: String },

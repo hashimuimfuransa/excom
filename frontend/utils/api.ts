@@ -1,7 +1,7 @@
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 
   (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
     ? 'http://localhost:4000/api' 
-    : 'https://your-backend-url.onrender.com/api');
+    : 'https://excom-tyry.onrender.com/api');
 
 function getToken() {
   return typeof window !== 'undefined' ? localStorage.getItem('excom_token') || undefined : undefined;
@@ -9,7 +9,9 @@ function getToken() {
 
 export async function apiGet<T>(path: string, token?: string): Promise<T> {
   const auth = token || getToken();
-  const r = await fetch(`${API_BASE}${path}`, {
+  const url = `${API_BASE}${path}`;
+  
+  const r = await fetch(url, {
     next: { revalidate: 0 },
     headers: {
       ...(auth ? { Authorization: `Bearer ${auth}` } : {})

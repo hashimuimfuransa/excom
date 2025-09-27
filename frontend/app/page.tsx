@@ -394,10 +394,10 @@ export default function HomePage() {
 
   useEffect(() => {
     let alive = true;
-    apiGet<Product[]>("/products")
-      .then((list) => {
+    apiGet<{products: Product[], pagination: any}>("/products")
+      .then((response) => {
         if (!alive) return;
-        setProducts(list || []);
+        setProducts(response?.products || []);
       })
       .catch((error) => {
         console.error('Failed to fetch products:', error);
@@ -708,7 +708,8 @@ export default function HomePage() {
   );
 
   const newArrivals = useMemo(() => {
-    const list = (products || []).slice();
+    if (!Array.isArray(products)) return [];
+    const list = products.slice();
     list.sort((a, b) => {
       const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -718,7 +719,8 @@ export default function HomePage() {
   }, [products]);
 
   const topPicks = useMemo(() => {
-    const list = (products || []).slice();
+    if (!Array.isArray(products)) return [];
+    const list = products.slice();
     list.sort((a, b) => {
       const ra = typeof a.rating === 'number' ? a.rating! : -1;
       const rb = typeof b.rating === 'number' ? b.rating! : -1;

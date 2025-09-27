@@ -136,17 +136,21 @@ export default function Navbar() {
         borderBottom: 1,
         borderColor: 'divider'
       }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Box
-            component="img"
-            src="/excom.png"
-            alt="Excom"
-            sx={{ height: 32, width: 32 }}
-          />
-          <Typography variant="h6" fontWeight={700}>
-            Excom
-          </Typography>
-        </Stack>
+        <Box
+          component="img"
+          src="/excom.png"
+          alt="Excom"
+          sx={(theme) => ({ 
+            height: 48, 
+            width: 48,
+            borderRadius: 1,
+            // Add filters for better dark mode visibility
+            filter: theme.palette.mode === 'dark' 
+              ? 'invert(1) brightness(1.5) contrast(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))'
+              : 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
+            transition: 'all 0.3s ease'
+          })}
+        />
         <IconButton onClick={handleDrawerToggle}>
           <CloseIcon />
         </IconButton>
@@ -501,7 +505,6 @@ export default function Navbar() {
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: 1,
               transition: 'transform 0.2s ease',
               '&:hover': {
                 transform: 'scale(1.05)'
@@ -512,29 +515,22 @@ export default function Navbar() {
               component="img"
               src="/excom.png"
               alt="Excom"
-              sx={{ 
-                height: { xs: 32, sm: 36 }, 
-                width: { xs: 32, sm: 36 },
-                borderRadius: 1
-              }}
+              sx={(theme) => ({ 
+                height: { xs: 48, sm: 52 }, 
+                width: { xs: 48, sm: 52 },
+                borderRadius: 1,
+                // Add filters for better dark mode visibility
+                filter: theme.palette.mode === 'dark' 
+                  ? 'invert(1) brightness(1.5) contrast(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))'
+                  : 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  filter: theme.palette.mode === 'dark' 
+                    ? 'invert(1) brightness(1.7) contrast(1.3) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4))'
+                    : 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15))'
+                }
+              })}
             />
-            <Typography 
-              variant="h6" 
-              fontWeight={900}
-              sx={{ 
-                color: 'white',
-                textShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                display: { xs: isMobile ? 'none' : 'block', sm: 'block' },
-                fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                letterSpacing: '0.5px',
-                background: 'linear-gradient(45deg, #ffffff, #f0f0f0)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}
-            >
-              EXCOM
-            </Typography>
           </MLink>
 
           {/* Desktop AI Search Bar */}

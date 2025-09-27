@@ -89,7 +89,8 @@ export default function AdminProductsPage() {
       }
 
       // Fetch all products from backend
-      const data = await apiGet<Product[]>('/products');
+      const response = await apiGet<{products: Product[], pagination: any}>('/products');
+      const data = response?.products || [];
       
       // Transform backend data to match our Product interface
       const transformedProducts = data.map(product => ({

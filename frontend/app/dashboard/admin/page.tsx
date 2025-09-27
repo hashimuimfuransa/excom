@@ -74,12 +74,14 @@ export default function AdminDashboardPage() {
         }
 
         // Fetch all required data
-        const [stores, users, products, pendingStoresData] = await Promise.all([
+        const [stores, users, productsResponse, pendingStoresData] = await Promise.all([
           apiGet<Store[]>('/sellers/stores').catch(() => []),
           apiGet<User[]>('/admin/users').catch(() => []),
-          apiGet<Product[]>('/admin/products').catch(() => []),
+          apiGet<{products: Product[], pagination: any}>('/products').then(response => response?.products || []).catch(() => []),
           apiGet<Store[]>('/sellers/stores?pending=1').catch(() => [])
         ]);
+
+        const products = productsResponse;
 
         // Calculate stats
         const approvedStores = stores.filter((s: Store) => s.approved);
