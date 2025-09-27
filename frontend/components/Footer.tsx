@@ -38,19 +38,36 @@ export default function Footer() {
         }
       })}
     >
-      {/* Background Pattern */}
+      {/* Enhanced Background Pattern */}
       <Box
-        sx={{
+        sx={(theme) => ({
           position: 'absolute',
           top: -50,
           right: -50,
           width: 200,
           height: 200,
           borderRadius: '50%',
-          background: 'rgba(34, 197, 94, 0.05)',
+          background: theme.palette.mode === 'dark' 
+            ? 'rgba(34, 197, 94, 0.08)' 
+            : 'rgba(34, 197, 94, 0.05)',
           animation: 'float 8s ease-in-out infinite',
           zIndex: 0
-        }}
+        })}
+      />
+      <Box
+        sx={(theme) => ({
+          position: 'absolute',
+          bottom: -30,
+          left: -30,
+          width: 150,
+          height: 150,
+          borderRadius: '50%',
+          background: theme.palette.mode === 'dark' 
+            ? 'rgba(34, 197, 94, 0.06)' 
+            : 'rgba(34, 197, 94, 0.03)',
+          animation: 'float 10s ease-in-out infinite reverse',
+          zIndex: 0
+        })}
       />
       
       <Container sx={{ py: 8, position: 'relative', zIndex: 1 }}>
@@ -375,7 +392,13 @@ export default function Footer() {
           </Grid>
         </Grid>
 
-        <Divider sx={{ my: 6, borderColor: '#e5e7eb', borderWidth: 2 }} />
+        <Divider sx={(theme) => ({ 
+          my: 6, 
+          borderColor: theme.palette.mode === 'dark' 
+            ? 'rgba(255, 255, 255, 0.1)' 
+            : '#e5e7eb', 
+          borderWidth: 2 
+        })} />
 
         <Stack 
           direction={{ xs: 'column', sm: 'row' }} 

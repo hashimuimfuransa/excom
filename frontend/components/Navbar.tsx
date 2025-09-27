@@ -22,7 +22,8 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
-  alpha
+  alpha,
+  Chip
 } from '@mui/material';
 import {
   ShoppingCart as ShoppingCartIcon,
@@ -40,11 +41,14 @@ import {
   Person as PersonIcon,
   MonetizationOn as BargainIcon,
   TrendingUp as AffiliateIcon,
-  Mic as MicIcon
+  Mic as MicIcon,
+  EmojiEvents as EmojiEventsIcon,
+  Diamond as DiamondIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import DarkModeToggle from './DarkModeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
+import AiSearchBar from './AiSearchBar';
 import NextLink from 'next/link';
 import { useCart } from '@utils/cart';
 import { useWishlist } from '@utils/wishlist';
@@ -53,9 +57,11 @@ import { useAuth } from '@utils/auth';
 export default function Navbar() {
   const { user, logout: authLogout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [navMenuAnchor, setNavMenuAnchor] = useState<null | HTMLElement>(null);
   const [navLoading, setNavLoading] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const open = Boolean(anchorEl);
+  const navMenuOpen = Boolean(navMenuAnchor);
   const { items, bookingItems, refreshCart } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { t } = useTranslation('common');
@@ -88,10 +94,19 @@ export default function Navbar() {
     setMobileOpen(!mobileOpen);
   };
 
+  const handleNavMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNavMenuAnchor(event.currentTarget);
+  };
+
+  const handleNavMenuClose = () => {
+    setNavMenuAnchor(null);
+  };
+
   const menuItems = [
     { text: t('navigation.collections'), href: '/collections', icon: <CollectionsIcon /> },
     { text: t('navigation.viewVendors'), href: '/vendors', icon: <StoreIcon /> },
     { text: t('navigation.products'), href: '/product', icon: <SearchIcon /> },
+    { text: t('navigation.achievements'), href: '/achievements', icon: <EmojiEventsIcon /> },
     { text: t('wishlist.title'), href: '/wishlist', icon: <FavoriteIcon /> },
     { text: t('voiceAI.voiceShopping', 'Voice Shopping'), href: '#', icon: <MicIcon />, onClick: () => {
       // Open the AI assistant instead of voice popup
@@ -419,27 +434,42 @@ export default function Navbar() {
           borderRadius: 0,
           backdropFilter: 'saturate(180%) blur(20px)',
           background: t.palette.mode === 'dark' 
-            ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(22, 163, 74, 0.95) 50%, rgba(21, 128, 61, 0.95) 100%)'
-            : 'linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(22, 163, 74, 0.95) 50%, rgba(21, 128, 61, 0.95) 100%)',
+            ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 50%, rgba(15, 52, 96, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 50%, rgba(240, 147, 251, 0.95) 100%)',
           borderBottom: `1px solid ${alpha(t.palette.divider, 0.2)}`,
           transition: 'all 0.3s ease',
           color: 'white',
-          boxShadow: '0 4px 20px rgba(34, 197, 94, 0.15)',
-          // Enhanced styling for modern look
+          boxShadow: t.palette.mode === 'dark' 
+            ? '0 8px 32px rgba(0, 0, 0, 0.5)' 
+            : '0 8px 32px rgba(102, 126, 234, 0.3)',
+          // Modern enhanced styling
           '& .MuiIconButton-root': {
             color: 'white',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            borderRadius: 2,
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)', 
-              transform: 'scale(1.05)'
+              backgroundColor: t.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.1)' 
+                : 'rgba(255, 255, 255, 0.15)', 
+              transform: 'scale(1.05)',
+              boxShadow: t.palette.mode === 'dark' 
+                ? '0 4px 12px rgba(255, 255, 255, 0.1)' 
+                : '0 4px 12px rgba(255, 255, 255, 0.2)'
             }
           },
           '& .MuiButton-root': {
             color: 'white',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            borderRadius: 2,
+            fontWeight: 600,
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)', 
-              transform: 'translateY(-1px)'
+              backgroundColor: t.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.1)' 
+                : 'rgba(255, 255, 255, 0.15)', 
+              transform: 'translateY(-2px)',
+              boxShadow: t.palette.mode === 'dark' 
+                ? '0 8px 25px rgba(255, 255, 255, 0.1)' 
+                : '0 8px 25px rgba(255, 255, 255, 0.2)'
             }
           }
         })}
@@ -490,79 +520,99 @@ export default function Navbar() {
             />
             <Typography 
               variant="h6" 
-              fontWeight={800}
+              fontWeight={900}
               sx={{ 
                 color: 'white',
-                textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                display: { xs: isMobile ? 'none' : 'block', sm: 'block' }
+                textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                display: { xs: isMobile ? 'none' : 'block', sm: 'block' },
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                letterSpacing: '0.5px',
+                background: 'linear-gradient(45deg, #ffffff, #f0f0f0)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
               }}
             >
-              Excom
+              EXCOM
             </Typography>
           </MLink>
 
-          <Box sx={{ flexGrow: 1 }} />
+          {/* Desktop AI Search Bar */}
+          {!isMobile && (
+            <Box sx={{ flexGrow: 1, maxWidth: 500, mx: 3 }}>
+              <AiSearchBar 
+                placeholder={t('navigation.aiSearch')}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    borderRadius: 3,
+                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    color: 'white',
+                    '&:focus-within': {
+                      bgcolor: 'rgba(255, 255, 255, 0.15)',
+                      borderColor: 'rgba(255, 255, 255, 0.4)',
+                      boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.1)'
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      opacity: 1
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: 'white',
+                    py: 1.5,
+                    px: 2
+                  }
+                }}
+              />
+            </Box>
+          )}
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu - Compact Layout */}
           {!isMobile && (
             <Stack direction="row" spacing={1} alignItems="center">
-              <Button 
-                component={NextLink}
-                href="/collections" 
+              {/* Navigation Dropdown */}
+              <Button
+                onClick={handleNavMenuOpen}
                 startIcon={<CollectionsIcon />}
-                sx={{ 
-                  borderRadius: 2,
-                  px: 2,
+                endIcon={<Box component="span" sx={{ fontSize: '0.8rem', ml: 0.5 }}>▼</Box>}
+                sx={(theme) => ({ 
+                  borderRadius: 3,
+                  px: 3,
+                  py: 1,
                   color: 'white',
-                  fontWeight: 600,
-                  transition: 'all 0.3s ease',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  textTransform: 'none',
+                  letterSpacing: '0.5px',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.08)' 
+                    : 'rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.15)' 
+                    : '1px solid rgba(255, 255, 255, 0.2)',
                   '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.15)', 
+                    background: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.15)' 
+                      : 'rgba(255, 255, 255, 0.2)', 
                     color: 'white',
-                    transform: 'translateY(-1px)'
+                    transform: 'translateY(-2px)',
+                    boxShadow: theme.palette.mode === 'dark' 
+                      ? '0 8px 25px rgba(255, 255, 255, 0.1)' 
+                      : '0 8px 25px rgba(255, 255, 255, 0.2)',
+                    borderColor: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.3)' 
+                      : 'rgba(255, 255, 255, 0.4)'
                   }
-                }}
+                })}
               >
-                {t('navigation.collections')}
+                {t('navigation.browse')}
               </Button>
-              <Button 
-                component={NextLink}
-                href="/vendors" 
-                startIcon={<StoreIcon />}
-                sx={{ 
-                  borderRadius: 2,
-                  px: 2,
-                  color: 'white',
-                  fontWeight: 600,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.15)', 
-                    color: 'white',
-                    transform: 'translateY(-1px)'
-                  }
-                }}
-              >
-                {t('navigation.vendors')}
-              </Button>
-              <Button 
-                component={NextLink}
-                href="/product" 
-                startIcon={<SearchIcon />}
-                sx={{ 
-                  borderRadius: 2,
-                  px: 2,
-                  color: 'white',
-                  fontWeight: 600,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.15)', 
-                    color: 'white',
-                    transform: 'translateY(-1px)'
-                  }
-                }}
-              >
-                {t('navigation.products')}
-              </Button>
+              
+              {/* AI Assistant Button */}
               <Button 
                 data-voice-trigger="true"
                 onClick={() => {
@@ -574,25 +624,165 @@ export default function Navbar() {
                   }
                 }}
                 startIcon={<MicIcon />}
-                sx={{ 
-                  borderRadius: 2,
-                  px: 2,
+                sx={(theme) => ({ 
+                  borderRadius: 3,
+                  px: 3,
+                  py: 1,
                   color: 'white',
-                  fontWeight: 600,
-                  transition: 'all 0.3s ease',
-                  background: 'linear-gradient(45deg, #3B82F6, #8B5CF6)',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  textTransform: 'none',
+                  letterSpacing: '0.5px',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: theme.palette.mode === 'dark' 
+                    ? 'linear-gradient(45deg, #FF6B35, #F7931E)' 
+                    : 'linear-gradient(45deg, #FF6B35, #F7931E)',
+                  boxShadow: theme.palette.mode === 'dark' 
+                    ? '0 4px 15px rgba(255, 107, 53, 0.4)' 
+                    : '0 4px 15px rgba(255, 107, 53, 0.3)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.15)' 
+                    : '1px solid rgba(255, 255, 255, 0.2)',
                   '&:hover': {
-                    bgcolor: 'rgba(59, 130, 246, 0.8)', 
+                    background: 'linear-gradient(45deg, #F7931E, #FF6B35)', 
                     color: 'white',
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)'
+                    transform: 'translateY(-2px)',
+                    boxShadow: theme.palette.mode === 'dark' 
+                      ? '0 8px 25px rgba(255, 107, 53, 0.6)' 
+                      : '0 8px 25px rgba(255, 107, 53, 0.5)',
+                    borderColor: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.3)' 
+                      : 'rgba(255, 255, 255, 0.4)'
                   }
-                }}
+                })}
               >
-                {t('voiceAI.voiceShopping', 'Voice Shopping')}
+                {t('navigation.aiAssistant')}
               </Button>
             </Stack>
           )}
+
+          {/* Navigation Dropdown Menu */}
+          <Menu
+            anchorEl={navMenuAnchor}
+            open={navMenuOpen}
+            onClose={handleNavMenuClose}
+            PaperProps={{
+              sx: (theme) => ({
+                borderRadius: 3,
+                mt: 1,
+                minWidth: 200,
+                background: theme.palette.mode === 'dark' 
+                  ? 'rgba(26, 26, 46, 0.95)' 
+                  : 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.1)' 
+                  : '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: theme.palette.mode === 'dark' 
+                  ? '0 8px 32px rgba(0, 0, 0, 0.5)' 
+                  : '0 8px 32px rgba(102, 126, 234, 0.3)'
+              })
+            }}
+            transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+          >
+            <MenuItem 
+              component={NextLink}
+              href="/collections"
+              onClick={handleNavMenuClose}
+              sx={(theme) => ({
+                py: 1.5,
+                px: 2,
+                borderRadius: 2,
+                mx: 1,
+                my: 0.5,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : 'rgba(102, 126, 234, 0.1)',
+                  transform: 'translateX(4px)'
+                }
+              })}
+            >
+              <CollectionsIcon sx={{ mr: 2, color: 'primary.main' }} />
+              <Typography variant="body2" fontWeight={600}>
+                {t('navigation.collections')}
+              </Typography>
+            </MenuItem>
+            <MenuItem 
+              component={NextLink}
+              href="/vendors"
+              onClick={handleNavMenuClose}
+              sx={(theme) => ({
+                py: 1.5,
+                px: 2,
+                borderRadius: 2,
+                mx: 1,
+                my: 0.5,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : 'rgba(102, 126, 234, 0.1)',
+                  transform: 'translateX(4px)'
+                }
+              })}
+            >
+              <StoreIcon sx={{ mr: 2, color: 'primary.main' }} />
+              <Typography variant="body2" fontWeight={600}>
+                {t('navigation.vendors')}
+              </Typography>
+            </MenuItem>
+            <MenuItem 
+              component={NextLink}
+              href="/product"
+              onClick={handleNavMenuClose}
+              sx={(theme) => ({
+                py: 1.5,
+                px: 2,
+                borderRadius: 2,
+                mx: 1,
+                my: 0.5,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : 'rgba(102, 126, 234, 0.1)',
+                  transform: 'translateX(4px)'
+                }
+              })}
+            >
+              <SearchIcon sx={{ mr: 2, color: 'primary.main' }} />
+              <Typography variant="body2" fontWeight={600}>
+                {t('navigation.products')}
+              </Typography>
+            </MenuItem>
+            <MenuItem 
+              component={NextLink}
+              href="/achievements"
+              onClick={handleNavMenuClose}
+              sx={(theme) => ({
+                py: 1.5,
+                px: 2,
+                borderRadius: 2,
+                mx: 1,
+                my: 0.5,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : 'rgba(102, 126, 234, 0.1)',
+                  transform: 'translateX(4px)'
+                }
+              })}
+            >
+              <EmojiEventsIcon sx={{ mr: 2, color: 'primary.main' }} />
+              <Typography variant="body2" fontWeight={600}>
+                {t('navigation.achievements')}
+              </Typography>
+            </MenuItem>
+          </Menu>
 
           {/* Right side actions - Organized for mobile */}
           <Stack 
@@ -601,6 +791,36 @@ export default function Navbar() {
             alignItems="center" 
             sx={{ ml: { xs: 1, sm: 2 } }}
           >
+            {/* Gamification Stats */}
+            {!isMobile && (
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mr: 2 }}>
+                <Chip
+                  icon={<EmojiEventsIcon />}
+                  label="Level 5"
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(255, 215, 0, 0.2)',
+                    color: '#FFD700',
+                    fontWeight: 700,
+                    border: '1px solid rgba(255, 215, 0, 0.3)',
+                    fontSize: '0.7rem'
+                  }}
+                />
+                <Chip
+                  icon={<DiamondIcon />}
+                  label="1,250"
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(138, 43, 226, 0.2)',
+                    color: '#8A2BE2',
+                    fontWeight: 700,
+                    border: '1px solid rgba(138, 43, 226, 0.3)',
+                    fontSize: '0.7rem'
+                  }}
+                />
+              </Stack>
+            )}
+            
             {/* Settings Group - Language & Theme */}
             <Stack direction="row" spacing={0.5} alignItems="center">
               <LanguageSwitcher />

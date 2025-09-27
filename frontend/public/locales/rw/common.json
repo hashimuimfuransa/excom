@@ -9,12 +9,19 @@
     "vendors": "Abacuruzi",
     "viewVendors": "Reba Abacuruzi",
     "products": "Ibicuruzwa",
+    "browse": "Suzuma",
+    "aiAssistant": "Mufasha wa AI",
+    "aiSearch": "Shakisha na AI...",
     "login": "Kwinjira",
     "register": "Kwandikisha",
     "join": "Kwinjira",
     "adminDashboard": "Ibikubiye bya Admin",
     "vendorDashboard": "Ibikubiye by'Umucuruzi",
+    "affiliateDashboard": "Ibikubiye by'Umufatanyabikorwa",
+    "profile": "Umwirondoro",
     "myOrders": "Amatungo Yanjye",
+    "bargaining": "Gucururana",
+    "achievements": "Intsinzi",
     "logout": "Gusohoka",
     "cart": "Agasanduku"
   },
@@ -282,7 +289,234 @@
     "newsletterSubtitle": "Kwandikisha kuri newsletter yacu kugira ngo udabuze amahirwe yihariye n'ibicuruzwa bishya",
     "shopAllDeals": "Gura Amahirwe Yose",
     "subscribe": "Kwandikisha",
-    "privacyNote": "Tubaha ubwoba bwawe. Kuraguza kwandikwa igihe icyose."
+    "privacyNote": "Tubaha ubwoba bwawe. Kuraguza kwandikwa igihe icyose.",
+    "heroTitle": "Gura bw'Ubwenge, Gura byoroshye",
+    "heroSubtitle": "Shakisha ibicuruzwa byiza na AI, tekinoroji ya AR yo gugerageza, n'ibyemezo byihariye.",
+    "aiPoweredShopping": "Gucuruza kwa AI",
+    "arTryOn": "Gegerageza na AR",
+    "secureShopping": "Gucuruza Kwizewe",
+    "aiSearch": "Gushakisha kwa AI",
+    "topPicks": "Ibicuruzwa Byiza",
+    "featuredProducts": "Ibicuruzwa Byizewe",
+    "newArrivals": "Ibicuruzwa Bishya",
+    "quickView": "Reba Vuba",
+    "addToCart": "Shyira mu Gasanduku",
+    "freeShipping": "Kohereza Kubuntu",
+    "newsletterTitle": "Komeza Uherekezwa",
+    "newsletterDescription": "Shakisha amakuru mashya, amahirwe yihariye, n'ibyemezo by'ibicuruzwa mu bohereza.",
+    "newsletterBenefits": "Amahirwe yihariye, Kwiyungurura vuba ku kugurisha, Ibyemezo by'ibicuruzwa, Amakuru y'icyumweru",
+    "newsletterSocialProof": "Winjire mu bakiriya 10,000+ bashimye",
+    "subscribeNow": "Kwandikisha Nonaha",
+    "enterEmail": "Shyiramo imeyili yawe",
+    "browseCategories": "Suzuma Ibyiciro",
+    "viewAllCategories": "Reba Ibyiciro Byose",
+    "flashDealsTitle": "🔥 Amahirwe y'Umwanya Muto",
+    "flashDealsSubtitle": "Amahirwe y'igihe gito - Ntubibuze!",
+    "shopNow": "Gura Nonaha",
+    "upToOff": "Kugera ku {{percent}}% Igabanuka",
+    "limitedTime": "Igihe Gito",
+    "categoriesTitle": "Gura ukurikije Icyiciro",
+    "categoriesSubtitle": "Shakisha ibicuruzwa mu byiciro byose",
+    "newArrivalsTitle": "🔥 Ibicuruzwa Bishya",
+    "topPicksTitle": "⭐ Ibicuruzwa Byiza",
+    "hotLabel": "🔥 BYIZA",
+    "saleLabel": "⚡ KUGURISHA",
+    "viewAllProducts": "Reba Ibicuruzwa Byose",
+    "freeShipping": "🚚 Kohereza Kubuntu ✅",
+    "limitedTimeOffer": "⚡ Amahirwe y'Igihe Gito!"
+  },
+  "productsPage": {
+    "title": "Ibicuruzwa Byose",
+    "subtitle": "Shakisha ibicuruzwa byiza by'abacuruzi bo mu karere kawe",
+    "searchPlaceholder": "Shakisha ibicuruzwa...",
+    "sortBy": "Gukurikije",
+    "newest": "Bishya Mbere",
+    "priceLowToHigh": "Igiciro: Guke ku Gikire",
+    "priceHighToLow": "Igiciro: Gikire ku Guke",
+    "highestRated": "Byiza Kuruta Byose",
+    "mostPopular": "Bikunzwe Kuruta Byose",
+    "gridView": "Reba mu Mbonera",
+    "listView": "Reba mu Rutonde",
+    "filters": "Icyiciro",
+    "productsFound": "ibicuruzwa byabonetse",
+    "loadingProducts": "Birimo gusubira...",
+    "searchColon": "Shakisha:",
+    "categoriesColon": "Ibyiciro:",
+    "nearbyProducts": "Hafi",
+    "showingNearby": "Reba ibicuruzwa byo hafi",
+    "addToCart": "Ongeramo mu Gare",
+    "stockPhoto": "Ifoto y'Ibicuruzwa",
+    "noProductsFound": "Nta bicuruzwa byabonetse",
+    "adjustSearch": "Gerageza guhindura ubushakisha cyangwa icyiciro",
+    "clearAllFilters": "Suzuma Icyiciro Byose",
+    "filterProducts": "Gukurikije Ibicuruzwa",
+    "quickFilters": "Icyiciro cy'ihutirwa",
+    "allProducts": "Ibicuruzwa Byose",
+    "nearbyProducts": "Hafi",
+    "verifiedSellers": "Byemejwe",
+    "freeShipping": "Kohereza Kubuntu",
+    "filteredBy": "Gukurikije",
+    "nearby": "Hafi",
+    "verified": "Byemejwe",
+    "free-shipping": "Kohereza Kubuntu",
+    "locationActive": "Aho Uhari Gikora",
+    "biggestDiscount": "Kugurisha Kinini",
+    "nearestFirst": "Hafi Mbere",
+    "compareProducts": "Gereranya",
+    "comparingProducts": "Gereranya ibicuruzwa {{count}}",
+    "addToCompare": "Ongeramo mu Gereranya",
+    "removeFromCompare": "Kuramo mu Gereranya",
+    "maxCompareReached": "Ibicuruzwa 3 byonyine byashoboka gugereranywa",
+    "compareCleared": "Gereranya ryasuzumwe",
+    "shareProduct": "Sangira Icuruzwa",
+    "linkCopied": "Ihuza ryakopowe",
+    "locationDetected": "Aho uhari ryabonetse neza",
+    "locationDefault": "Dukoresha aho uhari rwibanze (Kigali)",
+    "locationUpdated": "Aho uhari ryavuguruye",
+    "locationError": "Ntibyashobotse kubona aho uhari",
+    "defaultDescription": "Icuruzwa cyiza cy'ubwoba n'ibikoresho byiza"
+  },
+  "categories": {
+    "electronics": {
+      "name": "Ibyuma",
+      "description": "Ibyuma bishya n'ibikoresho",
+      "badge": "🔥 Bishya",
+      "subcategories": {
+        "smartphones": "Telefone",
+        "laptops": "Mashini", 
+        "audio": "Amajwi",
+        "cameras": "Kamera",
+        "gaming": "Imikino",
+        "smartHome": "Inzu Nziza"
+      }
+    },
+    "fashion": {
+      "name": "Imyambaro",
+      "description": "Imyambaro n'ibikoresho by'imyambaro",
+      "badge": "✨ Bishya",
+      "subcategories": {
+        "womensClothing": "Imyambaro y'Abagore",
+        "mensClothing": "Imyambaro y'Abagabo",
+        "shoes": "Ikaramu",
+        "accessories": "Ibikoresho",
+        "jewelry": "Ubwiza",
+        "watches": "Ishusho"
+      }
+    },
+    "home": {
+      "name": "Inzu n'Ubwoba",
+      "description": "Byose by'inzu yawe",
+      "badge": "🏡 Byiza",
+      "subcategories": {
+        "furniture": "Ibikoresho",
+        "decor": "Ubwiza",
+        "kitchen": "Gikoni",
+        "bedding": "Ubwoba",
+        "garden": "Ubwoba",
+        "lighting": "Umuriro"
+      }
+    },
+    "sports": {
+      "name": "Imikino n'Ubukorikori",
+      "description": "Ibikoresho by'imikino",
+      "badge": "⚡ Bikora",
+      "subcategories": {
+        "fitnessEquipment": "Ibikoresho by'Ubukorikori",
+        "outdoorGear": "Ibikoresho by'hanze",
+        "teamSports": "Imikino y'Itsinda",
+        "waterSports": "Imikino y'Amazi",
+        "winterSports": "Imikino y'Ubukonje",
+        "athleticWear": "Imyambaro y'Imikino"
+      }
+    },
+    "books": {
+      "name": "Ibitabo n'Ubwoba",
+      "description": "Ibitabo n'iby'uburezi",
+      "badge": "📚 Ubwoba",
+      "subcategories": {
+        "books": "Ibitabo",
+        "moviesTv": "Filimi n'Itangazamakuru",
+        "music": "Umuziki",
+        "magazines": "Magazini",
+        "audiobooks": "Ibitabo by'Amajwi",
+        "ebooks": "Ibitabo by'ikoranabuhanga"
+      }
+    },
+    "toys": {
+      "name": "Ibyishimo n'Imikino",
+      "description": "Ibyishimo by'imyaka yose",
+      "badge": "🎮 Byishimye",
+      "subcategories": {
+        "actionFigures": "Ibyishimo by'Imikino",
+        "boardGames": "Imikino y'Urupapuro",
+        "educationalToys": "Ibyishimo by'Uburezi",
+        "outdoorToys": "Ibyishimo by'hanze",
+        "videoGames": "Imikino y'ikoranabuhanga",
+        "artsCrafts": "Ubuhanzi n'Ubwoba"
+      }
+    },
+    "automotive": {
+      "name": "Imodoka",
+      "description": "Ibyiciro by'imodoka n'ibikoresho",
+      "badge": "🚗 Byiza",
+      "subcategories": {
+        "carParts": "Ibyiciro by'Imodoka",
+        "accessories": "Ibikoresho",
+        "tools": "Ibikoresho",
+        "maintenance": "Gukora neza",
+        "electronics": "Ibyuma",
+        "interior": "Mu modoka"
+      }
+    },
+    "health": {
+      "name": "Ubuzima n'Ubwoba",
+      "description": "Ibicuruzwa by'ubuzima n'ibyongera",
+      "badge": "💊 Byiza",
+      "subcategories": {
+        "supplements": "Ibyongera",
+        "skincare": "Gukora neza ishusho",
+        "fitness": "Ubukorikori",
+        "medical": "Ubuvuzi",
+        "personalCare": "Gukora neza",
+        "wellness": "Ubwoba"
+      }
+    },
+    "mobile": {
+      "name": "Telefone n'Ikoranabuhanga",
+      "description": "Telefone n'ibikoresho",
+      "badge": "📱 Byiza",
+      "subcategories": {
+        "smartphones": "Telefone",
+        "casesCovers": "Ubwoba n'Ibikoresho",
+        "chargers": "Ibikoresho by'Gutanga",
+        "headphones": "Amajwi",
+        "smartwatches": "Ishusho Nziza",
+        "tablets": "Ibikoresho"
+      }
+    },
+    "music": {
+      "name": "Umuziki n'Amajwi",
+      "description": "Amajwi n'ibikoresho",
+      "badge": "🎵 Byiza",
+      "subcategories": {
+        "instruments": "Ibikoresho by'Umuziki",
+        "speakers": "Ibikoresho by'Amajwi",
+        "headphones": "Amajwi",
+        "microphones": "Ibikoresho by'Amajwi",
+        "audioEquipment": "Ibikoresho by'Amajwi",
+        "accessories": "Ibikoresho"
+      }
+    },
+    "pets": {
+      "name": "Ibyararibwa n'Ibinyabuzima",
+      "description": "Ibicuruzwa by'iby'araribwa n'ibikoresho",
+      "badge": "🐕 Byiza"
+    },
+    "food": {
+      "name": "Ibiribwa n'Ibinyobwa",
+      "description": "Ibiribwa byiza n'ibinyobwa",
+      "badge": "🍳 Byiza"
+    }
   },
   "testimonials": {
     "person1": {
@@ -562,6 +796,17 @@
     "aiPick": "AI Yateganyije",
     "analyzedProducts": "Gusuzumye {{count}} Ibicuruzwa"
   },
+  "footer": {
+    "discover": "Shakisha",
+    "company": "Kampani",
+    "stayConnected": "Komeza Uherekezwa",
+    "newsletterDescription": "Kwandikisha kuri newsletter yacu kugira ngo udabuze amakuru mashya n'amahirwe yihariye.",
+    "subscribeNewsletter": "Kwandikisha kuri Newsletter",
+    "allRightsReserved": "Uburenganzira bwose bwabikijwe.",
+    "privacy": "Amategeko y'Ibanga",
+    "terms": "Amabwiriza yo Gukoresha",
+    "cookies": "Amategeko y'Amakuki"
+  },
   "voiceAI": {
     "title": "Mufasha wa AI wo Mu Jwi",
     "subtitle": "Vuga kugira ngo ugure na AI",
@@ -606,5 +851,81 @@
       "speakResponse": "Vuga Ibyakurikijwe",
       "stopSpeaking": "Hagarika Kuvuga",
       "grantPermission": "Tanga Uburenganzira bwo Gukoresha Mikorofone"
+  },
+  "achievements": {
+    "title": "Intsinzi na Rega",
+    "subtitle": "Kurikirana iterambere ryawe, fungura intsinzi, na kwakira rega mugihe ugura!",
+    "level": "Urwego",
+    "credits": "Amakrediti",
+    "achievements": "Intsinzi",
+    "badges": "Amabendera",
+    "earningsCredits": "Amafaranga Yinjijwe na Amakrediti",
+    "totalCreditsEarned": "Amakrediti Yose Yinjijwe",
+    "creditsFromPurchases": "Amakrediti Avuye mu Gucuruza",
+    "creditsFromAchievements": "Amakrediti Avuye mu Ntsinzi",
+    "totalSpent": "Amafaranga Yose Yatangiye",
+    "totalPurchases": "Gucuruza Kwose",
+    "averageOrderValue": "Agaciro g'Ubwoba g'Ubwoba",
+    "creditsExplanation": "Amakrediti Akora Atya: Wakira akrediti 1 ku mafaranga 10 yose yatangijwe mu gucuruza. Amakrediti arashobora gukoreshwa mu gucunga amafaranga y'inyongera na serivisi zihariye. Komeza gucuruza kugira ngo wakire amakrediti menshi!",
+    "rarity": {
+      "common": "Rusange",
+      "rare": "Rare",
+      "epic": "Epic",
+      "legendary": "Legendary"
+    },
+    "categories": {
+      "shopping": "Gucuruza",
+      "social": "Ubucuruzi",
+      "milestone": "Intsinzi",
+      "special": "Bihariye"
+    },
+    "achievementList": {
+      "firstPurchase": {
+        "name": "Gucuruza kwa Mbere",
+        "description": "Kora gucuruza kwawe kwa mbere ku ruhagaragaza"
+      },
+      "bigSpender": {
+        "name": "Umuntu Watanze Amafaranga Menshi",
+        "description": "Tangiza amafaranga arenga $500 mu gucuruza kwose"
+      },
+      "level10Master": {
+        "name": "Umwami wa Urwego 10",
+        "description": "Gera ku rwego 10 mu sisitemu y'umukino"
+      },
+      "creditCollector": {
+        "name": "Umukoresha wa Amakrediti",
+        "description": "Wakire amakrediti 1000 avuye mu gucuruza"
+      },
+      "shoppingLegend": {
+        "name": "Umukino wa Gucuruza",
+        "description": "Gera ku rwego rwo hejuru ku ruhagaragaza"
+      },
+      "dailyShopper": {
+        "name": "Umucuruzi w'Umunsi",
+        "description": "Kora gucuruza ku munsi wose mu gihe cy'imyaka 7"
+      }
+    },
+    "badgeList": {
+      "newcomer": {
+        "name": "Umuntu Mushya",
+        "description": "Murakaza neza ku ruhagaragaza!"
+      },
+      "bronzeBuyer": {
+        "name": "Umuguzi wa Bronze",
+        "description": "Yarangiye gucuruza 10"
+      },
+      "silverShopper": {
+        "name": "Umucuruzi wa Silver",
+        "description": "Yarangiye gucuruza 50"
+      },
+      "goldMaster": {
+        "name": "Umwami wa Gold",
+        "description": "Yarangiye gucuruza 100"
+      },
+      "platinumLegend": {
+        "name": "Umukino wa Platinum",
+        "description": "Yarangiye gucuruza 500"
+      }
+    }
   }
 }

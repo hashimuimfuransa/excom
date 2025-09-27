@@ -57,6 +57,41 @@ export default function AppGlobalStyles() {
             boxShadow: '0 0 0 0 rgba(59, 130, 246, 0)'
           }
         },
+        // Spinning animation for refresh icon
+        '@keyframes spin': {
+          '0%': {
+            transform: 'rotate(0deg)'
+          },
+          '100%': {
+            transform: 'rotate(360deg)'
+          }
+        },
+        // Confetti animation
+        '@keyframes confetti-fall': {
+          '0%': {
+            transform: 'translateY(-100vh) rotate(0deg)',
+            opacity: 1
+          },
+          '100%': {
+            transform: 'translateY(100vh) rotate(720deg)',
+            opacity: 0
+          }
+        },
+        // Pulse animation
+        '@keyframes pulse': {
+          '0%': {
+            transform: 'scale(1)',
+            boxShadow: '0 0 0 0 rgba(255, 255, 255, 0.7)'
+          },
+          '70%': {
+            transform: 'scale(1.05)',
+            boxShadow: '0 0 0 10px rgba(255, 255, 255, 0)'
+          },
+          '100%': {
+            transform: 'scale(1)',
+            boxShadow: '0 0 0 0 rgba(255, 255, 255, 0)'
+          }
+        },
         '.voice-pulse': {
           animation: 'voice-pulse 2s infinite'
         },

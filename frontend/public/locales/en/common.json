@@ -9,12 +9,19 @@
     "vendors": "Vendors",
     "viewVendors": "View Vendors", 
     "products": "Products",
+    "browse": "Browse",
+    "aiAssistant": "AI Assistant",
+    "aiSearch": "Search with AI...",
     "login": "Login",
     "register": "Register",
     "join": "Join",
     "adminDashboard": "Admin Dashboard",
     "vendorDashboard": "Vendor Dashboard",
+    "affiliateDashboard": "Affiliate Dashboard",
+    "profile": "Profile",
     "myOrders": "My Orders",
+    "bargaining": "Bargaining",
+    "achievements": "Achievements",
     "logout": "Logout",
     "cart": "Cart"
   },
@@ -282,7 +289,234 @@
     "newsletterSubtitle": "Subscribe to our newsletter and never miss out on exclusive offers and new arrivals",
     "shopAllDeals": "Shop All Deals",
     "subscribe": "Subscribe",
-    "privacyNote": "We respect your privacy. Unsubscribe at any time."
+    "privacyNote": "We respect your privacy. Unsubscribe at any time.",
+    "heroTitle": "Shop Smart, Shop Easy",
+    "heroSubtitle": "Discover amazing products with AI-powered search, AR try-on technology, and personalized recommendations.",
+    "aiPoweredShopping": "AI-Powered Shopping",
+    "arTryOn": "AR Try-On",
+    "secureShopping": "Secure Shopping",
+    "aiSearch": "AI Search",
+    "topPicks": "Top Picks",
+    "featuredProducts": "Featured Products",
+    "newArrivals": "New Arrivals",
+    "quickView": "Quick View",
+    "addToCart": "Add to Cart",
+    "freeShipping": "Free Shipping",
+    "newsletterTitle": "Stay Connected",
+    "newsletterDescription": "Get the latest updates, exclusive deals, and product recommendations delivered to your inbox.",
+    "newsletterBenefits": "Exclusive deals, Early access to sales, Product recommendations, Weekly updates",
+    "newsletterSocialProof": "Join 10,000+ happy customers",
+    "subscribeNow": "Subscribe Now",
+    "enterEmail": "Enter your email address",
+    "browseCategories": "Browse Categories",
+    "viewAllCategories": "View All Categories",
+    "flashDealsTitle": "🔥 Flash Deals",
+    "flashDealsSubtitle": "Limited time offers - Don't miss out!",
+    "shopNow": "Shop Now",
+    "upToOff": "Up to {{percent}}% OFF",
+    "limitedTime": "Limited Time",
+    "categoriesTitle": "Shop by Category",
+    "categoriesSubtitle": "Discover products across all categories",
+    "newArrivalsTitle": "🔥 New Arrivals",
+    "topPicksTitle": "⭐ Top Picks",
+    "hotLabel": "🔥 HOT",
+    "saleLabel": "⚡ SALE",
+    "viewAllProducts": "View All Products",
+    "freeShipping": "🚚 Free Shipping ✅",
+    "limitedTimeOffer": "⚡ Limited Time Offer!"
+  },
+  "productsPage": {
+    "title": "All Products",
+    "subtitle": "Discover amazing products from local sellers near you",
+    "searchPlaceholder": "Search products...",
+    "sortBy": "Sort by",
+    "newest": "Newest First",
+    "priceLowToHigh": "Price: Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "highestRated": "Highest Rated",
+    "mostPopular": "Most Popular",
+    "gridView": "Grid View",
+    "listView": "List View",
+    "filters": "Filters",
+    "productsFound": "products found",
+    "loadingProducts": "Loading products...",
+    "searchColon": "Search:",
+    "categoriesColon": "Categories:",
+    "nearbyProducts": "Nearby",
+    "showingNearby": "Showing nearby products",
+    "addToCart": "Add to Cart",
+    "stockPhoto": "Stock Photo",
+    "noProductsFound": "No products found",
+    "adjustSearch": "Try adjusting your search or filters",
+    "clearAllFilters": "Clear All Filters",
+    "filterProducts": "Filter Products",
+    "quickFilters": "Quick Filters",
+    "allProducts": "All Products",
+    "nearbyProducts": "Nearby",
+    "verifiedSellers": "Verified",
+    "freeShipping": "Free Shipping",
+    "filteredBy": "Filtered by",
+    "nearby": "Nearby",
+    "verified": "Verified",
+    "free-shipping": "Free Shipping",
+    "locationActive": "Location Active",
+    "biggestDiscount": "Biggest Discount",
+    "nearestFirst": "Nearest First",
+    "compareProducts": "Compare",
+    "comparingProducts": "Comparing {{count}} products",
+    "addToCompare": "Add to Compare",
+    "removeFromCompare": "Remove from Compare",
+    "maxCompareReached": "Maximum 3 products for comparison",
+    "compareCleared": "Comparison cleared",
+    "shareProduct": "Share Product",
+    "linkCopied": "Link copied to clipboard",
+    "locationDetected": "Location detected successfully",
+    "locationDefault": "Using default location (Kigali)",
+    "locationUpdated": "Location updated",
+    "locationError": "Failed to get location",
+    "defaultDescription": "High-quality product with excellent features and design"
+  },
+  "categories": {
+    "electronics": {
+      "name": "Electronics",
+      "description": "Latest gadgets & devices",
+      "badge": "🔥 Hot",
+      "subcategories": {
+        "smartphones": "Smartphones",
+        "laptops": "Laptops", 
+        "audio": "Audio",
+        "cameras": "Cameras",
+        "gaming": "Gaming",
+        "smartHome": "Smart Home"
+      }
+    },
+    "fashion": {
+      "name": "Fashion",
+      "description": "Trendy clothing & accessories",
+      "badge": "✨ New",
+      "subcategories": {
+        "womensClothing": "Women's Clothing",
+        "mensClothing": "Men's Clothing",
+        "shoes": "Shoes",
+        "accessories": "Accessories",
+        "jewelry": "Jewelry",
+        "watches": "Watches"
+      }
+    },
+    "home": {
+      "name": "Home & Garden",
+      "description": "Everything for your home",
+      "badge": "🏡 Cozy",
+      "subcategories": {
+        "furniture": "Furniture",
+        "decor": "Decor",
+        "kitchen": "Kitchen",
+        "bedding": "Bedding",
+        "garden": "Garden",
+        "lighting": "Lighting"
+      }
+    },
+    "sports": {
+      "name": "Sports & Fitness",
+      "description": "Sports equipment & gear",
+      "badge": "⚡ Active",
+      "subcategories": {
+        "fitnessEquipment": "Fitness Equipment",
+        "outdoorGear": "Outdoor Gear",
+        "teamSports": "Team Sports",
+        "waterSports": "Water Sports",
+        "winterSports": "Winter Sports",
+        "athleticWear": "Athletic Wear"
+      }
+    },
+    "books": {
+      "name": "Books & Media",
+      "description": "Books & educational materials",
+      "badge": "📚 Wisdom",
+      "subcategories": {
+        "books": "Books",
+        "moviesTv": "Movies & TV",
+        "music": "Music",
+        "magazines": "Magazines",
+        "audiobooks": "Audiobooks",
+        "ebooks": "E-books"
+      }
+    },
+    "toys": {
+      "name": "Toys & Games",
+      "description": "Fun toys for all ages",
+      "badge": "🎮 Fun",
+      "subcategories": {
+        "actionFigures": "Action Figures",
+        "boardGames": "Board Games",
+        "educationalToys": "Educational Toys",
+        "outdoorToys": "Outdoor Toys",
+        "videoGames": "Video Games",
+        "artsCrafts": "Arts & Crafts"
+      }
+    },
+    "automotive": {
+      "name": "Automotive",
+      "description": "Car parts & accessories",
+      "badge": "🚗 Drive",
+      "subcategories": {
+        "carParts": "Car Parts",
+        "accessories": "Accessories",
+        "tools": "Tools",
+        "maintenance": "Maintenance",
+        "electronics": "Electronics",
+        "interior": "Interior"
+      }
+    },
+    "health": {
+      "name": "Health & Wellness",
+      "description": "Health products & supplements",
+      "badge": "💊 Wellness",
+      "subcategories": {
+        "supplements": "Supplements",
+        "skincare": "Skincare",
+        "fitness": "Fitness",
+        "medical": "Medical",
+        "personalCare": "Personal Care",
+        "wellness": "Wellness"
+      }
+    },
+    "mobile": {
+      "name": "Mobile & Tech",
+      "description": "Smartphones & tablets",
+      "badge": "📱 Smart",
+      "subcategories": {
+        "smartphones": "Smartphones",
+        "casesCovers": "Cases & Covers",
+        "chargers": "Chargers",
+        "headphones": "Headphones",
+        "smartwatches": "Smartwatches",
+        "tablets": "Tablets"
+      }
+    },
+    "music": {
+      "name": "Music & Audio",
+      "description": "Headphones & speakers",
+      "badge": "🎵 Sound",
+      "subcategories": {
+        "instruments": "Instruments",
+        "speakers": "Speakers",
+        "headphones": "Headphones",
+        "microphones": "Microphones",
+        "audioEquipment": "Audio Equipment",
+        "accessories": "Accessories"
+      }
+    },
+    "pets": {
+      "name": "Pets & Animals",
+      "description": "Pet supplies & accessories",
+      "badge": "🐕 Cute"
+    },
+    "food": {
+      "name": "Food & Beverages",
+      "description": "Gourmet food & drinks",
+      "badge": "🍳 Chef"
+    }
   },
   "testimonials": {
     "person1": {
@@ -562,6 +796,17 @@
     "aiPick": "AI Pick",
     "analyzedProducts": "Analyzed {{count}} Products"
   },
+  "footer": {
+    "discover": "Discover",
+    "company": "Company",
+    "stayConnected": "Stay Connected",
+    "newsletterDescription": "Subscribe to our newsletter for the latest updates and exclusive offers.",
+    "subscribeNewsletter": "Subscribe to Newsletter",
+    "allRightsReserved": "All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookies": "Cookie Policy"
+  },
   "voiceAI": {
     "title": "Voice AI Assistant",
     "subtitle": "Speak to shop with AI",
@@ -606,5 +851,81 @@
       "speakResponse": "Speak Response",
       "stopSpeaking": "Stop Speaking",
       "grantPermission": "Grant Microphone Permission"
+  },
+  "achievements": {
+    "title": "Achievements & Rewards",
+    "subtitle": "Track your progress, unlock achievements, and earn rewards as you shop!",
+    "level": "Level",
+    "credits": "Credits",
+    "achievements": "Achievements",
+    "badges": "Badges",
+    "earningsCredits": "Earnings & Credits",
+    "totalCreditsEarned": "Total Credits Earned",
+    "creditsFromPurchases": "Credits from Purchases",
+    "creditsFromAchievements": "Credits from Achievements",
+    "totalSpent": "Total Spent",
+    "totalPurchases": "Total Purchases",
+    "averageOrderValue": "Average Order Value",
+    "creditsExplanation": "How Credits Work: You earn 1 credit for every $10 spent on purchases. Credits can be used for future discounts and special offers. Keep shopping to earn more credits!",
+    "rarity": {
+      "common": "Common",
+      "rare": "Rare",
+      "epic": "Epic",
+      "legendary": "Legendary"
+    },
+    "categories": {
+      "shopping": "Shopping",
+      "social": "Social",
+      "milestone": "Milestone",
+      "special": "Special"
+    },
+    "achievementList": {
+      "firstPurchase": {
+        "name": "First Purchase",
+        "description": "Make your first purchase on the platform"
+      },
+      "bigSpender": {
+        "name": "Big Spender",
+        "description": "Spend over $500 in total purchases"
+      },
+      "level10Master": {
+        "name": "Level 10 Master",
+        "description": "Reach level 10 in the gamification system"
+      },
+      "creditCollector": {
+        "name": "Credit Collector",
+        "description": "Earn 1000 credits through purchases"
+      },
+      "shoppingLegend": {
+        "name": "Shopping Legend",
+        "description": "Reach the highest rank in the platform"
+      },
+      "dailyShopper": {
+        "name": "Daily Shopper",
+        "description": "Make purchases for 7 consecutive days"
+      }
+    },
+    "badgeList": {
+      "newcomer": {
+        "name": "Newcomer",
+        "description": "Welcome to the platform!"
+      },
+      "bronzeBuyer": {
+        "name": "Bronze Buyer",
+        "description": "Completed 10 purchases"
+      },
+      "silverShopper": {
+        "name": "Silver Shopper",
+        "description": "Completed 50 purchases"
+      },
+      "goldMaster": {
+        "name": "Gold Master",
+        "description": "Completed 100 purchases"
+      },
+      "platinumLegend": {
+        "name": "Platinum Legend",
+        "description": "Completed 500 purchases"
+      }
+    }
   }
 }

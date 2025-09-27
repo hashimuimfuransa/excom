@@ -148,7 +148,15 @@ export default function HeroSlider() {
   };
 
   return (
-    <Box sx={{ position: 'relative', height: { xs: 350, sm: 380, md: 420 }, overflow: 'hidden', mx: { xs: 1, md: 0 }, mt: 1 }}>
+    <Box sx={{ 
+      position: 'relative', 
+      height: { xs: 400, sm: 450, md: 500 }, 
+      overflow: 'hidden', 
+      mx: { xs: 1, md: 0 }, 
+      mt: 1,
+      borderRadius: { xs: 2, md: 4 },
+      boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
+    }}>
       {/* Slide image */}
       <Box sx={{ 
         position: 'absolute', 
@@ -157,23 +165,23 @@ export default function HeroSlider() {
         backgroundSize: 'cover', 
         backgroundPosition: 'center',
         filter: isRealImage ? 'none' : 'brightness(0.85) sepia(0.08)',
+        transition: 'all 0.8s ease-in-out'
       }} />
-      {/* Enhanced overlay for better text readability in both modes */}
-      <Box sx={(t) => ({ 
-        position: 'absolute', 
-        inset: 0, 
-        background: t.palette.mode === 'dark' 
-          ? 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.7) 100%)'
-          : 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.5) 100%)'
-      })} />
       
-      {/* Additional dark mode overlay for better contrast */}
-      <Box sx={(t) => t.palette.mode === 'dark' && ({
+      {/* Modern gradient overlay */}
+      <Box sx={{ 
         position: 'absolute', 
         inset: 0, 
-        background: 'linear-gradient(45deg, rgba(0,0,0,0.2) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.6) 100%)'
+      }} />
+      
+      {/* Additional modern overlay */}
+      <Box sx={{
+        position: 'absolute', 
+        inset: 0, 
+        background: 'linear-gradient(45deg, rgba(255,107,53,0.1) 0%, transparent 50%, rgba(34,197,94,0.1) 100%)',
         zIndex: 1
-      })} />
+      }} />
       
       {/* Animated Background Elements */}
       <Box
@@ -223,45 +231,37 @@ export default function HeroSlider() {
         />
       )}
 
-      {/* Attractive Modern Search Bar */}
+      {/* Amazon-like Search Bar */}
       <Box sx={{ 
         position: 'absolute', 
-        top: { xs: 16, sm: 20, md: 24 }, 
+        top: { xs: 20, sm: 24, md: 32 }, 
         left: '50%', 
         transform: 'translateX(-50%)', 
-        width: { xs: '90%', sm: '85%', md: '500px' },
+        width: { xs: '90%', sm: '85%', md: '600px' },
         zIndex: 3
       }}>
         <Paper 
           component="form" 
           onSubmit={handleSearch}
-          sx={(t) => ({ 
+          sx={{ 
             p: { xs: 0.5, sm: 0.8, md: 1 }, 
-            background: t.palette.mode === 'dark' 
-              ? 'rgba(30, 30, 30, 0.95)' 
-              : 'rgba(255, 255, 255, 0.98)',
+            background: 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(20px)',
-            border: t.palette.mode === 'dark' 
-              ? '2px solid rgba(255, 255, 255, 0.2)' 
-              : '2px solid rgba(255, 255, 255, 0.6)',
+            border: '2px solid rgba(255, 255, 255, 0.8)',
             borderRadius: { xs: 3, sm: 4, md: 6 },
-            boxShadow: t.palette.mode === 'dark' 
-              ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2)' 
-              : '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             '&:hover': {
-              boxShadow: t.palette.mode === 'dark' 
-                ? '0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3)' 
-                : '0 12px 40px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.12)',
-              transform: 'translateY(-2px)',
-              border: '2px solid rgba(33, 150, 243, 0.3)'
+              boxShadow: '0 16px 50px rgba(0, 0, 0, 0.2), 0 6px 16px rgba(0, 0, 0, 0.15)',
+              transform: 'translateY(-3px)',
+              border: '2px solid rgba(255, 107, 53, 0.4)'
             },
             '&:focus-within': {
-              boxShadow: '0 16px 48px rgba(33, 150, 243, 0.25), 0 8px 24px rgba(33, 150, 243, 0.15)',
-              border: '2px solid rgba(33, 150, 243, 0.6)',
-              transform: 'translateY(-3px) scale(1.02)'
+              boxShadow: '0 20px 60px rgba(255, 107, 53, 0.3), 0 8px 24px rgba(255, 107, 53, 0.2)',
+              border: '2px solid rgba(255, 107, 53, 0.7)',
+              transform: 'translateY(-4px) scale(1.02)'
             }
-          })}
+          }}
         >
           <TextField
             fullWidth
@@ -274,9 +274,9 @@ export default function HeroSlider() {
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon sx={{ 
-                    color: 'primary.main', 
+                    color: '#FF6B35', 
                     fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.6rem' },
-                    filter: 'drop-shadow(0 2px 4px rgba(33, 150, 243, 0.3))'
+                    filter: 'drop-shadow(0 2px 4px rgba(255, 107, 53, 0.4))'
                   }} />
                 </InputAdornment>
               ),
@@ -300,37 +300,34 @@ export default function HeroSlider() {
         </Paper>
       </Box>
 
-      {/* Content */}
-      <Stack spacing={2.5} sx={{ 
+      {/* Amazon-like Content */}
+      <Stack spacing={3} sx={{ 
         position: 'relative', 
         height: '100%', 
         color: '#fff', 
-        px: { xs: 3, sm: 4, md: 6 }, 
-        py: { xs: 2.5, sm: 3, md: 4 }, 
+        px: { xs: 4, sm: 6, md: 8 }, 
+        py: { xs: 3, sm: 4, md: 5 }, 
         justifyContent: { xs: 'center', sm: 'center', md: 'center' }, 
         alignItems: { xs: 'center', sm: 'flex-start', md: 'flex-start' },
         textAlign: { xs: 'center', sm: 'left', md: 'left' },
         maxWidth: 1200,
-        pt: { xs: 8, sm: 9, md: 10 },
+        pt: { xs: 10, sm: 12, md: 14 },
         zIndex: 2
       }}>
         <Typography 
           variant="h1" 
           fontWeight={900}
-          sx={(t) => ({ 
-            fontSize: { xs: '1.6rem', sm: '2rem', md: '2.8rem' },
-            textShadow: t.palette.mode === 'dark' 
-              ? '2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5)' 
-              : '2px 2px 4px rgba(0,0,0,0.7)',
+          sx={{ 
+            fontSize: { xs: '2rem', sm: '2.5rem', md: '3.5rem' },
+            textShadow: '3px 3px 12px rgba(0,0,0,0.8), 0 0 30px rgba(0,0,0,0.6)',
             lineHeight: 1.1,
-            background: t.palette.mode === 'dark' 
-              ? 'linear-gradient(45deg, #fff, #e0e0e0)' 
-              : 'linear-gradient(45deg, #fff, #f0f0f0)',
+            background: 'linear-gradient(45deg, #fff, #f0f0f0)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            maxWidth: { xs: '90%', sm: '100%', md: '100%' }
-          })}
+            maxWidth: { xs: '90%', sm: '100%', md: '100%' },
+            letterSpacing: '-0.02em'
+          }}
         >
           {current.title}
         </Typography>
@@ -366,9 +363,9 @@ export default function HeroSlider() {
             📍 {getLocationDisplay()}
           </Typography>
         )}
-        {/* Enhanced Centered Button */}
+        {/* Amazon-like CTA Button */}
         <Box sx={{ 
-          mt: { xs: 3, sm: 2.5, md: 3 },
+          mt: { xs: 4, sm: 3, md: 4 },
           display: 'flex',
           justifyContent: { xs: 'center', sm: 'flex-start', md: 'flex-start' },
           width: '100%'
@@ -379,123 +376,110 @@ export default function HeroSlider() {
             component={NextLink}
             href={getActionHref()}
             sx={{
-              px: { xs: 4, sm: 5, md: 6 },
-              py: { xs: 1.5, sm: 1.8, md: 2 },
-              fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' },
-              fontWeight: 700,
-              background: 'linear-gradient(45deg, #22c55e, #16a34a)',
-              boxShadow: '0 8px 25px rgba(34, 197, 94, 0.4)',
-              borderRadius: { xs: 3, sm: 4, md: 5 },
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              minWidth: { xs: '160px', sm: '180px', md: '200px' },
+              px: { xs: 6, sm: 8, md: 10 },
+              py: { xs: 2, sm: 2.5, md: 3 },
+              fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.4rem' },
+              fontWeight: 800,
+              background: 'linear-gradient(45deg, #FF6B35, #F7931E)',
+              boxShadow: '0 12px 35px rgba(255, 107, 53, 0.5)',
+              borderRadius: { xs: 4, sm: 5, md: 6 },
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              minWidth: { xs: '200px', sm: '220px', md: '250px' },
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              border: '3px solid rgba(255,255,255,0.2)',
               '&:hover': {
-                transform: 'translateY(-3px) scale(1.05)',
-                boxShadow: '0 12px 35px rgba(34, 197, 94, 0.6)',
-                background: 'linear-gradient(45deg, #16a34a, #15803d)'
+                transform: 'translateY(-4px) scale(1.05)',
+                boxShadow: '0 16px 45px rgba(255, 107, 53, 0.7)',
+                background: 'linear-gradient(45deg, #F7931E, #FF8C42)',
+                border: '3px solid rgba(255,255,255,0.4)'
               }
             }}
           >
-            {current.type === 'collection' ? t('home.heroExplore') : t('home.heroShopNow')}
+            {current.type === 'collection' ? 'Explore Now' : 'Shop Now'}
           </Button>
         </Box>
       </Stack>
 
-      {/* Controls */}
+      {/* Amazon-like Controls */}
       <IconButton 
         onClick={() => setIndex((index - 1 + slides.length) % slides.length)} 
-        sx={(t) => ({ 
+        sx={{ 
           position: 'absolute', 
-          left: { xs: 4, sm: 6, md: 8 }, 
+          left: { xs: 8, sm: 12, md: 16 }, 
           top: '50%', 
           color: '#fff',
-          backgroundColor: t.palette.mode === 'dark' 
-            ? 'rgba(0,0,0,0.6)' 
-            : 'rgba(0,0,0,0.4)',
-          backdropFilter: 'blur(15px)',
-          width: { xs: 36, sm: 44, md: 48 },
-          height: { xs: 36, sm: 44, md: 48 },
-          borderRadius: { xs: 2, sm: 3, md: 4 },
-          border: t.palette.mode === 'dark' 
-            ? '1px solid rgba(255,255,255,0.2)' 
-            : 'none',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(20px)',
+          width: { xs: 48, sm: 56, md: 64 },
+          height: { xs: 48, sm: 56, md: 64 },
+          borderRadius: '50%',
+          border: '2px solid rgba(255,255,255,0.3)',
+          boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
           '&:hover': {
-            backgroundColor: t.palette.mode === 'dark' 
-              ? 'rgba(0,0,0,0.8)' 
-              : 'rgba(0,0,0,0.6)',
+            backgroundColor: 'rgba(0,0,0,0.8)',
             transform: 'scale(1.1)',
-            boxShadow: t.palette.mode === 'dark' 
-              ? '0 4px 12px rgba(0,0,0,0.5)' 
-              : '0 4px 12px rgba(0,0,0,0.3)'
+            boxShadow: '0 12px 35px rgba(0,0,0,0.5)',
+            border: '2px solid rgba(255,107,53,0.6)'
           }
-        })} 
+        }} 
         aria-label="Previous slide"
       >
-        <ChevronLeftIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.5rem' } }} />
+        <ChevronLeftIcon sx={{ fontSize: { xs: '1.4rem', sm: '1.6rem', md: '1.8rem' } }} />
       </IconButton>
       <IconButton 
         onClick={() => setIndex((index + 1) % slides.length)} 
-        sx={(t) => ({ 
+        sx={{ 
           position: 'absolute', 
-          right: { xs: 4, sm: 6, md: 8 }, 
+          right: { xs: 8, sm: 12, md: 16 }, 
           top: '50%', 
           color: '#fff',
-          backgroundColor: t.palette.mode === 'dark' 
-            ? 'rgba(0,0,0,0.6)' 
-            : 'rgba(0,0,0,0.4)',
-          backdropFilter: 'blur(15px)',
-          width: { xs: 36, sm: 44, md: 48 },
-          height: { xs: 36, sm: 44, md: 48 },
-          borderRadius: { xs: 2, sm: 3, md: 4 },
-          border: t.palette.mode === 'dark' 
-            ? '1px solid rgba(255,255,255,0.2)' 
-            : 'none',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(20px)',
+          width: { xs: 48, sm: 56, md: 64 },
+          height: { xs: 48, sm: 56, md: 64 },
+          borderRadius: '50%',
+          border: '2px solid rgba(255,255,255,0.3)',
+          boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
           '&:hover': {
-            backgroundColor: t.palette.mode === 'dark' 
-              ? 'rgba(0,0,0,0.8)' 
-              : 'rgba(0,0,0,0.6)',
+            backgroundColor: 'rgba(0,0,0,0.8)',
             transform: 'scale(1.1)',
-            boxShadow: t.palette.mode === 'dark' 
-              ? '0 4px 12px rgba(0,0,0,0.5)' 
-              : '0 4px 12px rgba(0,0,0,0.3)'
+            boxShadow: '0 12px 35px rgba(0,0,0,0.5)',
+            border: '2px solid rgba(255,107,53,0.6)'
           }
-        })} 
+        }} 
         aria-label="Next slide"
       >
-        <ChevronRightIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.5rem' } }} />
+        <ChevronRightIcon sx={{ fontSize: { xs: '1.4rem', sm: '1.6rem', md: '1.8rem' } }} />
       </IconButton>
 
-      {/* Dots */}
-      <Stack direction="row" spacing={1} sx={{ position: 'absolute', bottom: { xs: 10, sm: 12, md: 16 }, left: { xs: 12, sm: 16, md: 20 } }}>
+      {/* Amazon-like Dots */}
+      <Stack direction="row" spacing={2} sx={{ position: 'absolute', bottom: { xs: 16, sm: 20, md: 24 }, left: '50%', transform: 'translateX(-50%)' }}>
         {slides.map((_, i) => (
           <Box 
             key={i} 
             onClick={() => setIndex(i)} 
-            sx={(t) => ({ 
-              width: i === index ? { xs: 20, sm: 24, md: 28 } : { xs: 8, sm: 10, md: 12 }, 
-              height: { xs: 6, sm: 8, md: 10 }, 
-              borderRadius: { xs: 6, sm: 8, md: 10 }, 
+            sx={{ 
+              width: i === index ? { xs: 24, sm: 28, md: 32 } : { xs: 12, sm: 14, md: 16 }, 
+              height: { xs: 8, sm: 10, md: 12 }, 
+              borderRadius: { xs: 8, sm: 10, md: 12 }, 
               bgcolor: i === index 
-                ? 'primary.main' 
-                : t.palette.mode === 'dark' 
-                  ? 'rgba(255,255,255,0.5)' 
-                  : 'rgba(255,255,255,0.7)', 
+                ? '#FF6B35' 
+                : 'rgba(255,255,255,0.6)', 
               cursor: 'pointer', 
-              transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-              border: t.palette.mode === 'dark' && i !== index 
-                ? '1px solid rgba(255,255,255,0.2)' 
-                : 'none',
+              transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+              border: i !== index ? '1px solid rgba(255,255,255,0.3)' : 'none',
+              boxShadow: i === index ? '0 4px 12px rgba(255,107,53,0.4)' : 'none',
               '&:hover': {
                 bgcolor: i === index 
-                  ? 'primary.dark' 
-                  : t.palette.mode === 'dark' 
-                    ? 'rgba(255,255,255,0.8)' 
-                    : 'rgba(255,255,255,0.9)',
+                  ? '#F7931E' 
+                  : 'rgba(255,255,255,0.8)',
                 transform: 'scale(1.2)',
-                boxShadow: t.palette.mode === 'dark' 
-                  ? '0 2px 8px rgba(0,0,0,0.5)' 
-                  : '0 2px 8px rgba(0,0,0,0.3)'
+                boxShadow: i === index 
+                  ? '0 6px 16px rgba(255,107,53,0.6)' 
+                  : '0 4px 12px rgba(255,255,255,0.3)'
               }
-            })} 
+            }} 
           />
         ))}
       </Stack>

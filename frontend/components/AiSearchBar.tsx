@@ -61,12 +61,14 @@ interface AiSearchBarProps {
   onSearch?: (query: string) => void;
   placeholder?: string;
   showSuggestions?: boolean;
+  sx?: any;
 }
 
 export default function AiSearchBar({ 
   onSearch, 
   placeholder = "🎯 Ask AI: Find me the perfect product...",
-  showSuggestions = true 
+  showSuggestions = true,
+  sx = {}
 }: AiSearchBarProps) {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -204,8 +206,16 @@ export default function AiSearchBar({
             '&:focus-within': {
               border: '2px solid #2196F3',
               boxShadow: '0 0 20px rgba(33, 150, 243, 0.3)'
-            }
-          }
+            },
+            ...(sx?.['& .MuiInputBase-root'] || {})
+          },
+          ...(sx?.['& .MuiInputBase-input'] ? { '& .MuiInputBase-input': sx['& .MuiInputBase-input'] } : {}),
+          ...Object.fromEntries(
+            Object.entries(sx || {}).filter(([key]) => 
+              !key.startsWith('& .MuiInputBase-root') && 
+              !key.startsWith('& .MuiInputBase-input')
+            )
+          )
         }}
         InputProps={{
           startAdornment: (
