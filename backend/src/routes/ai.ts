@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { geminiChat, geminiRecommend, geminiGenerateListing, geminiSmartSearch, geminiCompareProducts, testGeminiConnection } from '../services/gemini';
-import { VendorAIService } from '../services/vendorAI';
+import { geminiChat, geminiRecommend, geminiGenerateListing, geminiSmartSearch, geminiCompareProducts, testGeminiConnection, listAvailableModels, VendorAIService } from '../services/aiService';
+import meshyService from '../services/meshy';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
@@ -19,6 +19,45 @@ router.get('/test', async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: 'Test failed',
+      error: error.message 
+    });
+  }
+});
+
+// Test endpoint to check Meshy API connection
+router.get('/test-meshy', async (req, res) => {
+  try {
+    const isConnected = await meshyService.testConnection();
+    res.json({ 
+      success: isConnected.success,
+      message: isConnected.success ? 'Meshy API is working' : `Meshy API connection failed: ${isConnected.error}`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Meshy test endpoint error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Meshy test failed',
+      error: error.message 
+    });
+  }
+});
+
+// List available Gemini models
+router.get('/models', async (req, res) => {
+  try {
+    const result = await listAvailableModels();
+    res.json({ 
+      success: result.success,
+      models: result.models,
+      error: result.error,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('List models endpoint error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to list models',
       error: error.message 
     });
   }

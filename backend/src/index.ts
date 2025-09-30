@@ -8,6 +8,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { connectDB } from './config/mongo';
+import VoiceWebSocketService from './services/voiceWebSocket';
 import authRoutes from './routes/auth';
 import productRoutes from './routes/products';
 import orderRoutes from './routes/orders';
@@ -91,7 +92,7 @@ app.use('/api/admin/affiliate', adminAffiliateRoutes);
 app.use('/api/affiliate-ai', affiliateAiRoutes);
 app.use('/api/affiliate-gamification', affiliateGamificationRoutes);
 app.use('/api/ar', arRoutes);
-app.use('/api/ai', voiceAIRoutes);
+app.use('/api/voice-ai', voiceAIRoutes);
 
 const PORT = process.env.PORT || 4000;
 
@@ -117,9 +118,13 @@ io.on('connection', (socket) => {
 // Make io available to routes
 app.set('io', io);
 
+// Initialize Voice WebSocket Service
+const voiceWebSocketService = new VoiceWebSocketService(io);
+
 connectDB().then(() => {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`API with Socket.io listening on http://localhost:${PORT}`);
+    console.log('Voice WebSocket service initialized');
   });
 }).catch((err) => {
   console.error('Failed to start server', err);

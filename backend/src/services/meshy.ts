@@ -241,6 +241,37 @@ class MeshyService {
       error: 'Polling timeout'
     };
   }
+
+  /**
+   * Test Meshy API connection
+   */
+  async testConnection(): Promise<{ success: boolean; error?: string }> {
+    try {
+      if (!this.apiKey) {
+        return { success: false, error: 'MESHY_API_KEY not configured' };
+      }
+
+      // Try to get account info or make a simple request
+      const response = await axios.get(`${this.baseUrl}/account`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`
+        }
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Meshy API test failed:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          return { success: false, error: 'Invalid API key' };
+        } else if (error.response?.status === 402) {
+          return { success: false, error: 'Subscription required' };
+        }
+        return { success: false, error: `API error: ${error.response?.data?.message || error.message}` };
+      }
+      return { success: false, error: 'Connection failed' };
+    }
+  }
 }
 
 export default new MeshyService();

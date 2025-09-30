@@ -112,6 +112,78 @@ router.get('/stats', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// Get user gamification stats
+router.get('/gamification/stats', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.sub;
+
+    // Get order statistics for gamification
+    const orderStats = await Order.aggregate([
+      { $match: { user: userId } },
+      {
+        $group: {
+          _id: null,
+          totalPurchases: { $sum: 1 },
+          totalSpent: { $sum: '$total' },
+          completedOrders: {
+            $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    const stats = orderStats[0] || {
+      totalPurchases: 0,
+      totalSpent: 0,
+      completedOrders: 0
+    };
+
+    // Calculate gamification metrics
+    const credits = Math.floor(stats.totalSpent || 0) * 10; // 10 credits per $1 spent
+    const experience = Math.floor(stats.totalSpent || 0) * 5; // 5 XP per $1 spent
+    const level = Math.floor(experience / 100) + 1; // Level up every 100 XP
+    const experienceToNext = 100 - (experience % 100);
+    
+    // Determine rank based on level
+    let rank = 'Novice Shopper';
+    if (level >= 10) rank = 'Expert Shopper';
+    else if (level >= 5) rank = 'Advanced Shopper';
+    else if (level >= 2) rank = 'Regular Shopper';
+
+    // Mock achievements for now
+    const achievements = [];
+    if (stats.totalPurchases >= 1) achievements.push({ id: 'first_purchase', name: 'First Purchase', description: 'Made your first purchase' });
+    if (stats.totalPurchases >= 5) achievements.push({ id: 'frequent_buyer', name: 'Frequent Buyer', description: 'Made 5 purchases' });
+    if (stats.totalSpent >= 100) achievements.push({ id: 'big_spender', name: 'Big Spender', description: 'Spent over $100' });
+
+    const gamificationStats = {
+      credits,
+      level,
+      experience,
+      experienceToNext,
+      rank,
+      totalPurchases: stats.totalPurchases,
+      totalSpent: stats.totalSpent,
+      achievements
+    };
+
+    res.json(gamificationStats);
+  } catch (error) {
+    console.error('Error fetching gamification stats:', error);
+    // Return default gamification stats
+    res.json({
+      credits: 0,
+      level: 1,
+      experience: 0,
+      experienceToNext: 100,
+      rank: 'Novice Shopper',
+      totalPurchases: 0,
+      totalSpent: 0,
+      achievements: []
+    });
+  }
+});
+
 // Upload profile avatar (multipart form data)
 router.post('/avatar', requireAuth, upload.single('avatar'), async (req: AuthRequest, res) => {
   try {

@@ -1,8 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mic, MicOff, Volume2, VolumeX, X, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, X, Loader2, Wifi, WifiOff, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { io, Socket } from 'socket.io-client';
+import { kinyarwandaTTS, TTSVoice } from '../services/kinyarwandaTTS';
+import KinyarwandaVoiceSelector from './KinyarwandaVoiceSelector';
 
 interface FloatingVoiceAIProps {
   className?: string;
@@ -19,11 +22,61 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
   const [showPopup, setShowPopup] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [error, setError] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState('');
+  const [showVoiceSelector, setShowVoiceSelector] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState<TTSVoice | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
+    // Initialize WebSocket connection
+    const initializeSocket = () => {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+      socketRef.current = io(backendUrl, {
+        transports: ['websocket', 'polling'],
+        timeout: 20000,
+        forceNew: true
+      });
+
+      socketRef.current.on('connect', () => {
+        console.log('Voice WebSocket connected:', socketRef.current?.id);
+        setIsConnected(true);
+        setConnectionError('');
+      });
+
+      socketRef.current.on('disconnect', () => {
+        console.log('Voice WebSocket disconnected');
+        setIsConnected(false);
+        setConnectionError('Connection lost. Please try again.');
+      });
+
+      socketRef.current.on('connect_error', (error) => {
+        console.error('Voice WebSocket connection error:', error);
+        setIsConnected(false);
+        setConnectionError('Failed to connect to voice service.');
+      });
+
+      socketRef.current.on('ai-response', (data) => {
+        console.log('AI response received:', data);
+        setAiResponse(data.message.text);
+        setIsProcessing(false);
+        
+        // Speak the response
+        if (data.message.text) {
+          speakText(data.message.text);
+        }
+      });
+
+      socketRef.current.on('error', (data) => {
+        console.error('Voice WebSocket error:', data);
+        setConnectionError(data.message);
+        setIsProcessing(false);
+      });
+    };
+
     // Initialize speech recognition
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -32,17 +85,49 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
         recognitionRef.current.continuous = false;
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = i18n.language === 'rw' ? 'rw-RW' : 'en-US';
+        recognitionRef.current.maxAlternatives = i18n.language === 'rw' ? 5 : 1; // More alternatives for Kinyarwanda
 
         recognitionRef.current.onresult = (event: any) => {
           let finalTranscript = '';
+          let bestTranscript = '';
+          
           for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
+            const result = event.results[i];
+            if (result.isFinal) {
+              finalTranscript += result[0].transcript;
+              
+              // For Kinyarwanda, try to get the best alternative
+              if (i18n.language === 'rw' && result.length > 1) {
+                for (let j = 0; j < Math.min(result.length, 5); j++) {
+                  const altTranscript = result[j].transcript.toLowerCase();
+                  const confidence = result[j].confidence || 0;
+                  
+                  // Enhanced Kinyarwanda word detection
+                  const kinyarwandaWords = [
+                    'muraho', 'nshobora', 'ndagufasha', 'murakoze', 'amakuru', 'ibicuruzwa', 'amafaranga',
+                    'gucuruza', 'isitolo', 'ubucuruzi', 'gufasha', 'nshaka', 'nkunda', 'byiza', 'ni meza',
+                    'yego', 'oya', 'ntibyiza', 'ni byiza', 'byose', 'make', 'byinshi', 'byiza cyane',
+                    'imyenda', 'ibikoresho', 'ibiribwa', 'ibinyobwa', 'umuntu', 'abantu', 'umugore', 'umwana'
+                  ];
+                  const hasKinyarwanda = kinyarwandaWords.some(word => altTranscript.includes(word));
+                  
+                  // Also check for Kinyarwanda phonetics patterns
+                  const hasKinyarwandaPhonetics = /[rw][aeiou]|[aeiou][rw]|ng[aeiou]|ny[aeiou]|cy[aeiou]|jy[aeiou]/.test(altTranscript);
+                  
+                  if ((hasKinyarwanda || hasKinyarwandaPhonetics) && confidence > 0.3) {
+                    bestTranscript = result[j].transcript;
+                    console.log(`Selected Kinyarwanda alternative ${j}: ${bestTranscript} (confidence: ${confidence})`);
+                    break;
+                  }
+                }
+              }
             }
           }
-          if (finalTranscript) {
-            setTranscribedText(finalTranscript);
-            handleVoiceSubmit(finalTranscript);
+          
+          const finalText = bestTranscript || finalTranscript;
+          if (finalText) {
+            setTranscribedText(finalText);
+            handleVoiceSubmit(finalText);
           }
         };
 
@@ -55,6 +140,11 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
         recognitionRef.current.onend = () => {
           setIsRecording(false);
         };
+      }
+
+      // Initialize WebSocket when popup is shown
+      if (showPopup && !socketRef.current) {
+        initializeSocket();
       }
 
       // Listen for custom event to open voice AI from navbar
@@ -85,9 +175,12 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
         if (synthesisRef.current) {
           speechSynthesis.cancel();
         }
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
       };
     }
-  }, [i18n.language]);
+  }, [i18n.language, showPopup]);
 
   const requestMicrophonePermission = async () => {
     try {
@@ -132,34 +225,36 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
   };
 
   const handleVoiceSubmit = async (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || !socketRef.current) return;
 
     setIsProcessing(true);
     setError('');
 
     try {
-      const response = await fetch('/api/ai/voice', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: text,
-          currentLanguage: i18n.language,
-        }),
+      // Initialize voice session if not already done
+      if (!socketRef.current.connected) {
+        await new Promise<void>((resolve) => {
+          socketRef.current?.on('connect', () => resolve());
+        });
+      }
+
+      const token = localStorage.getItem('excom_token');
+      const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : undefined;
+
+      // Initialize session
+      socketRef.current.emit('init-voice-session', {
+        userId,
+        language: i18n.language
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
-      }
+      // Send voice message
+      socketRef.current.emit('voice-message', {
+        text: text,
+        language: i18n.language,
+        audioData: null
+      });
 
-      const data = await response.json();
-      setAiResponse(data.reply);
-
-      // Speak the response
-      if (data.reply) {
-        speakText(data.reply);
-      }
+      console.log('Voice message sent via WebSocket:', text);
 
       // Navigate to search page with the query
       setTimeout(() => {
@@ -169,32 +264,105 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
     } catch (error) {
       console.error('Error processing voice input:', error);
       setError('Failed to process your request. Please try again.');
-    } finally {
       setIsProcessing(false);
     }
   };
 
-  const speakText = (text: string) => {
+  const speakText = async (text: string) => {
     if (!text) return;
 
     // Stop any current speech
-    speechSynthesis.cancel();
+    kinyarwandaTTS.stop();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = i18n.language === 'rw' ? 'rw-RW' : 'en-US';
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 0.8;
+    // Detect if text is Kinyarwanda
+    const isKinyarwanda = i18n.language === 'rw' || detectKinyarwanda(text);
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    if (isKinyarwanda) {
+      // Use enhanced Kinyarwanda TTS
+      const processedText = kinyarwandaTTS.preprocessKinyarwandaText(text);
+      const voice = selectedVoice || kinyarwandaTTS.getBestVoice();
+      
+      await kinyarwandaTTS.speak(processedText, {
+        voice,
+        rate: 0.8,
+        pitch: 1.0,
+        volume: 0.9,
+        onStart: () => setIsSpeaking(true),
+        onEnd: () => setIsSpeaking(false),
+        onError: (error) => {
+          console.error('Kinyarwanda TTS error:', error);
+          setIsSpeaking(false);
+        }
+      });
+    } else {
+      // Use default browser TTS for English
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
 
-    synthesisRef.current = utterance;
-    speechSynthesis.speak(utterance);
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      synthesisRef.current = utterance;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  const detectKinyarwanda = (text: string): boolean => {
+    const kinyarwandaWords = [
+      // Greetings and common phrases
+      'muraho', 'bite', 'murakoze', 'murabeho', 'murakaza', 'murakaza neza',
+      'amakuru', 'ni meza', 'ni byiza', 'ni byose', 'ni byiza cyane',
+      
+      // Pronouns and basic words
+      'ni', 'iki', 'icyo', 'iyi', 'iyo', 'nshobora', 'nshaka', 'nkunda', 'nibaza', 
+      'ndagufasha', 'ndabizi', 'nshoboye',
+      
+      // Shopping and commerce vocabulary
+      'gufasha', 'isitolo', 'ubucuruzi', 'ibicuruzwa', 'amafaranga', 'gucuruza',
+      'abakiriya', 'umucuruzi', 'umukiriya', 'isoko', 'gura', 'ibyaguzwe',
+      
+      // Descriptive words
+      'byiza', 'niba', 'byose', 'make', 'byinshi', 'byiza cyane',
+      
+      // Numbers
+      'rimwe', 'kabiri', 'gatatu', 'kane', 'gatanu', 'gatandatu', 'karindwi',
+      'umunani', 'icyenda', 'icumi', 'ijana', 'igihumbi',
+      
+      // Time and location
+      'ubu', 'ejo', 'ejo hazaza', 'ejo hashize', 'noneho', 'hanyuma',
+      'mbere', 'nyuma', 'hejuru', 'hasi', 'hariya', 'hano',
+      
+      // Common expressions
+      'yego', 'oya', 'ntibyiza', 'ni byiza',
+      
+      // Product categories
+      'imyenda', 'ibikoresho', 'ibiribwa', 'ibinyobwa', 'ibikoresho by\'ubwoba',
+      
+      // Additional common words
+      'umuntu', 'abantu', 'umugore', 'umwana', 'abana', 'umuryango', 'imiryango', 
+      'urugo', 'amazu', 'umudugu', 'imidugudu', 'umujyi', 'imijyi', 'igihugu', 'amahanga'
+    ];
+    
+    const lowerText = text.toLowerCase();
+    
+    // Check for Kinyarwanda words
+    const hasKinyarwandaWords = kinyarwandaWords.some(word => lowerText.includes(word));
+    
+    // Check for Kinyarwanda phonetic patterns
+    const hasKinyarwandaPhonetics = /[rw][aeiou]|[aeiou][rw]|ng[aeiou]|ny[aeiou]|cy[aeiou]|jy[aeiou]/.test(lowerText);
+    
+    // Check for common Kinyarwanda sentence structures
+    const hasKinyarwandaStructure = /^(muraho|nshobora|ndagufasha|murakoze|nshaka|nkunda)/i.test(text.trim());
+    
+    return hasKinyarwandaWords || hasKinyarwandaPhonetics || hasKinyarwandaStructure;
   };
 
   const stopSpeaking = () => {
+    kinyarwandaTTS.stop();
     speechSynthesis.cancel();
     setIsSpeaking(false);
   };
@@ -212,10 +380,18 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
     setTranscribedText('');
     setAiResponse('');
     setError('');
+    setConnectionError('');
     setIsRecording(false);
     setIsProcessing(false);
     setIsSpeaking(false);
     speechSynthesis.cancel();
+    
+    // Disconnect WebSocket
+    if (socketRef.current) {
+      socketRef.current.emit('end-session');
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
   };
 
   return (
@@ -226,17 +402,17 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
           console.log('Floating mic button clicked');
           setShowPopup(true);
         }}
-        className={`fixed bottom-20 right-4 z-50 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group ${className}`}
+        className={`fixed bottom-20 right-4 z-50 w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 xl:w-22 xl:h-22 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group ${className}`}
         title={t('voiceAI.voiceShopping', 'Voice Shopping')}
       >
-        <Mic className="w-7 h-7 group-hover:scale-110 transition-transform" />
+        <Mic className="w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 group-hover:scale-110 transition-transform" />
         
         {/* Pulse animation */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 animate-ping opacity-30"></div>
         
         {/* Status indicator */}
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+        <div className={`absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 ${isConnected ? 'bg-green-500' : 'bg-red-500'} rounded-full flex items-center justify-center`}>
+          <div className="w-2 h-2 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 bg-white rounded-full animate-pulse"></div>
         </div>
       </button>
 
@@ -275,7 +451,7 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
           </div>
 
           <div 
-            className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden transform transition-all duration-700 scale-100 border border-white/20 dark:border-gray-700/50"
+            className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl w-full overflow-hidden transform transition-all duration-700 scale-100 border border-white/20 dark:border-gray-700/50"
             style={{
               maxHeight: '95vh',
               overflowY: 'auto',
@@ -286,7 +462,7 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
             }}
           >
             {/* Stunning Header */}
-            <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-8 text-white overflow-hidden">
+            <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-6 md:p-8 lg:p-10 xl:p-12 text-white overflow-hidden">
               {/* Animated background elements */}
               <div className="absolute inset-0">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent"></div>
@@ -303,17 +479,17 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
               <div className="relative flex items-center justify-between">
                 <div className="flex items-center space-x-6">
                   <div className="relative">
-                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/30 shadow-lg">
-                      <Mic className="w-10 h-10" />
+                    <div className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/30 shadow-lg">
+                      <Mic className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14" />
                     </div>
                     {/* Glowing ring around mic */}
                     <div className="absolute inset-0 rounded-full border-2 border-white/40 animate-pulse"></div>
                   </div>
                   <div>
-                    <h3 className="text-3xl font-bold mb-2 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
                       {t('voiceAI.title', 'Voice AI Assistant')}
                     </h3>
-                    <p className="text-lg opacity-90 font-medium">
+                    <p className="text-base md:text-lg lg:text-xl xl:text-2xl opacity-90 font-medium">
                       {t('voiceAI.subtitle', 'Speak to shop with AI')}
                     </p>
                     <div className="flex items-center space-x-2 mt-2">
@@ -322,18 +498,40 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={closePopup}
-                  className="p-4 hover:bg-white/20 rounded-full transition-all duration-300 backdrop-blur-sm border-2 border-white/30 hover:scale-110 hover:rotate-90 shadow-lg"
-                  title="Close Voice Assistant"
-                >
-                  <X className="w-7 h-7" />
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowVoiceSelector(!showVoiceSelector)}
+                    className="p-4 hover:bg-white/20 rounded-full transition-all duration-300 backdrop-blur-sm border-2 border-white/30 hover:scale-110 shadow-lg"
+                    title="Voice Settings"
+                  >
+                    <Settings className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={closePopup}
+                    className="p-4 hover:bg-white/20 rounded-full transition-all duration-300 backdrop-blur-sm border-2 border-white/30 hover:scale-110 hover:rotate-90 shadow-lg"
+                    title="Close Voice Assistant"
+                  >
+                    <X className="w-7 h-7" />
+                  </button>
+                </div>
               </div>
             </div>
 
+            {/* Voice Selector Panel */}
+            {showVoiceSelector && (
+              <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <KinyarwandaVoiceSelector
+                  onVoiceChange={(voice) => {
+                    setSelectedVoice(voice);
+                    console.log('Selected voice:', voice);
+                  }}
+                  onClose={() => setShowVoiceSelector(false)}
+                />
+              </div>
+            )}
+
             {/* Beautiful Content Area */}
-            <div className="p-10 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
+            <div className="p-6 md:p-8 lg:p-10 xl:p-12 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
               {/* Status Messages */}
               {error && (
                 <div className="mb-8 p-6 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 text-red-800 dark:text-red-200 rounded-2xl text-sm border border-red-200 dark:border-red-800 shadow-lg">
@@ -342,6 +540,26 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
                     <span className="font-bold text-lg">Error:</span>
                   </div>
                   <p className="mt-2 font-medium">{error}</p>
+                </div>
+              )}
+
+              {connectionError && (
+                <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 text-orange-800 dark:text-orange-200 rounded-2xl text-sm border border-orange-200 dark:border-orange-800 shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <WifiOff className="w-5 h-5" />
+                    <span className="font-bold text-lg">Connection Issue:</span>
+                  </div>
+                  <p className="mt-2 font-medium">{connectionError}</p>
+                </div>
+              )}
+
+              {isConnected && (
+                <div className="mb-8 p-6 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 text-green-800 dark:text-green-200 rounded-2xl text-sm border border-green-200 dark:border-green-800 shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <Wifi className="w-5 h-5" />
+                    <span className="font-bold text-lg">Connected:</span>
+                  </div>
+                  <p className="mt-2 font-medium">Real-time voice AI is ready for live conversation</p>
                 </div>
               )}
 
@@ -389,12 +607,12 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
                   
                   <button
                     onClick={handleMicClick}
-                    disabled={isProcessing}
-                    className={`relative w-36 h-36 rounded-full flex items-center justify-center transition-all duration-500 ${
+                    disabled={isProcessing || !isConnected}
+                    className={`relative w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-full flex items-center justify-center transition-all duration-500 ${
                       isRecording
                         ? 'bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 shadow-2xl shadow-red-500/60'
                         : 'bg-gradient-to-r from-blue-500 via-purple-600 to-pink-600 hover:from-blue-600 hover:via-purple-700 hover:to-pink-700 shadow-2xl shadow-blue-500/60'
-                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 active:scale-95'}`}
+                    } ${isProcessing || !isConnected ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 active:scale-95'}`}
                     style={{
                       background: isRecording 
                         ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)'
@@ -405,11 +623,11 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
                     }}
                   >
                     {isProcessing ? (
-                      <Loader2 className="w-14 h-14 text-white animate-spin" />
+                      <Loader2 className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 text-white animate-spin" />
                     ) : isRecording ? (
-                      <MicOff className="w-14 h-14 text-white" />
+                      <MicOff className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 text-white" />
                     ) : (
-                      <Mic className="w-14 h-14 text-white" />
+                      <Mic className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 text-white" />
                     )}
                     
                     {/* Inner glow */}
@@ -437,12 +655,14 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
                   )}
                 </div>
                 
-                <p className="mt-6 text-xl text-gray-700 dark:text-gray-300 font-bold">
+                <p className="mt-6 text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-700 dark:text-gray-300 font-bold">
                   {isRecording
                     ? t('voiceAI.listening', '🎤 Listening...')
                     : isProcessing
                     ? t('voiceAI.processing', '🤖 Processing...')
-                    : t('voiceAI.ready', '✨ Ready to listen')
+                    : !isConnected
+                    ? '🔌 Connecting...'
+                    : t('voiceAI.ready', '✨ Ready for live conversation')
                   }
                 </p>
                 
@@ -465,11 +685,11 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
               </div>
 
               {/* Beautiful Voice Controls */}
-              <div className="flex justify-center space-x-6 mb-10">
+              <div className="flex justify-center space-x-4 md:space-x-6 lg:space-x-8 xl:space-x-10 mb-8 md:mb-10 lg:mb-12 xl:mb-14">
                 <button
                   onClick={isSpeaking ? stopSpeaking : () => speakText(aiResponse)}
                   disabled={!aiResponse}
-                  className={`px-8 py-4 rounded-2xl flex items-center space-x-3 transition-all duration-300 font-bold text-lg ${
+                  className={`px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6 rounded-2xl flex items-center space-x-2 md:space-x-3 lg:space-x-4 xl:space-x-5 transition-all duration-300 font-bold text-base md:text-lg lg:text-xl xl:text-2xl ${
                     isSpeaking
                       ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-2xl shadow-red-500/50 hover:scale-105'
                       : aiResponse
@@ -479,12 +699,12 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
                 >
                   {isSpeaking ? (
                     <>
-                      <VolumeX className="w-6 h-6" />
+                      <VolumeX className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
                       <span>Stop Speaking</span>
                     </>
                   ) : (
                     <>
-                      <Volume2 className="w-6 h-6" />
+                      <Volume2 className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
                       <span>Replay Response</span>
                     </>
                   )}
@@ -492,18 +712,20 @@ export default function FloatingVoiceAI({ className = '' }: FloatingVoiceAIProps
               </div>
 
               {/* Stunning Instructions */}
-              <div className="text-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-3xl p-8 border-2 border-blue-200 dark:border-blue-800 shadow-xl">
+              <div className="text-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-3xl p-6 md:p-8 lg:p-10 xl:p-12 border-2 border-blue-200 dark:border-blue-800 shadow-xl">
                 <div className="flex items-center justify-center space-x-3 mb-4">
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                     <Mic className="w-4 h-4 text-white" />
                   </div>
-                  <h4 className="text-lg font-bold text-gray-700 dark:text-gray-300">How to use Voice Shopping</h4>
+                  <h4 className="text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-700 dark:text-gray-300">How to use Voice Shopping</h4>
                 </div>
                 
-                <p className="text-lg text-gray-600 dark:text-gray-400 font-medium mb-4">
+                <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-gray-600 dark:text-gray-400 font-medium mb-4">
                   {isRecording
                     ? '🎤 Click the microphone again to stop recording'
-                    : '🎤 Click the microphone to start recording your shopping request'
+                    : !isConnected
+                    ? '🔌 Connecting to real-time voice service...'
+                    : '🎤 Click the microphone to start live conversation with AI'
                   }
                 </p>
                 

@@ -3,7 +3,7 @@ import { requireAuth, AuthRequest } from '../middleware/auth';
 import Affiliate from '../models/Affiliate';
 import Product from '../models/Product';
 import AffiliateClick from '../models/AffiliateClick';
-import { generateProductRecommendations } from '../services/gemini';
+import { generateProductRecommendations } from '../services/aiService';
 
 const router = Router();
 

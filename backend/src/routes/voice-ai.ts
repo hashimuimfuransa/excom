@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { geminiChat } from '../services/gemini';
+import { geminiChat } from '../services/aiService';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();

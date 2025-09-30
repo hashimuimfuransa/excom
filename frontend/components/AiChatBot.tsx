@@ -43,6 +43,9 @@ import { apiPost } from '@utils/api';
 import { getMainImage } from '@utils/imageHelpers';
 import NextLink from 'next/link';
 import { useTranslation } from 'react-i18next';
+import { kinyarwandaTTS, TTSVoice } from '../services/kinyarwandaTTS';
+import KinyarwandaVoiceSelector from './KinyarwandaVoiceSelector';
+import { io, Socket } from 'socket.io-client';
 
 interface Message {
   id: string;
@@ -101,13 +104,306 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   
+  // Enhanced Kinyarwanda voice state
+  const [kinyarwandaVoice, setKinyarwandaVoice] = useState<TTSVoice | null>(null);
+  const [showVoiceSelector, setShowVoiceSelector] = useState(false);
+  const [isVoiceCallMode, setIsVoiceCallMode] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState('');
+  const [transcribedText, setTranscribedText] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isContinuousListening, setIsContinuousListening] = useState(false);
+  const [conversationActive, setConversationActive] = useState(false);
+  const [isMuted, setIsMuted] = useState(false); // Start unmuted for immediate AI voice
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
   const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Initialize WebSocket for voice calls
+  const initializeVoiceWebSocket = () => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+    socketRef.current = io(backendUrl, {
+      transports: ['websocket', 'polling'],
+      timeout: 20000,
+      forceNew: true
+    });
+
+    socketRef.current.on('connect', () => {
+      console.log('Voice WebSocket connected:', socketRef.current?.id);
+      setIsConnected(true);
+      setConnectionError('');
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('Voice WebSocket disconnected');
+      setIsConnected(false);
+      setConnectionError('Connection lost. Please try again.');
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('Voice WebSocket connection error:', error);
+      setIsConnected(false);
+      setConnectionError('Failed to connect to voice service.');
+    });
+
+    socketRef.current.on('ai-response', (data) => {
+      console.log('AI response received:', data);
+      const responseMessage = data.message.text;
+      
+      // Add AI response to messages
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        type: 'bot',
+        content: responseMessage,
+        timestamp: new Date(),
+        isVoice: true
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      setIsProcessing(false);
+      
+      // Speak the response using Kinyarwanda TTS (unless muted)
+      if (responseMessage && !isMuted) {
+        speakText(responseMessage);
+        
+        // Auto-restart listening after AI finishes speaking
+        if (isContinuousListening) {
+          setTimeout(() => {
+            if (!isSpeaking && !isProcessing) {
+              startContinuousListening();
+            }
+          }, 2000); // Wait 2 seconds after AI starts speaking
+        }
+      }
+    });
+
+    socketRef.current.on('error', (data) => {
+      console.error('Voice WebSocket error:', data);
+      setConnectionError(data.message);
+      setIsProcessing(false);
+    });
+  };
+
+  // Enhanced speak function with Kinyarwanda support
+  const speakText = async (text: string) => {
+    console.log('🔊 speakText called with:', text);
+    console.log('🔊 isMuted:', isMuted);
+    console.log('🔊 speechSynthesis available:', typeof window !== 'undefined' && 'speechSynthesis' in window);
+    
+    if (!text || isMuted) {
+      console.log('🔊 Speech blocked - text empty or muted');
+      return; // Don't speak if muted
+    }
+
+    // Stop any current speech
+    kinyarwandaTTS.stop();
+    speechSynthesis.cancel();
+
+    // Detect if text is Kinyarwanda
+    const isKinyarwanda = detectKinyarwanda(text);
+    console.log('🔊 Detected language - Kinyarwanda:', isKinyarwanda);
+
+    if (isKinyarwanda) {
+      console.log('🔊 Using Kinyarwanda TTS');
+      // Use enhanced Kinyarwanda TTS
+      const processedText = kinyarwandaTTS.preprocessKinyarwandaText(text);
+      const voice = kinyarwandaVoice || kinyarwandaTTS.getBestVoice();
+      console.log('🔊 Using voice:', voice);
+      
+      try {
+        await kinyarwandaTTS.speak(processedText, {
+          voice,
+          rate: 0.8,
+          pitch: 1.0,
+          volume: 0.9,
+          onStart: () => {
+            console.log('🔊 Kinyarwanda TTS started');
+            setIsSpeaking(true);
+          },
+          onEnd: () => {
+            console.log('🔊 Kinyarwanda TTS ended');
+            setIsSpeaking(false);
+          },
+          onError: (error) => {
+            console.error('🔊 Kinyarwanda TTS error:', error);
+            setIsSpeaking(false);
+          }
+        });
+      } catch (error) {
+        console.error('🔊 Kinyarwanda TTS failed:', error);
+        setIsSpeaking(false);
+      }
+    } else {
+      console.log('🔊 Using English TTS');
+      // Use default browser TTS for English
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+
+      utterance.onstart = () => {
+        console.log('🔊 English TTS started');
+        setIsSpeaking(true);
+      };
+      utterance.onend = () => {
+        console.log('🔊 English TTS ended');
+        setIsSpeaking(false);
+      };
+      utterance.onerror = (event) => {
+        console.error('🔊 English TTS error:', event);
+        setIsSpeaking(false);
+      };
+
+      synthesisRef.current = utterance;
+      console.log('🔊 Starting English speech synthesis');
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Enhanced Kinyarwanda text detection
+  const detectKinyarwanda = (text: string): boolean => {
+    const kinyarwandaWords = [
+      // Greetings and common phrases
+      'muraho', 'bite', 'murakoze', 'murabeho', 'murakaza', 'murakaza neza',
+      'amakuru', 'ni meza', 'ni byiza', 'ni byose', 'ni byiza cyane',
+      
+      // Pronouns and basic words
+      'ni', 'iki', 'icyo', 'iyi', 'iyo', 'nshobora', 'nshaka', 'nkunda', 'nibaza', 
+      'ndagufasha', 'ndabizi', 'nshoboye',
+      
+      // Shopping and commerce vocabulary
+      'gufasha', 'isitolo', 'ubucuruzi', 'ibicuruzwa', 'amafaranga', 'gucuruza',
+      'abakiriya', 'umucuruzi', 'umukiriya', 'isoko', 'gura', 'ibyaguzwe',
+      
+      // Descriptive words
+      'byiza', 'niba', 'byose', 'make', 'byinshi', 'byiza cyane',
+      
+      // Numbers
+      'rimwe', 'kabiri', 'gatatu', 'kane', 'gatanu', 'gatandatu', 'karindwi',
+      'umunani', 'icyenda', 'icumi', 'ijana', 'igihumbi',
+      
+      // Time and location
+      'ubu', 'ejo', 'ejo hazaza', 'ejo hashize', 'noneho', 'hanyuma',
+      'mbere', 'nyuma', 'hejuru', 'hasi', 'hariya', 'hano',
+      
+      // Common expressions
+      'yego', 'oya', 'ntibyiza', 'ni byiza',
+      
+      // Product categories
+      'imyenda', 'ibikoresho', 'ibiribwa', 'ibinyobwa', 'ibikoresho by\'ubwoba',
+      
+      // Additional common words
+      'umuntu', 'abantu', 'umugore', 'umwana', 'abana', 'umuryango', 'imiryango', 
+      'urugo', 'amazu', 'umudugu', 'imidugudu', 'umujyi', 'imijyi', 'igihugu', 'amahanga'
+    ];
+    
+    const lowerText = text.toLowerCase();
+    
+    // Check for Kinyarwanda words
+    const hasKinyarwandaWords = kinyarwandaWords.some(word => lowerText.includes(word));
+    
+    // Check for Kinyarwanda phonetic patterns
+    const hasKinyarwandaPhonetics = /[rw][aeiou]|[aeiou][rw]|ng[aeiou]|ny[aeiou]|cy[aeiou]|jy[aeiou]/.test(lowerText);
+    
+    // Check for common Kinyarwanda sentence structures
+    const hasKinyarwandaStructure = /^(muraho|nshobora|ndagufasha|murakoze|nshaka|nkunda)/i.test(text.trim());
+    
+    return hasKinyarwandaWords || hasKinyarwandaPhonetics || hasKinyarwandaStructure;
+  };
+
+  // Handle voice call mode toggle
+  const toggleVoiceCallMode = () => {
+    setIsVoiceCallMode(!isVoiceCallMode);
+    if (!isVoiceCallMode) {
+      initializeVoiceWebSocket();
+      // Enable continuous listening in voice call mode
+      setIsContinuousListening(true);
+      setConversationActive(true);
+    } else {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      setIsConnected(false);
+      setConnectionError('');
+      setIsContinuousListening(false);
+      setConversationActive(false);
+      // Stop any ongoing speech
+      kinyarwandaTTS.stop();
+      speechSynthesis.cancel();
+    }
+  };
+
+  // Start continuous listening for seamless conversation
+  const startContinuousListening = () => {
+    if (!isVoiceCallMode || !isConnected || isSpeaking || isProcessing) {
+      return;
+    }
+
+    try {
+      if (recognitionRef.current && !isRecording) {
+        console.log('Starting continuous listening...');
+        recognitionRef.current.start();
+      }
+    } catch (error) {
+      console.error('Error starting continuous listening:', error);
+    }
+  };
+
+  // Stop continuous listening
+  const stopContinuousListening = () => {
+    setIsContinuousListening(false);
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
+    }
+  };
+
+  // Handle voice message via WebSocket
+  const handleVoiceMessage = async (text: string) => {
+    if (!text.trim() || !socketRef.current) return;
+
+    setIsProcessing(true);
+    setVoiceError('');
+
+    try {
+      // Initialize voice session if not already done
+      if (!socketRef.current.connected) {
+        await new Promise<void>((resolve) => {
+          socketRef.current?.on('connect', () => resolve());
+        });
+      }
+
+      const token = localStorage.getItem('excom_token');
+      const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : undefined;
+
+      // Initialize session
+      socketRef.current.emit('init-voice-session', {
+        userId,
+        language: 'rw'
+      });
+
+      // Send voice message
+      socketRef.current.emit('voice-message', {
+        text: text,
+        language: 'rw',
+        audioData: null
+      });
+
+      console.log('Voice message sent via WebSocket:', text);
+
+    } catch (error) {
+      console.error('Error processing voice input:', error);
+      setVoiceError('Failed to process your request. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   useEffect(() => {
@@ -290,13 +586,17 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         await loadRecommendations();
       }
 
-      // Auto-speak AI response if the last message was from voice
-      if (lastMessageWasVoice) {
-        console.log('Auto-speaking AI response because last message was from voice');
+      // Auto-speak AI response (always speak unless muted)
+      if (!isMuted) {
+        console.log('Auto-speaking AI response');
         setTimeout(() => {
           speakText(response.reply);
         }, 1000); // Wait 1 second for the message to appear
-        setLastMessageWasVoice(false); // Reset the flag
+      }
+      
+      // Reset voice flag if it was set
+      if (lastMessageWasVoice) {
+        setLastMessageWasVoice(false);
       }
 
     } catch (error) {
@@ -330,6 +630,36 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
     }
   };
 
+  // Initialize Kinyarwanda TTS and WebSocket
+  useEffect(() => {
+    // Initialize Kinyarwanda TTS
+    const bestVoice = kinyarwandaTTS.getBestVoice();
+    setKinyarwandaVoice(bestVoice);
+    
+    // Initialize WebSocket for voice calls
+    if (isVoiceCallMode) {
+      initializeVoiceWebSocket();
+    }
+    
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [isVoiceCallMode]);
+
+  // Auto-start continuous listening when voice call mode is enabled
+  useEffect(() => {
+    if (isVoiceCallMode && isConnected && isContinuousListening && !isRecording && !isSpeaking && !isProcessing) {
+      const timer = setTimeout(() => {
+        startContinuousListening();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isVoiceCallMode, isConnected, isContinuousListening, isRecording, isSpeaking, isProcessing]);
+
   // Voice functionality methods
   useEffect(() => {
     // Initialize speech recognition
@@ -339,8 +669,15 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         recognitionRef.current = new SpeechRecognition();
         recognitionRef.current.continuous = false;
         recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'en-US';
-        recognitionRef.current.maxAlternatives = 1;
+        recognitionRef.current.lang = isVoiceCallMode ? 'rw-RW' : 'en-US';
+        recognitionRef.current.maxAlternatives = 5; // Get more alternatives for better Kinyarwanda recognition
+        recognitionRef.current.serviceURI = 'https://www.google.com/speech-api/v2/recognize'; // Use Google's speech API
+        
+        // Enhanced settings for better Kinyarwanda recognition
+        if (isVoiceCallMode) {
+          recognitionRef.current.grammars = null; // Allow free-form speech
+          recognitionRef.current.serviceURI = 'https://www.google.com/speech-api/v2/recognize';
+        }
 
         recognitionRef.current.onstart = () => {
           console.log('Voice recognition started');
@@ -351,11 +688,41 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         recognitionRef.current.onresult = (event: any) => {
           let interimTranscript = '';
           let finalTranscript = '';
+          let bestTranscript = '';
           
           for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
+            const result = event.results[i];
+            const transcript = result[0].transcript;
+            
+            if (result.isFinal) {
               finalTranscript += transcript;
+              
+              // For Kinyarwanda, try to get the best alternative
+              if (isVoiceCallMode && result.length > 1) {
+                // Look for the best Kinyarwanda match
+                for (let j = 0; j < Math.min(result.length, 5); j++) {
+                  const altTranscript = result[j].transcript.toLowerCase();
+                  const confidence = result[j].confidence || 0;
+                  
+                  // Enhanced Kinyarwanda word detection
+                  const kinyarwandaWords = [
+                    'muraho', 'nshobora', 'ndagufasha', 'murakoze', 'amakuru', 'ibicuruzwa', 'amafaranga',
+                    'gucuruza', 'isitolo', 'ubucuruzi', 'gufasha', 'nshaka', 'nkunda', 'byiza', 'ni meza',
+                    'yego', 'oya', 'ntibyiza', 'ni byiza', 'byose', 'make', 'byinshi', 'byiza cyane',
+                    'imyenda', 'ibikoresho', 'ibiribwa', 'ibinyobwa', 'umuntu', 'abantu', 'umugore', 'umwana'
+                  ];
+                  const hasKinyarwanda = kinyarwandaWords.some(word => altTranscript.includes(word));
+                  
+                  // Also check for Kinyarwanda phonetics patterns
+                  const hasKinyarwandaPhonetics = /[rw][aeiou]|[aeiou][rw]|ng[aeiou]|ny[aeiou]|cy[aeiou]|jy[aeiou]/.test(altTranscript);
+                  
+                  if ((hasKinyarwanda || hasKinyarwandaPhonetics) && confidence > 0.3) {
+                    bestTranscript = result[j].transcript;
+                    console.log(`Selected Kinyarwanda alternative ${j}: ${bestTranscript} (confidence: ${confidence})`);
+                    break;
+                  }
+                }
+              }
             } else {
               interimTranscript += transcript;
             }
@@ -364,18 +731,36 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
           // Show interim results in real-time
           if (interimTranscript) {
             setInput(interimTranscript);
+            setTranscribedText(interimTranscript);
           }
           
           // Process final transcript
           if (finalTranscript) {
-            console.log('Final transcript:', finalTranscript);
-            setInput(finalTranscript);
-            // Mark that the next message will be from voice
-            setLastMessageWasVoice(true);
-            // Auto-send the message after a short delay
-            setTimeout(() => {
-              sendMessage(finalTranscript);
-            }, 500);
+            const processedTranscript = bestTranscript || finalTranscript;
+            console.log('Final transcript:', processedTranscript);
+            console.log('Original transcript:', finalTranscript);
+            console.log('Best alternative:', bestTranscript);
+            
+            setInput(processedTranscript);
+            setTranscribedText(processedTranscript);
+            
+            if (isVoiceCallMode) {
+              // Use WebSocket for voice call mode with real-time response
+              handleVoiceMessage(processedTranscript);
+              
+              // Auto-restart listening for continuous conversation
+              if (isContinuousListening && !isSpeaking) {
+                setTimeout(() => {
+                  startContinuousListening();
+                }, 1000);
+              }
+            } else {
+              // Use regular chat mode
+              setLastMessageWasVoice(true);
+              setTimeout(() => {
+                sendMessage(processedTranscript);
+              }, 500);
+            }
           }
         };
 
@@ -407,6 +792,13 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         recognitionRef.current.onend = () => {
           console.log('Voice recognition ended');
           setIsRecording(false);
+          
+          // Auto-restart listening in continuous mode
+          if (isContinuousListening && isVoiceCallMode && !isSpeaking && !isProcessing) {
+            setTimeout(() => {
+              startContinuousListening();
+            }, 500);
+          }
         };
 
         recognitionRef.current.onspeechstart = () => {
@@ -415,6 +807,14 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
 
         recognitionRef.current.onspeechend = () => {
           console.log('Speech ended');
+          // Stop continuous listening when user stops speaking
+          if (isContinuousListening) {
+            setTimeout(() => {
+              if (recognitionRef.current && isRecording) {
+                recognitionRef.current.stop();
+              }
+            }, 1000); // Wait 1 second after speech ends
+          }
         };
       }
     }
@@ -466,6 +866,24 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
       // Clear input field for new recording
       setInput('');
       
+      // Set language and recognition parameters based on mode
+      if (recognitionRef.current) {
+        if (isVoiceCallMode) {
+          // Enhanced settings for Kinyarwanda recognition
+          recognitionRef.current.lang = 'rw-RW';
+          recognitionRef.current.maxAlternatives = 5;
+          recognitionRef.current.continuous = false;
+          recognitionRef.current.interimResults = true;
+          recognitionRef.current.grammars = null; // Allow free-form speech
+        } else {
+          // Standard settings for English
+          recognitionRef.current.lang = 'en-US';
+          recognitionRef.current.maxAlternatives = 1;
+          recognitionRef.current.continuous = false;
+          recognitionRef.current.interimResults = true;
+        }
+      }
+      
       // Start recognition
       recognitionRef.current.start();
       console.log('Starting voice recognition...');
@@ -483,49 +901,6 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
     }
   };
 
-  const speakText = (text: string) => {
-    if (!text) return;
-
-    // Stop any current speech
-    speechSynthesis.cancel();
-
-    // Detect language and prepare text
-    const { processedText, language } = detectLanguageAndProcessText(text);
-    
-    const utterance = new SpeechSynthesisUtterance(processedText);
-    
-    // Use selected voice or fallback
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      utterance.lang = selectedVoice.lang;
-    } else {
-      utterance.lang = language === 'kinyarwanda' ? 'en-US' : 'en-US'; // Fallback to English
-    }
-    
-    // Optimized voice settings for clarity and attractiveness
-    utterance.rate = 0.85; // Slightly slower for better clarity
-    utterance.pitch = 1.1; // Slightly higher pitch for more attractive sound
-    utterance.volume = 0.9; // High volume for clear speech
-    
-    // Enhanced event handlers
-    utterance.onstart = () => {
-      console.log(`Speaking with voice: ${utterance.voice?.name || 'default'}`);
-      setIsSpeaking(true);
-    };
-    
-    utterance.onend = () => {
-      console.log('Speech completed');
-      setIsSpeaking(false);
-    };
-    
-    utterance.onerror = (event) => {
-      console.error('Speech error:', event.error);
-      setIsSpeaking(false);
-    };
-
-    synthesisRef.current = utterance;
-    speechSynthesis.speak(utterance);
-  };
 
   // Detect language and process text for better pronunciation
   const detectLanguageAndProcessText = (text: string) => {
@@ -572,8 +947,8 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         <Box
           sx={{
             position: 'fixed',
-            [position.includes('right') ? 'right' : 'left']: 24,
-            bottom: 180, // Positioned well above the bottom menu (which is at 120-140px)
+            [position.includes('right') ? 'right' : 'left']: { xs: 16, sm: 24, md: 24, lg: 32, xl: 40 },
+            bottom: { xs: 180, sm: 180, md: 160, lg: 140, xl: 120 }, // Responsive positioning
             zIndex: 1300
           }}
         >
@@ -582,8 +957,8 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
               data-ai-assistant="true"
               onClick={onToggle}
               sx={{
-                width: 64,
-                height: 64,
+                width: { xs: 56, sm: 60, md: 64, lg: 68, xl: 72 },
+                height: { xs: 56, sm: 60, md: 64, lg: 68, xl: 72 },
                 background: (theme) => theme.palette.mode === 'dark' 
                   ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                   : 'linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)',
@@ -623,7 +998,7 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
               }}
             >
               <BotIcon sx={{ 
-                fontSize: 32,
+                fontSize: { xs: 28, sm: 30, md: 32, lg: 34, xl: 36 },
                 filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))'
               }} />
             </IconButton>
@@ -639,64 +1014,104 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
         elevation={24}
         sx={{
           position: 'fixed',
-          [position.includes('right') ? 'right' : 'left']: 24,
-          bottom: 180, // Positioned well above the bottom menu (which is at 120-140px)
-          width: { xs: 'calc(100vw - 48px)', sm: 420 },
-          height: isMinimized ? 60 : { xs: 'calc(100vh - 200px)', sm: 'calc(100vh - 220px)' }, // Responsive height that fits screen
-          maxHeight: { xs: 'calc(100vh - 200px)', sm: 'calc(100vh - 220px)' },
+          [position.includes('right') ? 'right' : 'left']: { xs: 16, sm: 24, md: 24, lg: 32, xl: 40 },
+          bottom: { xs: 180, sm: 180, md: 160, lg: 140, xl: 120 }, // Responsive positioning
+          width: { 
+            xs: 'calc(100vw - 32px)', 
+            sm: 'calc(100vw - 48px)', 
+            md: 520, 
+            lg: 600,
+            xl: 700
+          },
+          height: isMinimized ? 60 : { 
+            xs: 'calc(100vh - 180px)', 
+            sm: 'calc(100vh - 200px)', 
+            md: 'calc(100vh - 180px)',
+            lg: 'calc(100vh - 160px)',
+            xl: 'calc(100vh - 140px)'
+          },
+          maxHeight: { 
+            xs: 'calc(100vh - 180px)', 
+            sm: 'calc(100vh - 200px)', 
+            md: 'calc(100vh - 180px)',
+            lg: 'calc(100vh - 160px)',
+            xl: 'calc(100vh - 140px)'
+          },
           display: 'flex',
           flexDirection: 'column',
           borderRadius: 3,
           overflow: 'hidden',
           zIndex: 1300,
           background: (theme) => theme.palette.mode === 'dark'
-            ? 'rgba(15, 15, 15, 0.98)'
-            : 'rgba(255, 255, 255, 0.98)',
-          backdropFilter: 'blur(20px)',
+            ? 'linear-gradient(145deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 35, 0.95) 100%)'
+            : 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
+          backdropFilter: 'blur(25px)',
           border: (theme) => theme.palette.mode === 'dark'
-            ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(0, 0, 0, 0.05)',
+            ? '1px solid rgba(255, 255, 255, 0.15)'
+            : '1px solid rgba(0, 0, 0, 0.08)',
           boxShadow: (theme) => theme.palette.mode === 'dark'
-            ? '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)'
-            : '0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+            ? '0 25px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            : '0 25px 80px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
         {/* Header */}
         <Box
           sx={{
-            p: 2.5,
+            p: { xs: 2, sm: 2.5, md: 3, lg: 3.5, xl: 4 },
             background: (theme) => theme.palette.mode === 'dark'
-              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-              : 'linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)',
+              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
+              : 'linear-gradient(135deg, #2196F3 0%, #21CBF3 50%, #64B5F6 100%)',
             color: 'white',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             borderBottom: (theme) => theme.palette.mode === 'dark'
-              ? '1px solid rgba(255, 255, 255, 0.1)'
-              : '1px solid rgba(255, 255, 255, 0.2)',
-            backdropFilter: 'blur(10px)'
+              ? '1px solid rgba(255, 255, 255, 0.15)'
+              : '1px solid rgba(255, 255, 255, 0.25)',
+            backdropFilter: 'blur(15px)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)',
+              pointerEvents: 'none'
+            }
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Stack direction="row" alignItems="center" spacing={2}>
             <Avatar 
               sx={{ 
-                bgcolor: 'rgba(255, 255, 255, 0.2)', 
-                width: 36, 
-                height: 36,
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
+                bgcolor: 'rgba(255, 255, 255, 0.25)', 
+                width: { xs: 36, sm: 40, md: 44, lg: 48, xl: 52 }, 
+                height: { xs: 36, sm: 40, md: 44, lg: 48, xl: 52 },
+                backdropFilter: 'blur(15px)',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                position: 'relative',
+                zIndex: 1
               }}
             >
-              <AiIcon fontSize="small" sx={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))' }} />
+              <AiIcon sx={{ fontSize: { xs: 20, sm: 22, md: 24, lg: 26, xl: 28 }, filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }} />
             </Avatar>
-            <Box>
-              <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '1rem' }}>
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Typography variant="h6" fontWeight={700} sx={{ 
+                fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem', lg: '1.2rem', xl: '1.3rem' }, 
+                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)' 
+              }}>
                 {t('ai.headerTitle', 'AI Shopping Assistant')}
               </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.75rem' }}>
-                {t('ai.headerSubtitle', 'Powered by Gemini AI')}
+              <Typography variant="body2" sx={{ 
+                opacity: 0.9, 
+                fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem', lg: '0.85rem', xl: '0.9rem' }, 
+                textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)' 
+              }}>
+                {t('ai.headerSubtitle', 'Powered by Gemini AI • Kinyarwanda Support')}
               </Typography>
             </Box>
           </Stack>
@@ -746,7 +1161,7 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
               sx={{
                 flex: 1,
                 overflow: 'auto',
-                p: 2,
+                p: { xs: 1.5, sm: 2, md: 2.5, lg: 3, xl: 3.5 },
                 bgcolor: (theme) => theme.palette.mode === 'dark' 
                   ? 'rgba(20, 20, 20, 0.8)' 
                   : 'rgba(248, 249, 250, 0.8)',
@@ -816,13 +1231,20 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                         {/* Speaker button for bot messages */}
                         {message.type === 'bot' && (
                           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                            <Tooltip title={isSpeaking ? t('voiceAI.stopSpeaking', 'Stop Speaking') : t('voiceAI.speakResponse', 'Speak Response')}>
+                            <Tooltip title={isMuted ? t('voiceAI.unmute', 'Unmute AI Voice') : t('voiceAI.mute', 'Mute AI Voice')}>
                               <IconButton
                                 size="small"
-                                onClick={() => isSpeaking ? stopSpeaking() : speakText(message.content)}
+                                onClick={() => {
+                                  setIsMuted(!isMuted);
+                                  if (isSpeaking) {
+                                    stopSpeaking();
+                                  }
+                                }}
                                 sx={{
-                                  bgcolor: isSpeaking 
-                                    ? 'error.main' 
+                                  bgcolor: isMuted 
+                                    ? (theme) => theme.palette.mode === 'dark' 
+                                      ? 'rgba(244, 67, 54, 0.8)' 
+                                      : 'error.main'
                                     : (theme) => theme.palette.mode === 'dark' 
                                       ? 'rgba(76, 175, 80, 0.8)' 
                                       : 'success.main',
@@ -830,8 +1252,10 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                                   width: 28,
                                   height: 28,
                                   '&:hover': {
-                                    bgcolor: isSpeaking 
-                                      ? 'error.dark' 
+                                    bgcolor: isMuted 
+                                      ? (theme) => theme.palette.mode === 'dark' 
+                                        ? 'rgba(244, 67, 54, 1)' 
+                                        : 'error.dark'
                                       : (theme) => theme.palette.mode === 'dark' 
                                         ? 'rgba(76, 175, 80, 1)' 
                                         : 'success.dark',
@@ -840,7 +1264,7 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                                   transition: 'all 0.2s ease'
                                 }}
                               >
-                                {isSpeaking ? <VolumeOffIcon fontSize="small" /> : <VolumeUpIcon fontSize="small" />}
+                                {isMuted ? <VolumeOffIcon fontSize="small" /> : <VolumeUpIcon fontSize="small" />}
                               </IconButton>
                             </Tooltip>
                           </Box>
@@ -1144,7 +1568,7 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
             {/* Input */}
             <Box
               sx={{
-                p: 2,
+                p: { xs: 1.5, sm: 2, md: 2.5, lg: 3, xl: 3.5 },
                 bgcolor: (theme) => theme.palette.mode === 'dark' 
                   ? 'rgba(255, 255, 255, 0.05)' 
                   : 'white',
@@ -1215,21 +1639,21 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                   <IconButton
                     onClick={handleVoiceClick}
                     disabled={isTyping}
-                    sx={{
-                      bgcolor: isRecording 
-                        ? (theme) => theme.palette.mode === 'dark' 
-                          ? 'rgba(244, 67, 54, 0.9)' 
-                          : 'error.main'
-                        : !hasPermission
-                          ? (theme) => theme.palette.mode === 'dark' 
-                            ? 'rgba(255, 152, 0, 0.8)' 
-                            : 'warning.main'
-                          : (theme) => theme.palette.mode === 'dark' 
-                            ? 'rgba(76, 175, 80, 0.9)' 
-                            : 'success.main',
-                      color: 'white',
-                      width: 40,
-                      height: 40,
+              sx={{
+                bgcolor: isRecording 
+                  ? (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(244, 67, 54, 0.9)' 
+                    : 'error.main'
+                  : !hasPermission
+                    ? (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 152, 0, 0.8)' 
+                      : 'warning.main'
+                    : (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(76, 175, 80, 0.9)' 
+                      : 'success.main',
+                color: 'white',
+                width: { xs: 36, sm: 38, md: 40, lg: 42, xl: 44 },
+                height: { xs: 36, sm: 38, md: 40, lg: 42, xl: 44 },
                       '&:hover': {
                         bgcolor: isRecording 
                           ? (theme) => theme.palette.mode === 'dark' 
@@ -1266,11 +1690,11 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                     }}
                   >
                     {isRecording ? (
-                      <MicOffIcon sx={{ fontSize: 20 }} />
+                      <MicOffIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20, lg: 21, xl: 22 } }} />
                     ) : !hasPermission ? (
-                      <MicIcon sx={{ fontSize: 20, opacity: 0.7 }} />
+                      <MicIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20, lg: 21, xl: 22 }, opacity: 0.7 }} />
                     ) : (
-                      <MicIcon sx={{ fontSize: 20 }} />
+                      <MicIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20, lg: 21, xl: 22 } }} />
                     )}
                   </IconButton>
                   
@@ -1309,6 +1733,87 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
                     />
                   )}
                 </Box>
+              </Tooltip>
+
+              {/* Voice Call Mode Toggle */}
+              <Tooltip title={isVoiceCallMode ? "Exit Voice Call Mode" : "Enter Voice Call Mode"}>
+                <IconButton
+                  onClick={toggleVoiceCallMode}
+                  sx={{
+                    bgcolor: isVoiceCallMode 
+                      ? (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(76, 175, 80, 0.8)' 
+                        : 'success.main'
+                      : (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : 'grey.300',
+                    color: isVoiceCallMode ? 'white' : 'grey.600',
+                    '&:hover': {
+                      bgcolor: isVoiceCallMode 
+                        ? (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(76, 175, 80, 1)' 
+                          : 'success.dark'
+                        : (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.2)' 
+                          : 'grey.400',
+                      transform: 'scale(1.1)'
+                    },
+                    transition: 'all 0.2s ease',
+                    backdropFilter: 'blur(10px)',
+                    border: (theme) => theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(255, 255, 255, 0.1)' 
+                      : 'none'
+                  }}
+                >
+                  {isVoiceCallMode ? (
+                    <Box sx={{ position: 'relative' }}>
+                      <AiIcon sx={{ fontSize: 20 }} />
+                      {isConnected && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: -2,
+                            right: -2,
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            bgcolor: 'success.main',
+                            border: '1px solid white',
+                            animation: 'pulse 2s infinite'
+                          }}
+                        />
+                      )}
+                    </Box>
+                  ) : (
+                    <AiIcon sx={{ fontSize: 20 }} />
+                  )}
+                </IconButton>
+              </Tooltip>
+
+              {/* Voice Settings Button */}
+              <Tooltip title="Voice Settings">
+                <IconButton
+                  onClick={() => setShowVoiceSelector(!showVoiceSelector)}
+                  sx={{
+                    bgcolor: (theme) => theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.1)' 
+                      : 'grey.300',
+                    color: 'grey.600',
+                    '&:hover': {
+                      bgcolor: (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.2)' 
+                        : 'grey.400',
+                      transform: 'scale(1.1)'
+                    },
+                    transition: 'all 0.2s ease',
+                    backdropFilter: 'blur(10px)',
+                    border: (theme) => theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(255, 255, 255, 0.1)' 
+                      : 'none'
+                  }}
+                >
+                  <VolumeUpIcon sx={{ fontSize: 20 }} />
+                </IconButton>
               </Tooltip>
 
               {/* Send Button */}
@@ -1350,6 +1855,44 @@ export default function AiChatBot({ isOpen, onToggle, position = 'bottom-right' 
             </Box>
           </>
         )}
+
+        {/* Voice Selector Panel */}
+        {showVoiceSelector && (
+          <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+            <KinyarwandaVoiceSelector
+              onVoiceChange={(voice) => {
+                setKinyarwandaVoice(voice);
+                console.log('Selected Kinyarwanda voice:', voice);
+              }}
+              onClose={() => setShowVoiceSelector(false)}
+            />
+          </Box>
+        )}
+
+        {/* Voice Call Mode Status */}
+        {isVoiceCallMode && (
+          <Box sx={{ mt: 2, p: 2, bgcolor: 'success.main', color: 'white', borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="body2" fontWeight={600}>
+              🎤 Voice Call Mode Active {isConnected && '• Connected'}
+            </Typography>
+            {isContinuousListening && (
+              <Typography variant="caption" sx={{ display: 'block', mt: 1, opacity: 0.9 }}>
+                🔄 Continuous listening enabled - Speak naturally!
+              </Typography>
+            )}
+            {conversationActive && (
+              <Typography variant="caption" sx={{ display: 'block', mt: 0.5, opacity: 0.8 }}>
+                💬 Real-time conversation active
+              </Typography>
+            )}
+            {connectionError && (
+              <Typography variant="caption" color="error.light">
+                {connectionError}
+              </Typography>
+            )}
+          </Box>
+        )}
+
       </Paper>
     </Fade>
   );

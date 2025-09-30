@@ -67,6 +67,8 @@ export default function Navbar() {
   const { t } = useTranslation('common');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLaptop = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
 
   useEffect(() => {
     const handleCartUpdate = () => refreshCart();
@@ -478,7 +480,7 @@ export default function Navbar() {
           }
         })}
       >
-        <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
+        <Toolbar sx={{ px: { xs: 1, sm: 1.5, md: 2, lg: 3, xl: 4 }, py: { xs: 0.5, sm: 0.5, md: 0.75, lg: 1, xl: 1.25 } }}>
           {/* Mobile Menu Button */}
           {isMobile && (
             <IconButton
@@ -516,8 +518,8 @@ export default function Navbar() {
               src="/excom.png"
               alt="Excom"
               sx={(theme) => ({ 
-                height: { xs: 48, sm: 52 }, 
-                width: { xs: 48, sm: 52 },
+                height: { xs: 40, sm: 44, md: 48, lg: 52, xl: 56 }, 
+                width: { xs: 40, sm: 44, md: 48, lg: 52, xl: 56 },
                 borderRadius: 1,
                 // Add filters for better dark mode visibility
                 filter: theme.palette.mode === 'dark' 
@@ -535,7 +537,11 @@ export default function Navbar() {
 
           {/* Desktop AI Search Bar */}
           {!isMobile && (
-            <Box sx={{ flexGrow: 1, maxWidth: 500, mx: 3 }}>
+            <Box sx={{ 
+              flexGrow: 1, 
+              maxWidth: { md: 300, lg: 400, xl: 500 }, 
+              mx: { md: 1.5, lg: 2, xl: 3 } 
+            }}>
               <AiSearchBar 
                 placeholder={t('navigation.aiSearch')}
                 sx={{
@@ -567,19 +573,19 @@ export default function Navbar() {
 
           {/* Desktop Menu - Compact Layout */}
           {!isMobile && (
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={{ md: 0.3, lg: 0.5, xl: 1 }} alignItems="center">
               {/* Navigation Dropdown */}
               <Button
                 onClick={handleNavMenuOpen}
                 startIcon={<CollectionsIcon />}
-                endIcon={<Box component="span" sx={{ fontSize: '0.8rem', ml: 0.5 }}>▼</Box>}
+                endIcon={<Box component="span" sx={{ fontSize: '0.7rem', ml: 0.3 }}>▼</Box>}
                 sx={(theme) => ({ 
-                  borderRadius: 3,
-                  px: 3,
-                  py: 1,
+                  borderRadius: 2,
+                  px: { md: 1.5, lg: 2, xl: 3 },
+                  py: { md: 0.5, lg: 0.7, xl: 0.9 },
                   color: 'white',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  fontSize: { md: '0.75rem', lg: '0.85rem', xl: '0.95rem' },
                   textTransform: 'none',
                   letterSpacing: '0.5px',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -621,12 +627,12 @@ export default function Navbar() {
                 }}
                 startIcon={<MicIcon />}
                 sx={(theme) => ({ 
-                  borderRadius: 3,
-                  px: 3,
-                  py: 1,
+                  borderRadius: 2,
+                  px: { md: 1.5, lg: 2, xl: 3 },
+                  py: { md: 0.5, lg: 0.7, xl: 0.9 },
                   color: 'white',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  fontSize: { md: '0.75rem', lg: '0.85rem', xl: '0.95rem' },
                   textTransform: 'none',
                   letterSpacing: '0.5px',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -789,7 +795,7 @@ export default function Navbar() {
           >
             {/* Gamification Stats */}
             {!isMobile && (
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mr: 2 }}>
+              <Stack direction="row" spacing={{ md: 0.3, lg: 0.5, xl: 1 }} alignItems="center" sx={{ mr: { md: 0.5, lg: 1, xl: 2 } }}>
                 <Chip
                   icon={<EmojiEventsIcon />}
                   label="Level 5"
@@ -799,7 +805,7 @@ export default function Navbar() {
                     color: '#FFD700',
                     fontWeight: 700,
                     border: '1px solid rgba(255, 215, 0, 0.3)',
-                    fontSize: '0.7rem'
+                    fontSize: { md: '0.55rem', lg: '0.65rem', xl: '0.75rem' }
                   }}
                 />
                 <Chip
@@ -811,21 +817,21 @@ export default function Navbar() {
                     color: '#8A2BE2',
                     fontWeight: 700,
                     border: '1px solid rgba(138, 43, 226, 0.3)',
-                    fontSize: '0.7rem'
+                    fontSize: { md: '0.55rem', lg: '0.65rem', xl: '0.75rem' }
                   }}
                 />
               </Stack>
             )}
             
             {/* Settings Group - Language & Theme */}
-            <Stack direction="row" spacing={0.5} alignItems="center">
+            <Stack direction="row" spacing={{ md: 0.2, lg: 0.3, xl: 0.5 }} alignItems="center">
               <LanguageSwitcher />
               <DarkModeToggle />
             </Stack>
             
             {/* User Actions Group */}
             {!user ? (
-              <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }}>
+              <Stack direction="row" spacing={{ xs: 0.3, sm: 0.5, md: 1, lg: 1.5, xl: 2 }}>
                 {!isMobile && (
                   <Button 
                     component={NextLink} 
@@ -883,8 +889,8 @@ export default function Navbar() {
                 <Avatar 
                   src={user.avatar}
                   sx={{ 
-                    width: { xs: 32, sm: 36 }, 
-                    height: { xs: 32, sm: 36 },
+                    width: { xs: 28, sm: 32, md: 36, lg: 40, xl: 44 }, 
+                    height: { xs: 28, sm: 32, md: 36, lg: 40, xl: 44 },
                     background: user.avatar ? 'transparent' : 'linear-gradient(45deg, #2196F3, #21CBF3)',
                     boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)'
                   }}
@@ -895,7 +901,7 @@ export default function Navbar() {
             )}
 
             {/* Shopping Actions Group */}
-            <Stack direction="row" spacing={0.5} alignItems="center">
+            <Stack direction="row" spacing={{ md: 0.2, lg: 0.3, xl: 0.5 }} alignItems="center">
               {/* Wishlist */}
               <IconButton 
                 component={NextLink} 
@@ -904,7 +910,7 @@ export default function Navbar() {
                 sx={{
                   color: 'white',
                   transition: 'all 0.2s ease',
-                  p: { xs: 0.5, sm: 1 },
+                  p: { xs: 0.3, sm: 0.5, md: 0.7, lg: 0.8, xl: 1 },
                   '&:hover': {
                     transform: 'scale(1.1)',
                     color: 'white',
@@ -939,7 +945,7 @@ export default function Navbar() {
                 sx={{
                   color: 'white',
                   transition: 'all 0.2s ease',
-                  p: { xs: 0.5, sm: 1 },
+                  p: { xs: 0.3, sm: 0.5, md: 0.7, lg: 0.8, xl: 1 },
                   '&:hover': {
                     transform: 'scale(1.1)',
                     color: 'white',
