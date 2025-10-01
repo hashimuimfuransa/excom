@@ -5,7 +5,8 @@ import {
   Box,
   Typography,
   Avatar,
-  Chip
+  Chip,
+  useTheme
 } from '@mui/material';
 import {
   TrendingUp,
@@ -32,6 +33,7 @@ export default function StatsCard({
   color = 'primary',
   trend
 }: StatsCardProps) {
+  const theme = useTheme();
   const isPositiveTrend = trend && trend.value >= 0;
   
   return (
@@ -43,8 +45,14 @@ export default function StatsCard({
         borderColor: 'divider',
         height: '100%',
         transition: 'all 0.2s ease-in-out',
+        background: theme.palette.mode === 'dark' 
+          ? 'rgba(26, 31, 46, 0.8)' 
+          : 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(10px)',
         '&:hover': {
-          boxShadow: 2,
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 8px 32px rgba(0, 0, 0, 0.5)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.1)',
           transform: 'translateY(-2px)'
         }
       }}

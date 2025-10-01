@@ -30,7 +30,7 @@ router.get('/products', requireAuth, requireAdmin, async (_req, res) => {
 router.get('/analytics', requireAuth, requireAdmin, async (_req, res) => {
   try {
     // Get all orders
-    const orders = await Order.find({}).populate('buyer', 'name email').populate('seller', 'name email');
+    const orders = await Order.find({}).populate('buyer', 'name email');
     const users = await User.find({});
     const stores = await Store.find({});
     const products = await Product.find({}).populate('seller', 'name email');
@@ -146,7 +146,7 @@ router.get('/analytics', requireAuth, requireAdmin, async (_req, res) => {
 // Admin earnings endpoint
 router.get('/earnings', requireAuth, requireAdmin, async (_req, res) => {
   try {
-    const orders = await Order.find({}).populate('seller', 'name email');
+    const orders = await Order.find({}).populate('buyer', 'name email');
     const users = await User.find({ role: 'seller' });
     const stores = await Store.find({}).populate('owner', 'name email');
     const payoutRequests = await PayoutRequest.find({})
@@ -259,7 +259,6 @@ router.get('/orders', requireAuth, requireAdmin, async (_req, res) => {
   try {
     const orders = await Order.find({})
       .populate('buyer', 'name email')
-      .populate('seller', 'name email')
       .sort({ createdAt: -1 })
       .limit(200);
     

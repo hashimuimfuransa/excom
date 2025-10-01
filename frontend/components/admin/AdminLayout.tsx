@@ -210,7 +210,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'grey.50' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      minHeight: '100vh', 
+      bgcolor: 'background.default',
+      background: theme.palette.mode === 'dark' 
+        ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: theme.palette.mode === 'dark'
+          ? 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%)'
+          : 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.05) 0%, transparent 50%)',
+        pointerEvents: 'none'
+      }
+    }}>
       {/* App Bar */}
       <AppBar
         position="fixed"
@@ -218,10 +238,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
-          bgcolor: 'background.paper',
+          bgcolor: theme.palette.mode === 'dark' 
+            ? 'rgba(26, 31, 46, 0.95)' 
+            : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(20px)',
           borderBottom: 1,
           borderColor: 'divider',
-          color: 'text.primary'
+          color: 'text.primary',
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 8px 32px rgba(0, 0, 0, 0.5)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.1)'
         }}
       >
         <Toolbar>
@@ -260,7 +286,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              bgcolor: theme.palette.mode === 'dark' 
+                ? 'rgba(26, 31, 46, 0.95)' 
+                : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)'
+            },
           }}
         >
           {drawer}
@@ -273,7 +306,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               boxSizing: 'border-box', 
               width: drawerWidth,
               border: 'none',
-              boxShadow: theme.shadows[1]
+              bgcolor: theme.palette.mode === 'dark' 
+                ? 'rgba(26, 31, 46, 0.95)' 
+                : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: theme.palette.mode === 'dark' 
+                ? '0 8px 32px rgba(0, 0, 0, 0.5)' 
+                : '0 8px 32px rgba(0, 0, 0, 0.1)'
             },
           }}
           open
@@ -288,6 +327,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         sx={{
           flexGrow: 1,
           width: { md: `calc(100% - ${drawerWidth}px)` },
+          position: 'relative',
+          zIndex: 1
         }}
       >
         <Toolbar />

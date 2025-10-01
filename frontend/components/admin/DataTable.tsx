@@ -21,7 +21,8 @@ import {
   Button,
   Chip,
   CircularProgress,
-  Alert
+  Alert,
+  useTheme
 } from '@mui/material';
 import {
   Search,
@@ -77,6 +78,7 @@ export default function DataTable({
   rowActions = [],
   bulkActions = []
 }: DataTableProps) {
+  const theme = useTheme();
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<string>('');
   const [selected, setSelected] = useState<string[]>([]);
@@ -218,13 +220,26 @@ export default function DataTable({
   }
 
   return (
-    <Paper sx={{ width: '100%', mb: 2, borderRadius: 3, overflow: 'hidden' }}>
+    <Paper sx={{ 
+      width: '100%', 
+      mb: 2, 
+      borderRadius: 3, 
+      overflow: 'hidden',
+      background: theme.palette.mode === 'dark' 
+        ? 'rgba(26, 31, 46, 0.8)' 
+        : 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(10px)',
+      border: 1,
+      borderColor: 'divider'
+    }}>
       <Toolbar
         sx={{
           pl: { sm: 2 },
           pr: { xs: 1, sm: 1 },
           ...(selected.length > 0 && {
-            bgcolor: 'primary.light',
+            bgcolor: theme.palette.mode === 'dark' 
+              ? 'rgba(25, 118, 210, 0.2)' 
+              : 'rgba(25, 118, 210, 0.1)',
           }),
         }}
       >

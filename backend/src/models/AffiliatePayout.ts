@@ -23,7 +23,7 @@ export interface IAffiliatePayout extends Document {
   };
   
   // Status tracking
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'paid';
   
   // Processing info
   transactionId?: string;
@@ -33,12 +33,15 @@ export interface IAffiliatePayout extends Document {
   
   // Approval workflow
   requestedBy: Types.ObjectId; // Affiliate who requested
-  approvedBy?: Types.ObjectId; // Vendor who approved
-  approvedDate?: Date;
+  approvedBy?: Types.ObjectId; // Admin who approved
+  approvedAt?: Date;
+  rejectedBy?: Types.ObjectId; // Admin who rejected
+  rejectedAt?: Date;
+  rejectionReason?: string;
   
   // Additional info
   notes?: string;
-  requestDate: Date;
+  requestedAt: Date;
 }
 
 const AffiliatePayoutSchema = new Schema<IAffiliatePayout>({
@@ -67,7 +70,7 @@ const AffiliatePayoutSchema = new Schema<IAffiliatePayout>({
   
   status: { 
     type: String, 
-    enum: ['pending', 'processing', 'completed', 'failed', 'cancelled'], 
+    enum: ['pending', 'approved', 'rejected', 'paid'], 
     default: 'pending' 
   },
   
@@ -78,15 +81,18 @@ const AffiliatePayoutSchema = new Schema<IAffiliatePayout>({
   
   requestedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
-  approvedDate: Date,
+  approvedAt: Date,
+  rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  rejectedAt: Date,
+  rejectionReason: String,
   
   notes: String,
-  requestDate: { type: Date, default: Date.now }
+  requestedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 
 // Indexes for efficient queries
 AffiliatePayoutSchema.index({ affiliate: 1, status: 1 });
 AffiliatePayoutSchema.index({ vendor: 1, status: 1 });
-AffiliatePayoutSchema.index({ requestDate: -1 });
+AffiliatePayoutSchema.index({ requestedAt: -1 });
 
 export default mongoose.model<IAffiliatePayout>('AffiliatePayout', AffiliatePayoutSchema);

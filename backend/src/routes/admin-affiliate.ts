@@ -4,6 +4,7 @@ import Affiliate from '../models/Affiliate';
 import AffiliateProgram from '../models/AffiliateProgram';
 import AffiliateCommission from '../models/AffiliateCommission';
 import AffiliateClick from '../models/AffiliateClick';
+import AffiliatePayout from '../models/AffiliatePayout';
 import User from '../models/User';
 
 const router = Router();
@@ -259,6 +260,80 @@ router.get('/programs', requireAuth, requireRole(['admin']), async (req: AuthReq
   } catch (error) {
     console.error('Error fetching affiliate programs:', error);
     res.status(500).json({ message: 'Failed to fetch affiliate programs' });
+  }
+});
+
+// Get affiliate payout requests
+router.get('/payout-requests', requireAuth, requireRole(['admin']), async (req: AuthRequest, res) => {
+  try {
+    const payoutRequests = await AffiliatePayout.find()
+      .populate('affiliate', 'referralCode')
+      .populate('affiliate.user', 'name email')
+      .populate('vendor', 'name email')
+      .sort({ requestedAt: -1 });
+
+    res.json(payoutRequests);
+  } catch (error) {
+    console.error('Error fetching payout requests:', error);
+    res.status(500).json({ message: 'Failed to fetch payout requests' });
+  }
+});
+
+// Approve payout request
+router.post('/payout-requests/:id/approve', requireAuth, requireRole(['admin']), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    
+    const payoutRequest = await AffiliatePayout.findByIdAndUpdate(
+      id,
+      { 
+        status: 'approved',
+        approvedAt: new Date(),
+        approvedBy: req.user?.sub
+      },
+      { new: true }
+    ).populate('affiliate', 'referralCode')
+     .populate('affiliate.user', 'name email')
+     .populate('vendor', 'name email');
+
+    if (!payoutRequest) {
+      return res.status(404).json({ message: 'Payout request not found' });
+    }
+
+    res.json({ message: 'Payout request approved successfully', payoutRequest });
+  } catch (error) {
+    console.error('Error approving payout request:', error);
+    res.status(500).json({ message: 'Failed to approve payout request' });
+  }
+});
+
+// Reject payout request
+router.post('/payout-requests/:id/reject', requireAuth, requireRole(['admin']), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    
+    const payoutRequest = await AffiliatePayout.findByIdAndUpdate(
+      id,
+      { 
+        status: 'rejected',
+        rejectedAt: new Date(),
+        rejectedBy: req.user?.sub,
+        rejectionReason: reason
+      },
+      { new: true }
+    ).populate('affiliate', 'referralCode')
+     .populate('affiliate.user', 'name email')
+     .populate('vendor', 'name email');
+
+    if (!payoutRequest) {
+      return res.status(404).json({ message: 'Payout request not found' });
+    }
+
+    res.json({ message: 'Payout request rejected successfully', payoutRequest });
+  } catch (error) {
+    console.error('Error rejecting payout request:', error);
+    res.status(500).json({ message: 'Failed to reject payout request' });
   }
 });
 
