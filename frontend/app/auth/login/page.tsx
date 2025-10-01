@@ -13,6 +13,8 @@ import NextLink from 'next/link';
 import { apiPost } from '@utils/api';
 import { useAuth } from '@utils/auth';
 import { useSearchParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,6 +28,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
   const theme = useTheme();
+  const { t } = useTranslation('common');
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,7 +87,7 @@ export default function LoginPage() {
         }
       }, 500);
     } catch (err) {
-      setError('Login failed. Check your credentials.');
+      setError(t('auth.loginFailed'));
       setLoginProgress(0);
     } finally {
       setLoading(false);
@@ -97,9 +100,20 @@ export default function LoginPage() {
       background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.main, 0.1)} 100%)`,
       display: 'flex',
       alignItems: 'center',
-      py: 4
+      py: { xs: 2, sm: 4 },
+      px: { xs: 1, sm: 2 }
     }}>
-      <Container maxWidth="lg">
+      {/* Language Switcher */}
+      <Box sx={{ 
+        position: 'fixed', 
+        top: { xs: 16, sm: 24 }, 
+        right: { xs: 16, sm: 24 },
+        zIndex: 1000
+      }}>
+        <LanguageSwitcher />
+      </Box>
+
+      <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
         <Grid container spacing={4} alignItems="center">
           {/* Left side - Branding */}
           <Grid item xs={12} md={6}>
@@ -119,12 +133,15 @@ export default function LoginPage() {
                   background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
+                  WebkitTextFillColor: 'transparent',
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
                 }}>
-                  Welcome to Excom
+                  {t('auth.welcomeToExcom')}
                 </Typography>
-                <Typography variant="h6" color="text.secondary" paragraph>
-                  Your gateway to seamless e-commerce and affiliate opportunities
+                <Typography variant="h6" color="text.secondary" paragraph sx={{ 
+                  fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }
+                }}>
+                  {t('auth.welcomeSubtitle')}
                 </Typography>
                 
                 {/* Feature highlights */}
@@ -132,10 +149,11 @@ export default function LoginPage() {
                   <Box display="flex" alignItems="center" justifyContent="center" gap={2} flexWrap="wrap">
                     <Chip 
                       icon={<PersonIcon />} 
-                      label="Buyer Account" 
+                      label={t('auth.buyerAccount')} 
                       variant="outlined" 
                       sx={{ 
                         transition: 'all 0.3s ease',
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
                         '&:hover': { 
                           backgroundColor: alpha(theme.palette.primary.main, 0.1),
                           transform: 'scale(1.05)'
@@ -144,10 +162,11 @@ export default function LoginPage() {
                     />
                     <Chip 
                       icon={<StoreIcon />} 
-                      label="Vendor Account" 
+                      label={t('auth.vendorAccount')} 
                       variant="outlined" 
                       sx={{ 
                         transition: 'all 0.3s ease',
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
                         '&:hover': { 
                           backgroundColor: alpha(theme.palette.secondary.main, 0.1),
                           transform: 'scale(1.05)'
@@ -156,11 +175,12 @@ export default function LoginPage() {
                     />
                     <Chip 
                       icon={<TrendingUpIcon />} 
-                      label="Affiliate Program" 
+                      label={t('auth.affiliateProgram')} 
                       variant="outlined" 
                       color="primary" 
                       sx={{ 
                         transition: 'all 0.3s ease',
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
                         '&:hover': { 
                           backgroundColor: alpha(theme.palette.success.main, 0.1),
                           transform: 'scale(1.05)'
@@ -173,27 +193,39 @@ export default function LoginPage() {
                   <Box sx={{ mt: 3 }}>
                     <Grid container spacing={2} textAlign="center">
                       <Grid item xs={4}>
-                        <Typography variant="h4" fontWeight={700} color="primary">
+                        <Typography variant="h4" fontWeight={700} color="primary" sx={{ 
+                          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                        }}>
                           10K+
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Active Users
+                        <Typography variant="body2" color="text.secondary" sx={{ 
+                          fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                        }}>
+                          {t('auth.activeUsers')}
                         </Typography>
                       </Grid>
                       <Grid item xs={4}>
-                        <Typography variant="h4" fontWeight={700} color="secondary">
+                        <Typography variant="h4" fontWeight={700} color="secondary" sx={{ 
+                          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                        }}>
                           500+
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Vendors
+                        <Typography variant="body2" color="text.secondary" sx={{ 
+                          fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                        }}>
+                          {t('auth.vendors')}
                         </Typography>
                       </Grid>
                       <Grid item xs={4}>
-                        <Typography variant="h4" fontWeight={700} color="success.main">
+                        <Typography variant="h4" fontWeight={700} color="success.main" sx={{ 
+                          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                        }}>
                           1K+
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Affiliates
+                        <Typography variant="body2" color="text.secondary" sx={{ 
+                          fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                        }}>
+                          {t('auth.affiliates')}
                         </Typography>
                       </Grid>
                     </Grid>
@@ -207,19 +239,23 @@ export default function LoginPage() {
           <Grid item xs={12} md={6}>
             <Slide direction="left" in timeout={800}>
               <Card sx={{ 
-                maxWidth: 480, 
+                maxWidth: { xs: '100%', sm: 480 }, 
                 mx: 'auto', 
-                borderRadius: 4, 
+                borderRadius: { xs: 2, sm: 4 }, 
                 boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                 border: `1px solid ${alpha(theme.palette.divider, 0.1)}`
               }}>
-                <CardContent sx={{ p: 4 }}>
+                <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
                   <Box textAlign="center" mb={3}>
-                    <Typography variant="h4" fontWeight={700} gutterBottom>
-                      Welcome Back
+                    <Typography variant="h4" fontWeight={700} gutterBottom sx={{ 
+                      fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                    }}>
+                      {t('auth.welcomeBack')}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Sign in to continue your journey
+                    <Typography variant="body2" color="text.secondary" sx={{ 
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                    }}>
+                      {t('auth.signInToContinue')}
                     </Typography>
                   </Box>
 
@@ -232,7 +268,7 @@ export default function LoginPage() {
                   <Box component="form" onSubmit={onSubmit}>
                     <Stack spacing={3}>
                       <TextField
-                        label="Email Address"
+                        label={t('forms.email')}
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -254,7 +290,7 @@ export default function LoginPage() {
                       />
                       
                       <TextField
-                        label="Password"
+                        label={t('forms.password')}
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -301,7 +337,10 @@ export default function LoginPage() {
                         />
                       )}
 
-                      <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                      <Box display="flex" alignItems="center" justifyContent="space-between" mb={2} sx={{ 
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        gap: { xs: 1, sm: 0 }
+                      }}>
                         <Box display="flex" alignItems="center">
                           <input
                             type="checkbox"
@@ -310,16 +349,22 @@ export default function LoginPage() {
                             onChange={(e) => setRememberMe(e.target.checked)}
                             style={{ marginRight: 8 }}
                           />
-                          <Typography variant="body2" color="text.secondary">
-                            Remember me
+                          <Typography variant="body2" color="text.secondary" sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}>
+                            {t('auth.rememberMe')}
                           </Typography>
                         </Box>
                         <Typography 
                           variant="body2" 
                           color="primary" 
-                          sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                          sx={{ 
+                            cursor: 'pointer', 
+                            textDecoration: 'underline',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
                         >
-                          Forgot password?
+                          {t('auth.forgotPassword')}
                         </Typography>
                       </Box>
 
@@ -330,8 +375,9 @@ export default function LoginPage() {
                         disabled={loading}
                         startIcon={<LoginIcon />}
                         sx={{ 
-                          py: 1.5, 
+                          py: { xs: 1.2, sm: 1.5 }, 
                           borderRadius: 2,
+                          fontSize: { xs: '0.9rem', sm: '1rem' },
                           background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                           '&:hover': {
                             background: `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
@@ -341,13 +387,15 @@ export default function LoginPage() {
                           transition: 'all 0.3s ease'
                         }}
                       >
-                        {loading ? `Signing in... ${loginProgress}%` : 'Sign In'}
+                        {loading ? `${t('auth.signingIn')} ${loginProgress}%` : t('auth.signIn')}
                       </Button>
 
                       {/* Social Login Options */}
                       <Box sx={{ mt: 3 }}>
-                        <Typography variant="body2" color="text.secondary" textAlign="center" mb={2}>
-                          Or continue with
+                        <Typography variant="body2" color="text.secondary" textAlign="center" mb={2} sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}>
+                          {t('auth.orContinueWith')}
                         </Typography>
                         <Stack direction="row" spacing={2} justifyContent="center">
                           <Button
@@ -355,7 +403,8 @@ export default function LoginPage() {
                             sx={{ 
                               borderRadius: 2,
                               flex: 1,
-                              py: 1,
+                              py: { xs: 0.8, sm: 1 },
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' },
                               borderColor: '#db4437',
                               color: '#db4437',
                               '&:hover': {
@@ -371,7 +420,8 @@ export default function LoginPage() {
                             sx={{ 
                               borderRadius: 2,
                               flex: 1,
-                              py: 1,
+                              py: { xs: 0.8, sm: 1 },
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' },
                               borderColor: '#1877f2',
                               color: '#1877f2',
                               '&:hover': {
@@ -386,16 +436,20 @@ export default function LoginPage() {
                       </Box>
 
                       <Divider sx={{ my: 3 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          New to Excom?
+                        <Typography variant="body2" color="text.secondary" sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}>
+                          {t('auth.newToExcom')}
                         </Typography>
                       </Divider>
 
                       <Box textAlign="center">
-                        <Typography variant="body2" color="text.secondary" mb={2}>
-                          Choose your account type:
+                        <Typography variant="body2" color="text.secondary" mb={2} sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}>
+                          {t('auth.chooseAccountType')}
                         </Typography>
-                        <Stack direction="row" spacing={2} justifyContent="center" flexWrap="wrap">
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" flexWrap="wrap">
                           <Button 
                             component={NextLink as any} 
                             href="/auth/register?type=buyer"
@@ -403,7 +457,9 @@ export default function LoginPage() {
                             startIcon={<PersonIcon />}
                             sx={{ 
                               borderRadius: 2,
-                              minWidth: 120,
+                              minWidth: { xs: '100%', sm: 120 },
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                              py: { xs: 1, sm: 1.2 },
                               transition: 'all 0.3s ease',
                               '&:hover': {
                                 transform: 'translateY(-2px)',
@@ -413,7 +469,7 @@ export default function LoginPage() {
                               }
                             }}
                           >
-                            Buyer
+                            {t('auth.buyer')}
                           </Button>
                           <Button 
                             component={NextLink as any} 
@@ -422,7 +478,9 @@ export default function LoginPage() {
                             startIcon={<StoreIcon />}
                             sx={{ 
                               borderRadius: 2,
-                              minWidth: 120,
+                              minWidth: { xs: '100%', sm: 120 },
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                              py: { xs: 1, sm: 1.2 },
                               transition: 'all 0.3s ease',
                               '&:hover': {
                                 transform: 'translateY(-2px)',
@@ -432,7 +490,7 @@ export default function LoginPage() {
                               }
                             }}
                           >
-                            Vendor
+                            {t('auth.vendor')}
                           </Button>
                           <Button 
                             component={NextLink as any} 
@@ -441,7 +499,9 @@ export default function LoginPage() {
                             startIcon={<TrendingUpIcon />}
                             sx={{ 
                               borderRadius: 2,
-                              minWidth: 120,
+                              minWidth: { xs: '100%', sm: 120 },
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                              py: { xs: 1, sm: 1.2 },
                               background: `linear-gradient(45deg, ${theme.palette.success.main}, ${theme.palette.info.main})`,
                               '&:hover': {
                                 background: `linear-gradient(45deg, ${theme.palette.success.dark}, ${theme.palette.info.dark})`,
@@ -451,7 +511,7 @@ export default function LoginPage() {
                               transition: 'all 0.3s ease'
                             }}
                           >
-                            Affiliate
+                            {t('auth.affiliate')}
                           </Button>
                         </Stack>
                       </Box>

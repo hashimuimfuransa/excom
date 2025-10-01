@@ -89,7 +89,7 @@ const getMenuItems = (t: any) => [
   {
     text: t('vendor.analytics'),
     icon: <Analytics />,
-    path: '/dashboard/vendor/analytics',
+    path: '/dashboard/vendor/trend-analysis',
     badge: null
   },
   {
@@ -130,6 +130,12 @@ const getQuickActions = (t: any) => [
     icon: <LocalShipping />,
     path: '/dashboard/vendor/orders',
     color: 'success'
+  },
+  {
+    text: t('vendor.trendAnalysis'),
+    icon: <TrendingUp />,
+    path: '/dashboard/vendor/trend-analysis',
+    color: 'info'
   },
       {
         text: t('vendor.aiSupport'),
@@ -430,9 +436,6 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
           <Stack direction="row" alignItems="center" spacing={1}>
             <LanguageSwitcher />
             <DarkModeToggle />
-            <IconButton color="inherit" onClick={() => router.push('/')}>
-              <Home />
-            </IconButton>
           </Stack>
         </Toolbar>
       </AppBar>
@@ -497,10 +500,36 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
           flexGrow: 1,
           width: { md: `calc(100% - ${drawerWidth}px)` },
           backgroundColor: 'background.default',
+          minHeight: '100vh',
+          // Enhanced responsive design for all devices
+          '@media (max-width: 768px)': {
+            width: '100%',
+            padding: 0,
+          },
+          // Tablet and small laptop (769px - 1024px)
+          '@media (min-width: 769px) and (max-width: 1024px)': {
+            padding: 1.5,
+          },
+          // Laptop (1025px - 1366px)
+          '@media (min-width: 1025px) and (max-width: 1366px)': {
+            padding: 2,
+          },
+          // Large laptop and desktop (1367px+)
+          '@media (min-width: 1367px)': {
+            padding: 3,
+          }
         }}
       >
         <Toolbar />
-        {children}
+        <Box sx={{ 
+          width: '100%',
+          height: '100%',
+          overflow: 'auto',
+          // Ensure proper scrolling on mobile
+          WebkitOverflowScrolling: 'touch'
+        }}>
+          {children}
+        </Box>
       </Box>
     </Box>
   );

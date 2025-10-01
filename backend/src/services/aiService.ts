@@ -1070,6 +1070,380 @@ Remember: You're helping a real business owner succeed, so be practical, encoura
     
     return suggestions.slice(0, 4);
   }
+
+  // AI-powered trend analysis for vendors
+  async analyzeVendorTrends(vendorId: string, timeRange: 'week' | 'month' | 'quarter' | 'year' = 'month'): Promise<any> {
+    try {
+      console.log(`AI Trend Analysis: Analyzing trends for vendor ${vendorId} over ${timeRange}`);
+
+      // Get vendor's products and orders
+      const products = await Product.find({ seller: vendorId }).populate('seller', 'name');
+      const orders = await Order.find({ 
+        'items.vendor': vendorId,
+        createdAt: this.getDateRangeFilter(timeRange)
+      }).populate('items.product', 'title category price').populate('buyer', 'name');
+
+      // Calculate time range filter
+      const dateRange = this.getDateRangeFilter(timeRange);
+      
+      // Get historical data for comparison
+      const previousOrders = await Order.find({ 
+        'items.vendor': vendorId,
+        createdAt: this.getPreviousDateRangeFilter(timeRange)
+      }).populate('items.product', 'title category price');
+
+      // Prepare data for AI analysis
+      const salesData = this.prepareSalesData(orders, products);
+      const previousSalesData = this.prepareSalesData(previousOrders, products);
+      
+      const systemPrompt = `You are an AI business analyst specializing in e-commerce trend analysis. Analyze the following vendor sales data and provide comprehensive insights.
+
+**VENDOR SALES DATA (${timeRange.toUpperCase()}):**
+${JSON.stringify(salesData, null, 2)}
+
+**PREVIOUS PERIOD DATA (for comparison):**
+${JSON.stringify(previousSalesData, null, 2)}
+
+**ANALYSIS REQUIREMENTS:**
+1. Identify top-performing products and categories
+2. Analyze sales trends and patterns
+3. Compare current period vs previous period
+4. Identify growth opportunities
+5. Suggest pricing strategies
+6. Recommend inventory adjustments
+7. Provide actionable business insights
+8. Identify seasonal trends if applicable
+9. Suggest marketing strategies
+10. Highlight potential risks or concerns
+
+**RESPONSE FORMAT:**
+Return a comprehensive JSON analysis with this structure:
+{
+  "summary": {
+    "totalRevenue": number,
+    "totalOrders": number,
+    "averageOrderValue": number,
+    "growthRate": number,
+    "topPerformingCategory": string,
+    "topPerformingProduct": string
+  },
+  "trends": {
+    "salesTrend": "increasing|decreasing|stable",
+    "categoryTrends": [
+      {
+        "category": string,
+        "sales": number,
+        "growth": number,
+        "trend": "up|down|stable"
+      }
+    ],
+    "productTrends": [
+      {
+        "productId": string,
+        "productName": string,
+        "sales": number,
+        "growth": number,
+        "trend": "up|down|stable"
+      }
+    ]
+  },
+  "insights": {
+    "topInsights": [
+      {
+        "type": "opportunity|warning|success|recommendation",
+        "title": string,
+        "description": string,
+        "impact": "high|medium|low",
+        "actionable": boolean
+      }
+    ],
+    "seasonalPatterns": string,
+    "customerBehavior": string,
+    "marketPosition": string
+  },
+  "recommendations": {
+    "pricing": [
+      {
+        "productId": string,
+        "currentPrice": number,
+        "suggestedPrice": number,
+        "reason": string,
+        "expectedImpact": string
+      }
+    ],
+    "inventory": [
+      {
+        "productId": string,
+        "action": "increase|decrease|maintain",
+        "reason": string,
+        "priority": "high|medium|low"
+      }
+    ],
+    "marketing": [
+      {
+        "strategy": string,
+        "targetProducts": string[],
+        "expectedOutcome": string,
+        "effort": "low|medium|high"
+      }
+    ]
+  },
+  "forecasting": {
+    "nextPeriodPrediction": {
+      "expectedRevenue": number,
+      "expectedOrders": number,
+      "confidence": "high|medium|low"
+    },
+    "riskFactors": string[],
+    "opportunities": string[]
+  }
+}
+
+Return only the JSON object, no additional text.`;
+
+      const result = await this.queueRequest(async () => {
+        const response = await axios.post(
+          `${GEMINI_V1_API_URL}?key=${GEMINI_API_KEY}`,
+          {
+            contents: [{
+              parts: [{
+                text: systemPrompt
+              }]
+            }]
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        return response.data.candidates[0].content.parts[0].text;
+      });
+
+      // Parse the AI response
+      try {
+        const cleanResponse = result.replace(/```json|```/g, '').trim();
+        const analysis = JSON.parse(cleanResponse);
+        
+        return {
+          vendorId,
+          timeRange,
+          analysis,
+          generatedAt: new Date().toISOString(),
+          dataPoints: {
+            currentPeriodOrders: orders.length,
+            previousPeriodOrders: previousOrders.length,
+            totalProducts: products.length
+          }
+        };
+      } catch (parseError) {
+        console.error('Error parsing AI trend analysis response:', parseError);
+        // Fallback analysis
+        return this.generateFallbackTrendAnalysis(salesData, previousSalesData, vendorId, timeRange);
+      }
+    } catch (error) {
+      console.error('AI Trend Analysis error:', error);
+      throw new Error('AI trend analysis service temporarily unavailable');
+    }
+  }
+
+  // Prepare sales data for AI analysis
+  private prepareSalesData(orders: any[], products: any[]): any {
+    const salesByProduct: { [key: string]: any } = {};
+    const salesByCategory: { [key: string]: any } = {};
+    let totalRevenue = 0;
+    let totalOrders = orders.length;
+
+    orders.forEach(order => {
+      order.items.forEach((item: any) => {
+        const product = item.product;
+        if (!product) return;
+
+        const productId = product._id.toString();
+        const category = product.category;
+        
+        // Product sales
+        if (!salesByProduct[productId]) {
+          salesByProduct[productId] = {
+            productId,
+            productName: product.title,
+            category: product.category,
+            price: product.price,
+            sales: 0,
+            quantity: 0,
+            revenue: 0
+          };
+        }
+        
+        salesByProduct[productId].sales += 1;
+        salesByProduct[productId].quantity += item.quantity;
+        salesByProduct[productId].revenue += item.price * item.quantity;
+        
+        // Category sales
+        if (!salesByCategory[category]) {
+          salesByCategory[category] = {
+            category,
+            sales: 0,
+            quantity: 0,
+            revenue: 0
+          };
+        }
+        
+        salesByCategory[category].sales += 1;
+        salesByCategory[category].quantity += item.quantity;
+        salesByCategory[category].revenue += item.price * item.quantity;
+        
+        totalRevenue += item.price * item.quantity;
+      });
+    });
+
+    return {
+      totalRevenue,
+      totalOrders,
+      averageOrderValue: totalOrders > 0 ? totalRevenue / totalOrders : 0,
+      salesByProduct: Object.values(salesByProduct),
+      salesByCategory: Object.values(salesByCategory),
+      topProducts: Object.values(salesByProduct).sort((a: any, b: any) => b.revenue - a.revenue).slice(0, 10),
+      topCategories: Object.values(salesByCategory).sort((a: any, b: any) => b.revenue - a.revenue)
+    };
+  }
+
+  // Get date range filter for MongoDB queries
+  private getDateRangeFilter(timeRange: string): any {
+    const now = new Date();
+    let startDate: Date;
+
+    switch (timeRange) {
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'quarter':
+        const quarter = Math.floor(now.getMonth() / 3);
+        startDate = new Date(now.getFullYear(), quarter * 3, 1);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    return { $gte: startDate, $lte: now };
+  }
+
+  // Get previous period date range filter
+  private getPreviousDateRangeFilter(timeRange: string): any {
+    const now = new Date();
+    let startDate: Date;
+    let endDate: Date;
+
+    switch (timeRange) {
+      case 'week':
+        endDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        startDate = lastMonth;
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+        break;
+      case 'quarter':
+        const lastQuarter = Math.floor((now.getMonth() - 3) / 3);
+        const lastQuarterYear = lastQuarter < 0 ? now.getFullYear() - 1 : now.getFullYear();
+        const adjustedQuarter = lastQuarter < 0 ? 3 : lastQuarter;
+        startDate = new Date(lastQuarterYear, adjustedQuarter * 3, 1);
+        endDate = new Date(lastQuarterYear, (adjustedQuarter + 1) * 3, 0);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear() - 1, 0, 1);
+        endDate = new Date(now.getFullYear() - 1, 11, 31);
+        break;
+      default:
+        endDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    return { $gte: startDate, $lte: endDate };
+  }
+
+  // Generate fallback trend analysis when AI parsing fails
+  private generateFallbackTrendAnalysis(currentData: any, previousData: any, vendorId: string, timeRange: string): any {
+    const growthRate = previousData.totalRevenue > 0 
+      ? ((currentData.totalRevenue - previousData.totalRevenue) / previousData.totalRevenue) * 100 
+      : 0;
+
+    const topProduct = currentData.topProducts[0];
+    const topCategory = currentData.topCategories[0];
+
+    return {
+      vendorId,
+      timeRange,
+      analysis: {
+        summary: {
+          totalRevenue: currentData.totalRevenue,
+          totalOrders: currentData.totalOrders,
+          averageOrderValue: currentData.averageOrderValue,
+          growthRate: growthRate,
+          topPerformingCategory: topCategory?.category || 'N/A',
+          topPerformingProduct: topProduct?.productName || 'N/A'
+        },
+        trends: {
+          salesTrend: growthRate > 5 ? 'increasing' : growthRate < -5 ? 'decreasing' : 'stable',
+          categoryTrends: currentData.topCategories.map((cat: any) => ({
+            category: cat.category,
+            sales: cat.sales,
+            growth: 0, // Would need more complex calculation
+            trend: 'stable'
+          })),
+          productTrends: currentData.topProducts.slice(0, 5).map((prod: any) => ({
+            productId: prod.productId,
+            productName: prod.productName,
+            sales: prod.sales,
+            growth: 0,
+            trend: 'stable'
+          }))
+        },
+        insights: {
+          topInsights: [
+            {
+              type: 'recommendation',
+              title: 'Focus on Top Products',
+              description: `Your top product "${topProduct?.productName}" is performing well. Consider expanding inventory.`,
+              impact: 'medium',
+              actionable: true
+            }
+          ],
+          seasonalPatterns: 'No seasonal patterns detected in current data',
+          customerBehavior: 'Standard purchasing patterns observed',
+          marketPosition: 'Competitive position maintained'
+        },
+        recommendations: {
+          pricing: [],
+          inventory: [],
+          marketing: []
+        },
+        forecasting: {
+          nextPeriodPrediction: {
+            expectedRevenue: currentData.totalRevenue * (1 + growthRate / 100),
+            expectedOrders: currentData.totalOrders * (1 + growthRate / 100),
+            confidence: 'medium'
+          },
+          riskFactors: [],
+          opportunities: []
+        }
+      },
+      generatedAt: new Date().toISOString(),
+      dataPoints: {
+        currentPeriodOrders: currentData.totalOrders,
+        previousPeriodOrders: previousData.totalOrders,
+        totalProducts: currentData.salesByProduct.length
+      }
+    };
+  }
 }
 
 // Export singleton instance
@@ -1085,6 +1459,8 @@ export const geminiCompareProducts = (productIds: string[]) => aiService.compare
 export const geminiGenerateListing = (data: { imageBase64?: string; text?: string }) => aiService.generateListing(data);
 export const generateProductRecommendations = (clickHistory: any[], products: any[], limit: number) => 
   aiService.generateRecommendations(undefined, limit);
+export const analyzeVendorTrends = (vendorId: string, timeRange?: 'week' | 'month' | 'quarter' | 'year') => 
+  aiService.analyzeVendorTrends(vendorId, timeRange);
 
 // Export the VendorAIService class for backward compatibility
 export class VendorAIService {

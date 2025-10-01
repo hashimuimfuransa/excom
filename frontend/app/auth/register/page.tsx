@@ -14,6 +14,8 @@ import {
 import NextLink from 'next/link';
 import { apiPost } from '@utils/api';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -31,6 +33,7 @@ export default function RegisterPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation('common');
   
   const accountType = searchParams.get('type') as 'buyer' | 'seller' | 'affiliate' | null;
 
@@ -41,9 +44,9 @@ export default function RegisterPage() {
   }, [accountType]);
 
   const steps = [
-    'Account Type',
-    'Basic Information', 
-    'Account Creation'
+    t('auth.accountType'),
+    t('auth.basicInformation'), 
+    t('auth.accountCreation')
   ];
 
   const handleNext = () => {
@@ -56,19 +59,19 @@ export default function RegisterPage() {
 
   const validateForm = () => {
     if (!name.trim()) {
-      setError('Name is required');
+      setError(t('auth.nameRequired'));
       return false;
     }
     if (!email.trim()) {
-      setError('Email is required');
+      setError(t('auth.emailRequired'));
       return false;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('auth.passwordMinLength'));
       return false;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.passwordsDoNotMatch'));
       return false;
     }
     return true;
@@ -84,7 +87,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await apiPost<{ id: string }>("/auth/register", { name, email, password, role });
-      setSuccess('Account created successfully!');
+      setSuccess(t('auth.accountCreated'));
       
       // Redirect based on role
       setTimeout(() => {
@@ -95,7 +98,7 @@ export default function RegisterPage() {
         }
       }, 2000);
     } catch (err) {
-      setError('Registration failed. Email may be in use.');
+      setError(t('auth.registrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -112,9 +115,9 @@ export default function RegisterPage() {
 
   const getRoleDescription = (roleType: string) => {
     switch (roleType) {
-      case 'buyer': return 'Shop and discover amazing products';
-      case 'seller': return 'Sell your products and grow your business';
-      case 'affiliate': return 'Earn commissions by promoting products';
+      case 'buyer': return t('auth.shopAndDiscover');
+      case 'seller': return t('auth.sellAndGrow');
+      case 'affiliate': return t('auth.earnCommissions');
       default: return '';
     }
   };
@@ -125,9 +128,20 @@ export default function RegisterPage() {
       background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.main, 0.1)} 100%)`,
       display: 'flex',
       alignItems: 'center',
-      py: 4
+      py: { xs: 2, sm: 4 },
+      px: { xs: 1, sm: 2 }
     }}>
-      <Container maxWidth="lg">
+      {/* Language Switcher */}
+      <Box sx={{ 
+        position: 'fixed', 
+        top: { xs: 16, sm: 24 }, 
+        right: { xs: 16, sm: 24 },
+        zIndex: 1000
+      }}>
+        <LanguageSwitcher />
+      </Box>
+
+      <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
         <Grid container spacing={4} alignItems="center">
           {/* Left side - Account Type Selection */}
           <Grid item xs={12} md={6}>
@@ -147,12 +161,15 @@ export default function RegisterPage() {
                   background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
+                  WebkitTextFillColor: 'transparent',
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
                 }}>
-                  Join Excom Today
+                  {t('auth.joinExcomToday')}
                 </Typography>
-                <Typography variant="h6" color="text.secondary" paragraph>
-                  Choose your account type and start your journey
+                <Typography variant="h6" color="text.secondary" paragraph sx={{ 
+                  fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }
+                }}>
+                  {t('auth.chooseAccountTypeAndStart')}
                 </Typography>
                 
                 {/* Account Type Cards */}
@@ -180,10 +197,14 @@ export default function RegisterPage() {
                             {getRoleIcon(roleType)}
                           </Avatar>
                           <Box>
-                            <Typography variant="h6" fontWeight={600} textTransform="capitalize">
-                              {roleType === 'seller' ? 'Vendor' : roleType}
+                            <Typography variant="h6" fontWeight={600} textTransform="capitalize" sx={{ 
+                              fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }
+                            }}>
+                              {roleType === 'seller' ? t('auth.vendor') : t(`auth.${roleType}`)}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" sx={{ 
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                            }}>
                               {getRoleDescription(roleType)}
                             </Typography>
                           </Box>
@@ -203,19 +224,23 @@ export default function RegisterPage() {
           <Grid item xs={12} md={6}>
             <Slide direction="left" in timeout={800}>
               <Card sx={{ 
-                maxWidth: 520, 
+                maxWidth: { xs: '100%', sm: 520 }, 
                 mx: 'auto', 
-                borderRadius: 4, 
+                borderRadius: { xs: 2, sm: 4 }, 
                 boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                 border: `1px solid ${alpha(theme.palette.divider, 0.1)}`
               }}>
-                <CardContent sx={{ p: 4 }}>
+                <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
                   <Box textAlign="center" mb={3}>
-                    <Typography variant="h4" fontWeight={700} gutterBottom>
-                      Create Your Account
+                    <Typography variant="h4" fontWeight={700} gutterBottom sx={{ 
+                      fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                    }}>
+                      {t('auth.createAccount')}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {role === 'affiliate' ? 'Start earning commissions' : 'Join our community'}
+                    <Typography variant="body2" color="text.secondary" sx={{ 
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                    }}>
+                      {role === 'affiliate' ? t('auth.startEarningCommissions') : t('auth.joinOurCommunity')}
                     </Typography>
                   </Box>
 
@@ -234,7 +259,7 @@ export default function RegisterPage() {
                   <Box component="form" onSubmit={onSubmit}>
                     <Stack spacing={3}>
                       <TextField
-                        label="Full Name"
+                        label={t('forms.fullName')}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
@@ -255,7 +280,7 @@ export default function RegisterPage() {
                       />
                       
                       <TextField
-                        label="Email Address"
+                        label={t('forms.email')}
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -277,7 +302,7 @@ export default function RegisterPage() {
                       />
                       
                       <TextField
-                        label="Password"
+                        label={t('forms.password')}
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -309,7 +334,7 @@ export default function RegisterPage() {
                       />
 
                       <TextField
-                        label="Confirm Password"
+                        label={t('forms.confirmPassword')}
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -342,14 +367,18 @@ export default function RegisterPage() {
 
                       {role === 'affiliate' && (
                         <Paper sx={{ p: 2, bgcolor: 'info.light', borderRadius: 2 }}>
-                          <Typography variant="subtitle2" fontWeight={600} color="info.dark" gutterBottom>
-                            🎉 Affiliate Program Benefits
+                          <Typography variant="subtitle2" fontWeight={600} color="info.dark" gutterBottom sx={{ 
+                            fontSize: { xs: '0.9rem', sm: '1rem' }
+                          }}>
+                            {t('auth.affiliateBenefits')}
                           </Typography>
-                          <Typography variant="body2" color="info.dark">
-                            • Earn up to 10% commission on sales<br/>
-                            • Access to exclusive promotional materials<br/>
-                            • Real-time analytics and reporting<br/>
-                            • Dedicated affiliate support team
+                          <Typography variant="body2" color="info.dark" sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}>
+                            {t('auth.earnUpTo')}<br/>
+                            {t('auth.exclusiveMaterials')}<br/>
+                            {t('auth.realTimeAnalytics')}<br/>
+                            {t('auth.dedicatedSupport')}
                           </Typography>
                         </Paper>
                       )}
@@ -361,20 +390,23 @@ export default function RegisterPage() {
                         disabled={loading}
                         endIcon={<ArrowForwardIcon />}
                         sx={{ 
-                          py: 1.5, 
+                          py: { xs: 1.2, sm: 1.5 }, 
                           borderRadius: 2,
+                          fontSize: { xs: '0.9rem', sm: '1rem' },
                           background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                           '&:hover': {
                             background: `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
                           }
                         }}
                       >
-                        {loading ? 'Creating Account...' : `Create ${role === 'seller' ? 'Vendor' : role} Account`}
+                        {loading ? t('auth.creatingAccount') : `${t('auth.createAccount')} ${role === 'seller' ? t('auth.vendor') : t(`auth.${role}`)}`}
                       </Button>
 
                       <Divider sx={{ my: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          Already have an account?
+                        <Typography variant="body2" color="text.secondary" sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}>
+                          {t('auth.alreadyHaveAccount')}
                         </Typography>
                       </Divider>
 
@@ -383,9 +415,13 @@ export default function RegisterPage() {
                         href="/auth/login"
                         variant="outlined"
                         fullWidth
-                        sx={{ borderRadius: 2 }}
+                        sx={{ 
+                          borderRadius: 2,
+                          fontSize: { xs: '0.9rem', sm: '1rem' },
+                          py: { xs: 1, sm: 1.2 }
+                        }}
                       >
-                        Sign In Instead
+                        {t('auth.signInInstead')}
                       </Button>
                     </Stack>
                   </Box>

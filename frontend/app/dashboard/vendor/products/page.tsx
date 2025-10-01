@@ -30,6 +30,7 @@ import {
 import { apiDelete, apiGet, apiPost, apiPatch } from '@utils/api';
 import { useTranslation } from 'react-i18next';
 import Product3DManager from '@components/Product3DManager';
+import VendorLayout from '@components/VendorLayout';
 import LanguageSwitcher from '@components/LanguageSwitcher';
 import DarkModeToggle from '@components/DarkModeToggle';
 
@@ -505,10 +506,26 @@ export default function VendorProductsPage() {
             <Box flex={1}>
               <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                 <Box>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
+                  <Typography 
+                    variant="h6" 
+                    fontWeight={700} 
+                    gutterBottom
+                    sx={{ 
+                      fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem', lg: '1.1rem' },
+                      lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+                    }}
+                  >
                     {product.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ 
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem', lg: '0.875rem' },
+                      lineHeight: { xs: 1.4, sm: 1.5, md: 1.6, lg: 1.6 }
+                    }}
+                  >
                     {product.description || t('products.noDescription')}
                   </Typography>
                   <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
@@ -604,16 +621,31 @@ export default function VendorProductsPage() {
           sx={{ objectFit: 'cover' }}
         />
         <CardContent>
-          <Typography variant="h6" fontWeight={700} gutterBottom noWrap>
+          <Typography 
+            variant="h6" 
+            fontWeight={700} 
+            gutterBottom 
+            noWrap
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem', lg: '1.1rem' },
+              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+            }}
+          >
             {product.title}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ 
-            mb: 1, 
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ 
+              mb: 1, 
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem', lg: '0.875rem' },
+              lineHeight: { xs: 1.4, sm: 1.5, md: 1.6, lg: 1.6 }
+            }}
+          >
             {product.description || t('products.noDescription')}
           </Typography>
           <Stack direction="row" spacing={1} sx={{ mb: 1 }} flexWrap="wrap">
@@ -712,27 +744,34 @@ export default function VendorProductsPage() {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 2, sm: 3 } }}>
+    <VendorLayout>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          py: { xs: 2, sm: 3, md: 4, lg: 4 }, 
+          px: { xs: 2, sm: 3, md: 4, lg: 4 } 
+        }}
+      >
       {/* Header */}
       <Stack 
         direction={{ xs: 'column', sm: 'row' }} 
         alignItems={{ xs: 'stretch', sm: 'center' }} 
         justifyContent="space-between" 
-        mb={{ xs: 3, sm: 4 }}
+        mb={{ xs: 3, sm: 4, md: 4, lg: 4 }}
         spacing={{ xs: 2, sm: 0 }}
       >
-        <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2 }}>
+        <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2, md: 2, lg: 2 }}>
           <IconButton 
             onClick={() => window.location.href = '/dashboard/vendor'}
             sx={{ 
               bgcolor: 'primary.main', 
               color: 'white',
               '&:hover': { bgcolor: 'primary.dark' },
-              width: { xs: 40, sm: 48 },
-              height: { xs: 40, sm: 48 }
+              width: { xs: 40, sm: 44, md: 48, lg: 48 },
+              height: { xs: 40, sm: 44, md: 48, lg: 48 }
             }}
           >
-            <ArrowBackIcon sx={{ fontSize: { xs: '1.25rem', sm: '1.75rem' } }} />
+            <ArrowBackIcon sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem', lg: '1.75rem' } }} />
           </IconButton>
           <Box>
             <Typography 
@@ -783,10 +822,24 @@ export default function VendorProductsPage() {
               <Inventory fontSize="small" />
             </Avatar>
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                sx={{ 
+                  fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem', lg: '0.875rem' },
+                  lineHeight: { xs: 1.4, sm: 1.5, md: 1.6, lg: 1.6 }
+                }}
+              >
                 {t('products.totalProducts')}
               </Typography>
-              <Typography variant="h6" fontWeight={700}>
+              <Typography 
+                variant="h6" 
+                fontWeight={700}
+                sx={{ 
+                  fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem', lg: '1.25rem' },
+                  lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+                }}
+              >
                 {items.length}
               </Typography>
             </Box>
@@ -1612,6 +1665,7 @@ export default function VendorProductsPage() {
       >
         <MonetizationOn />
       </Fab>
-    </Container>
+      </Container>
+    </VendorLayout>
   );
 }

@@ -567,9 +567,6 @@ export default function AffiliateLayout({ children }: AffiliateLayoutProps) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <DarkModeToggle />
             <LanguageSwitcher />
-            <IconButton color="inherit" onClick={() => router.push('/')}>
-              <Home />
-            </IconButton>
           </Box>
         </Toolbar>
       </AppBar>
@@ -634,10 +631,30 @@ export default function AffiliateLayout({ children }: AffiliateLayoutProps) {
           flexGrow: 1,
           width: { md: `calc(100% - ${drawerWidth}px)` },
           backgroundColor: 'background.default',
+          minHeight: '100vh',
+          // Enhanced responsive design
+          '@media (max-width: 768px)': {
+            width: '100%',
+            padding: 0,
+          },
+          '@media (min-width: 769px) and (max-width: 1024px)': {
+            padding: 1,
+          },
+          '@media (min-width: 1025px)': {
+            padding: 2,
+          }
         }}
       >
         <Toolbar />
-        {children}
+        <Box sx={{ 
+          width: '100%',
+          height: '100%',
+          overflow: 'auto',
+          // Ensure proper scrolling on mobile
+          WebkitOverflowScrolling: 'touch'
+        }}>
+          {children}
+        </Box>
       </Box>
     </Box>
   );

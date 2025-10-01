@@ -10,6 +10,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import FlashDealsBanner from '../components/FlashDealsBanner';
 import { CssBaseline, Box } from '@mui/material';
 import AppGlobalStyles from '../components/AppGlobalStyles';
+import ConditionalLayout from '../components/ConditionalLayout';
 
 export const metadata = {
   metadataBase: new URL('https://excom.local'),
@@ -49,15 +50,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <NotificationProvider>
                     <CssBaseline />
                     <AppGlobalStyles />
-                    <FlashDealsBanner />
-                    <Navbar />
-                    <Box component="main" sx={{ 
-                      minHeight: '100dvh',
-                      paddingBottom: { xs: 'calc(70px + env(safe-area-inset-bottom))', md: 0 } // Account for safe area and bottom navbar + SpeedDial
-                    }}>
+                    <ConditionalLayout>
                       {children}
-                    </Box>
-                    <BottomNavbar />
+                    </ConditionalLayout>
                   </NotificationProvider>
                 </GamificationProvider>
               </AuthProvider>

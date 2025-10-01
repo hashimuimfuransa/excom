@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { apiGet, apiPatch } from '@utils/api';
 import { useTranslation } from 'react-i18next';
+import VendorLayout from '@components/VendorLayout';
 
 interface OrderItem {
   _id: string;
@@ -204,27 +205,34 @@ export default function VendorOrdersPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 2, sm: 3 } }}>
+    <VendorLayout>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          py: { xs: 2, sm: 3, md: 4, lg: 4 }, 
+          px: { xs: 2, sm: 3, md: 4, lg: 4 } 
+        }}
+      >
       {/* Header */}
       <Stack 
         direction={{ xs: 'column', sm: 'row' }} 
         alignItems={{ xs: 'stretch', sm: 'center' }} 
         justifyContent="space-between" 
-        mb={{ xs: 3, sm: 4 }}
+        mb={{ xs: 3, sm: 4, md: 4, lg: 4 }}
         spacing={{ xs: 2, sm: 0 }}
       >
-        <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2 }}>
+        <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2, md: 2, lg: 2 }}>
           <IconButton 
             onClick={() => window.location.href = '/dashboard/vendor'}
             sx={{ 
               bgcolor: 'primary.main', 
               color: 'white',
               '&:hover': { bgcolor: 'primary.dark' },
-              width: { xs: 40, sm: 48 },
-              height: { xs: 40, sm: 48 }
+              width: { xs: 40, sm: 44, md: 48, lg: 48 },
+              height: { xs: 40, sm: 44, md: 48, lg: 48 }
             }}
           >
-            <ArrowBackIcon sx={{ fontSize: { xs: '1.25rem', sm: '1.75rem' } }} />
+            <ArrowBackIcon sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem', lg: '1.75rem' } }} />
           </IconButton>
           <Box>
             <Typography 
@@ -692,6 +700,7 @@ export default function VendorOrdersPage() {
           </>
         )}
       </Dialog>
-    </Container>
+      </Container>
+    </VendorLayout>
   );
 }

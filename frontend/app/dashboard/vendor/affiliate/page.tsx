@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import { apiGet, apiPost, apiPatch } from '@utils/api';
 import { useTranslation } from 'react-i18next';
+import VendorLayout from '@components/VendorLayout';
 
 interface AffiliateProgram {
   _id: string;
@@ -243,8 +244,15 @@ export default function VendorAffiliatePage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box mb={4}>
+    <VendorLayout>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          py: { xs: 2, sm: 3, md: 4, lg: 4 },
+          px: { xs: 2, sm: 3, md: 4, lg: 4 }
+        }}
+      >
+      <Box mb={{ xs: 3, sm: 4, md: 4, lg: 4 }}>
         <Typography variant="h4" fontWeight={700} gutterBottom>
           Affiliate Management
         </Typography>
@@ -874,6 +882,7 @@ export default function VendorAffiliatePage() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+      </Container>
+    </VendorLayout>
   );
 }

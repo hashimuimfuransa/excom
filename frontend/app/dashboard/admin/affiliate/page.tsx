@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { 
   Users, 
   DollarSign, 
@@ -136,7 +137,8 @@ export default function AdminAffiliatePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <AdminLayout>
+      <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Affiliate Management</h1>
         <p className="text-gray-600 mt-2">Monitor global affiliate activity and detect fraud</p>
@@ -350,6 +352,7 @@ export default function AdminAffiliatePage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

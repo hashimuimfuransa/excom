@@ -19,6 +19,7 @@ import {
 import { useAuth } from '@utils/auth';
 import { useTranslation } from 'react-i18next';
 import BargainChat from '@/components/BargainChat';
+import VendorLayout from '@components/VendorLayout';
 
 interface BargainChatData {
   _id: string;
@@ -386,9 +387,16 @@ export default function BargainingChatsPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <VendorLayout>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          py: { xs: 2, sm: 3, md: 4, lg: 4 },
+          px: { xs: 2, sm: 3, md: 4, lg: 4 }
+        }}
+      >
       {/* Header */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={{ xs: 3, sm: 4, md: 4, lg: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={700} gutterBottom>
             {t('products.bargainHistory')}
@@ -531,6 +539,7 @@ export default function BargainingChatsPage() {
       >
         <RefreshIcon />
       </Fab>
-    </Container>
+      </Container>
+    </VendorLayout>
   );
 }

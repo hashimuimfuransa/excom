@@ -4,7 +4,9 @@ import Store from '../models/Store';
 import Order from '../models/Order';
 import BargainChat from '../models/BargainChat';
 import AffiliateProgram from '../models/AffiliateProgram';
+import User from '../models/User';
 import { requireAuth, AuthRequest } from '../middleware/auth';
+import { analyzeVendorTrends } from '../services/aiService';
 
 const router = Router();
 
@@ -642,6 +644,160 @@ router.put('/settings', requireAuth, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Error updating vendor settings:', error);
     res.status(500).json({ message: 'Failed to update settings' });
+  }
+});
+
+// AI-powered trend analysis endpoint
+router.get('/trend-analysis', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const sellerId = req.user!.sub;
+    const { timeRange = 'month' } = req.query;
+    
+    // Validate timeRange parameter
+    const validTimeRanges = ['week', 'month', 'quarter', 'year'];
+    if (!validTimeRanges.includes(timeRange as string)) {
+      return res.status(400).json({ 
+        message: 'Invalid time range. Must be one of: week, month, quarter, year' 
+      });
+    }
+
+    console.log(`Generating trend analysis for vendor ${sellerId} over ${timeRange}`);
+    
+    // Generate AI-powered trend analysis
+    const trendAnalysis = await analyzeVendorTrends(
+      sellerId, 
+      timeRange as 'week' | 'month' | 'quarter' | 'year'
+    );
+    
+    res.json({
+      success: true,
+      data: trendAnalysis,
+      message: 'Trend analysis generated successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error generating trend analysis:', error);
+    res.status(500).json({ 
+      message: 'Failed to generate trend analysis',
+      error: error.message 
+    });
+  }
+});
+
+// Get vendor performance insights (simplified version without AI)
+router.get('/performance-insights', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const sellerId = req.user!.sub;
+    const { timeRange = 'month' } = req.query;
+    
+    // Get vendor's products
+    const products = await Product.find({ seller: sellerId });
+    
+    // Calculate date range
+    const now = new Date();
+    let startDate: Date;
+    
+    switch (timeRange) {
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'quarter':
+        const quarter = Math.floor(now.getMonth() / 3);
+        startDate = new Date(now.getFullYear(), quarter * 3, 1);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+    
+    // Get orders for the time period
+    const orders = await Order.find({
+      'items.vendor': sellerId,
+      createdAt: { $gte: startDate, $lte: now }
+    }).populate('items.product', 'title category price');
+    
+    // Calculate basic metrics
+    let totalRevenue = 0;
+    let totalOrders = orders.length;
+    const salesByProduct: { [key: string]: any } = {};
+    const salesByCategory: { [key: string]: any } = {};
+    
+    orders.forEach(order => {
+      order.items.forEach((item: any) => {
+        if (item.vendor === sellerId) {
+          const product = item.product;
+          if (!product) return;
+          
+          const productId = product._id.toString();
+          const category = product.category;
+          
+          // Product sales
+          if (!salesByProduct[productId]) {
+            salesByProduct[productId] = {
+              productId,
+              productName: product.title,
+              category: product.category,
+              sales: 0,
+              revenue: 0
+            };
+          }
+          
+          salesByProduct[productId].sales += 1;
+          salesByProduct[productId].revenue += item.price * item.quantity;
+          
+          // Category sales
+          if (!salesByCategory[category]) {
+            salesByCategory[category] = {
+              category,
+              sales: 0,
+              revenue: 0
+            };
+          }
+          
+          salesByCategory[category].sales += 1;
+          salesByCategory[category].revenue += item.price * item.quantity;
+          
+          totalRevenue += item.price * item.quantity;
+        }
+      });
+    });
+    
+    // Get top products and categories
+    const topProducts = Object.values(salesByProduct)
+      .sort((a: any, b: any) => b.revenue - a.revenue)
+      .slice(0, 5);
+    
+    const topCategories = Object.values(salesByCategory)
+      .sort((a: any, b: any) => b.revenue - a.revenue);
+    
+    res.json({
+      success: true,
+      data: {
+        timeRange,
+        summary: {
+          totalRevenue,
+          totalOrders,
+          averageOrderValue: totalOrders > 0 ? totalRevenue / totalOrders : 0,
+          totalProducts: products.length
+        },
+        topProducts,
+        topCategories,
+        salesByProduct: Object.values(salesByProduct),
+        salesByCategory: Object.values(salesByCategory)
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error fetching performance insights:', error);
+    res.status(500).json({ 
+      message: 'Failed to fetch performance insights',
+      error: error.message 
+    });
   }
 });
 

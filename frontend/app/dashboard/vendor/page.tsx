@@ -184,27 +184,48 @@ export default function VendorDashboardPage() {
 
   return (
     <VendorLayout>
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          py: { xs: 2, sm: 3, md: 4, lg: 4 },
+          px: { xs: 2, sm: 3, md: 4, lg: 4 }
+        }}
+      >
       {/* Header */}
       <Stack 
         direction={{ xs: 'column', sm: 'row' }} 
         alignItems={{ xs: 'flex-start', sm: 'center' }} 
         justifyContent="space-between" 
         spacing={{ xs: 2, sm: 0 }}
-        mb={4}
+        mb={{ xs: 3, sm: 4, md: 4, lg: 4 }}
       >
         <Box>
-          <Typography variant="h4" fontWeight={900} gutterBottom>
+          <Typography 
+            variant="h4" 
+            fontWeight={900} 
+            gutterBottom
+            sx={{ 
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem', lg: '2.125rem' },
+              lineHeight: { xs: 1.2, sm: 1.3, md: 1.4, lg: 1.4 }
+            }}
+          >
             {t('vendor.vendorHub')}
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography 
+            variant="body1" 
+            color="text.secondary"
+            sx={{ 
+              fontSize: { xs: '0.875rem', sm: '0.9rem', md: '1rem', lg: '1rem' },
+              lineHeight: { xs: 1.4, sm: 1.5, md: 1.6, lg: 1.6 }
+            }}
+          >
             {t('vendor.trackPerformance')}
           </Typography>
         </Box>
         <Stack 
           direction="row" 
           alignItems="center" 
-          spacing={2}
+          spacing={{ xs: 1, sm: 2, md: 2, lg: 2 }}
           sx={{ 
             width: { xs: '100%', sm: 'auto' },
             justifyContent: { xs: 'space-between', sm: 'flex-end' }
@@ -214,10 +235,10 @@ export default function VendorDashboardPage() {
           <DarkModeToggle />
           <Avatar sx={{ 
             bgcolor: 'primary.main', 
-            width: { xs: 48, sm: 64 }, 
-            height: { xs: 48, sm: 64 } 
+            width: { xs: 48, sm: 56, md: 64, lg: 64 }, 
+            height: { xs: 48, sm: 56, md: 64, lg: 64 } 
           }}>
-            <StoreIcon sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }} />
+            <StoreIcon sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem', lg: '2rem' } }} />
           </Avatar>
         </Stack>
       </Stack>
@@ -244,7 +265,16 @@ export default function VendorDashboardPage() {
         color: 'white',
         border: `1px solid ${theme.palette.divider}`
       })}>
-        <Typography variant="h6" fontWeight={700} gutterBottom color="white">
+        <Typography 
+          variant="h6" 
+          fontWeight={700} 
+          gutterBottom 
+          color="white"
+          sx={{ 
+            fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem', lg: '1.25rem' },
+            lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+          }}
+        >
           {t('vendor.powerTools')}
         </Typography>
         <Grid container spacing={{ xs: 1, sm: 2 }}>
@@ -412,10 +442,25 @@ export default function VendorDashboardPage() {
           <Avatar sx={{ bgcolor: 'primary.main', width: 80, height: 80, mx: 'auto', mb: 3 }}>
             <StoreIcon fontSize="large" />
           </Avatar>
-          <Typography variant="h5" fontWeight={700} gutterBottom>
+          <Typography 
+            variant="h5" 
+            fontWeight={700} 
+            gutterBottom
+            sx={{ 
+              fontSize: { xs: '1.25rem', sm: '1.4rem', md: '1.5rem', lg: '1.5rem' },
+              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+            }}
+          >
             {t('vendor.launchYourStore')}
           </Typography>
-          <Typography color="text.secondary" mb={3}>
+          <Typography 
+            color="text.secondary" 
+            mb={3}
+            sx={{ 
+              fontSize: { xs: '0.875rem', sm: '0.9rem', md: '1rem', lg: '1rem' },
+              lineHeight: { xs: 1.4, sm: 1.5, md: 1.6, lg: 1.6 }
+            }}
+          >
             {t('vendor.createGetApproved')}
           </Typography>
           <Button
@@ -433,7 +478,14 @@ export default function VendorDashboardPage() {
           {/* Store Management Header */}
           <Paper sx={{ p: 3, borderRadius: 4, border: (t) => `1px solid ${t.palette.divider}`, mb: 4 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
-              <Typography variant="h6" fontWeight={700}>
+              <Typography 
+                variant="h6" 
+                fontWeight={700}
+                sx={{ 
+                  fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem', lg: '1.25rem' },
+                  lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+                }}
+              >
                 {t('vendor.myStores')} ({stores.length})
               </Typography>
               <Button 
@@ -677,7 +729,15 @@ export default function VendorDashboardPage() {
 
               {/* Quick Actions */}
               <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 4, border: (t) => `1px solid ${t.palette.divider}`, mb: 4 }}>
-                <Typography variant="h6" fontWeight={700} gutterBottom>
+                <Typography 
+                  variant="h6" 
+                  fontWeight={700} 
+                  gutterBottom
+                  sx={{ 
+                    fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem', lg: '1.25rem' },
+                    lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+                  }}
+                >
                   {t('vendor.quickActions')}
                 </Typography>
                 <Grid container spacing={{ xs: 1, sm: 2 }}>
@@ -780,6 +840,28 @@ export default function VendorDashboardPage() {
                     <Button
                       fullWidth
                       variant="outlined"
+                      startIcon={<TrendingUp />}
+                      href="/dashboard/vendor/trend-analysis"
+                      size="small"
+                      sx={{ 
+                        borderRadius: 2, 
+                        py: { xs: 1, sm: 1.5 },
+                        flexDirection: { xs: 'row', sm: 'column' },
+                        height: { xs: 'auto', sm: '80px' },
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        '& .MuiButton-startIcon': { 
+                          marginRight: { xs: 1, sm: 0 }, 
+                          marginBottom: { xs: 0, sm: 1 } 
+                        }
+                      }}
+                    >
+                      {t('vendor.trendAnalysis')}
+                    </Button>
+                  </Grid>
+                  <Grid item xs={6} sm={6} md={3}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
                       startIcon={<AffiliateIcon />}
                       href="/dashboard/vendor/affiliate"
                       size="small"
@@ -817,7 +899,14 @@ export default function VendorDashboardPage() {
                   spacing={{ xs: 1, sm: 0 }}
                   mb={3}
                 >
-                  <Typography variant="h6" fontWeight={700}>
+                  <Typography 
+                    variant="h6" 
+                    fontWeight={700}
+                    sx={{ 
+                      fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem', lg: '1.25rem' },
+                      lineHeight: { xs: 1.3, sm: 1.4, md: 1.5, lg: 1.5 }
+                    }}
+                  >
                     {t('vendor.recentOrders')}
                   </Typography>
                   <Button 
