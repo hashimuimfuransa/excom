@@ -215,9 +215,9 @@ export default function AffiliateLinksPage() {
   };
 
   const filteredLinks = links.filter(link => {
-    const matchesSearch = link.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         link.vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         link.affiliateUrl.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (link.productName?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+                         (link.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+                         (link.affiliateUrl?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     
     const matchesStatus = statusFilter === 'all' || link.status === statusFilter;
     
@@ -316,7 +316,7 @@ export default function AffiliateLinksPage() {
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Box>
                     <Typography variant="h4" fontWeight={700} color="warning.main">
-                      ${totalStats.totalEarnings.toFixed(2)}
+                      ${(totalStats.totalEarnings || 0).toFixed(2)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {t('affiliate.totalEarnings')}
@@ -408,7 +408,7 @@ export default function AffiliateLinksPage() {
                             src={link.productImage}
                             sx={{ width: 40, height: 40 }}
                           >
-                            {link.productName.charAt(0)}
+                            {link.productName?.charAt(0) || '?'}
                           </Avatar>
                           <Box>
                             <Typography variant="subtitle2" fontWeight={600}>
@@ -471,13 +471,13 @@ export default function AffiliateLinksPage() {
                           {link.conversions}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" display="block">
-                          {link.conversionRate.toFixed(1)}%
+                          {(link.conversionRate || 0).toFixed(1)}%
                         </Typography>
                       </TableCell>
                       
                       <TableCell align="center">
                         <Typography variant="body2" fontWeight={600} color="success.main">
-                          ${link.earnings.toFixed(2)}
+                          ${(link.earnings || 0).toFixed(2)}
                         </Typography>
                       </TableCell>
                       
@@ -555,7 +555,7 @@ export default function AffiliateLinksPage() {
                           src={product.image}
                           sx={{ width: 32, height: 32 }}
                         >
-                          {product.title.charAt(0)}
+                          {product.title?.charAt(0) || '?'}
                         </Avatar>
                         <Box>
                           <Typography variant="subtitle2">

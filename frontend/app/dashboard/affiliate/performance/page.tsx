@@ -19,20 +19,18 @@ import {
   Paper,
   LinearProgress,
   Avatar,
-  Alert,
   Snackbar
 } from '@mui/material';
-import {
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Refresh as RefreshIcon,
-  Download as DownloadIcon,
-  EmojiEvents as TrophyIcon,
-  Target as TargetIcon,
-  Star as StarIcon,
-  Assessment as AssessmentIcon,
-  Psychology as PsychologyIcon
-} from '@mui/icons-material';
+import { Alert } from '@mui/material';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import DownloadIcon from '@mui/icons-material/Download';
+import TrophyIcon from '@mui/icons-material/EmojiEvents';
+import TargetIcon from '@mui/icons-material/Flag';
+import StarIcon from '@mui/icons-material/Star';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 import { useTranslation } from 'react-i18next';
 import AffiliateLayout from '@/components/AffiliateLayout';
 import { apiGet } from '@/utils/api';

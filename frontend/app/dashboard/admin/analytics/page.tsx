@@ -271,14 +271,14 @@ export default function AdminAnalyticsPage() {
                             </Typography>
                           }
                           secondary={
-                            <Box sx={{ display: 'flex', gap: 2, mt: 0.5 }}>
-                              <Typography variant="body2" color="text.secondary">
+                            <span style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+                              <Typography variant="body2" color="text.secondary" component="span">
                                 {product.sales} sales
                               </Typography>
-                              <Typography variant="body2" fontWeight={600} color="success.main">
+                              <Typography variant="body2" fontWeight={600} color="success.main" component="span">
                                 ${product.revenue.toLocaleString()}
                               </Typography>
-                            </Box>
+                            </span>
                           }
                         />
                       </ListItem>
@@ -317,14 +317,14 @@ export default function AdminAnalyticsPage() {
                             </Typography>
                           }
                           secondary={
-                            <Box sx={{ display: 'flex', gap: 2, mt: 0.5 }}>
-                              <Typography variant="body2" color="text.secondary">
+                            <span style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+                              <Typography variant="body2" color="text.secondary" component="span">
                                 {store.orders} orders
                               </Typography>
-                              <Typography variant="body2" fontWeight={600} color="success.main">
+                              <Typography variant="body2" fontWeight={600} color="success.main" component="span">
                                 ${store.revenue.toLocaleString()}
                               </Typography>
-                            </Box>
+                            </span>
                           }
                         />
                         <Box sx={{ textAlign: 'right' }}>
@@ -368,16 +368,16 @@ export default function AdminAnalyticsPage() {
                             </Typography>
                           }
                           secondary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 0.5 }}>
-                              <Typography variant="body2" color="text.secondary">
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 4 }}>
+                              <Typography variant="body2" color="text.secondary" component="span">
                                 {new Date(activity.timestamp).toLocaleTimeString()}
                               </Typography>
                               {activity.value && (
-                                <Typography variant="body2" fontWeight={600} color="success.main">
+                                <Typography variant="body2" fontWeight={600} color="success.main" component="span">
                                   +${activity.value}
                                 </Typography>
                               )}
-                            </Box>
+                            </span>
                           }
                         />
                       </ListItem>

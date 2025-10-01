@@ -164,7 +164,8 @@ router.get('/gamification/stats', requireAuth, async (req: AuthRequest, res) => 
       rank,
       totalPurchases: stats.totalPurchases,
       totalSpent: stats.totalSpent,
-      achievements
+      achievements,
+      badges: [] // Add empty badges array for now
     };
 
     res.json(gamificationStats);
@@ -179,7 +180,8 @@ router.get('/gamification/stats', requireAuth, async (req: AuthRequest, res) => 
       rank: 'Novice Shopper',
       totalPurchases: 0,
       totalSpent: 0,
-      achievements: []
+      achievements: [],
+      badges: []
     });
   }
 });
@@ -479,6 +481,58 @@ router.delete('/delete-account', requireAuth, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Error deleting account:', error);
     res.status(500).json({ message: 'Failed to delete account' });
+  }
+});
+
+// Earn credits (placeholder - in a real system, this would update user credits)
+router.post('/gamification/earn-credits', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { amount, reason } = req.body;
+    // In a real system, you would update the user's credits in the database
+    console.log(`User ${req.user!.sub} earned ${amount} credits for: ${reason}`);
+    res.json({ message: 'Credits earned successfully', amount, reason });
+  } catch (error) {
+    console.error('Error earning credits:', error);
+    res.status(500).json({ message: 'Failed to earn credits' });
+  }
+});
+
+// Add experience (placeholder - in a real system, this would update user experience)
+router.post('/gamification/add-experience', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { amount, reason } = req.body;
+    // In a real system, you would update the user's experience in the database
+    console.log(`User ${req.user!.sub} earned ${amount} experience for: ${reason}`);
+    res.json({ message: 'Experience added successfully', amount, reason });
+  } catch (error) {
+    console.error('Error adding experience:', error);
+    res.status(500).json({ message: 'Failed to add experience' });
+  }
+});
+
+// Unlock achievement (placeholder - in a real system, this would update user achievements)
+router.post('/gamification/unlock-achievement', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { achievementId } = req.body;
+    // In a real system, you would add the achievement to the user's achievements
+    console.log(`User ${req.user!.sub} unlocked achievement: ${achievementId}`);
+    res.json({ message: 'Achievement unlocked successfully', achievementId });
+  } catch (error) {
+    console.error('Error unlocking achievement:', error);
+    res.status(500).json({ message: 'Failed to unlock achievement' });
+  }
+});
+
+// Unlock badge (placeholder - in a real system, this would update user badges)
+router.post('/gamification/unlock-badge', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { badgeId } = req.body;
+    // In a real system, you would add the badge to the user's badges
+    console.log(`User ${req.user!.sub} unlocked badge: ${badgeId}`);
+    res.json({ message: 'Badge unlocked successfully', badgeId });
+  } catch (error) {
+    console.error('Error unlocking badge:', error);
+    res.status(500).json({ message: 'Failed to unlock badge' });
   }
 });
 
