@@ -92,8 +92,10 @@ import { addToCart } from '@utils/cart';
 import NextLink from 'next/link';
 import BargainChat from '@components/BargainChat';
 import ARViewer from '@components/ARViewer';
+import MostlyPurchasedProducts from '@components/MostlyPurchasedProducts';
 import { useAuth } from '@utils/auth';
 import { useTranslation } from 'react-i18next';
+import { formatPrice, getCurrencySymbol } from '@utils/currency';
 
 interface Product {
   _id: string;
@@ -210,7 +212,7 @@ const RelatedProductCard = ({ product: relatedProduct, router }: { product: Prod
         fontWeight={700}
         sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
       >
-        ${relatedProduct.price.toFixed(2)}
+        {formatPrice(relatedProduct.price, relatedProduct.currency || 'USD')}
       </Typography>
     </CardContent>
   </Card>
@@ -1135,7 +1137,7 @@ export default function ProductPage() {
                           WebkitTextFillColor: 'transparent',
                         }}
                       >
-                        ${product.price.toFixed(2)}
+                        {formatPrice(product.price, product.currency || 'USD')}
                       </Typography>
                       <Typography 
                         variant="h6" 
@@ -1143,7 +1145,7 @@ export default function ProductPage() {
                         fontWeight={500}
                         sx={{ fontSize: { xs: '0.8rem', md: '1.25rem' } }}
                       >
-                        {product.currency || t('productDetails.usd')}
+                        {product.currency || 'USD'}
                       </Typography>
                       {product.bargainingEnabled && (
                         <Chip 
@@ -1167,7 +1169,7 @@ export default function ProductPage() {
                       </Typography>
                       {product.bargainingEnabled && product.minBargainPrice && (
                         <Typography variant="caption" color="warning.dark" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
-                          {t('productDetails.min')} ${product.minBargainPrice.toFixed(2)}
+                          {t('productDetails.min')} {formatPrice(product.minBargainPrice, product.currency || 'USD')}
                         </Typography>
                       )}
                     </Stack>
@@ -2980,6 +2982,7 @@ export default function ProductPage() {
           )}
         </Box>
       </Paper>
+      </Container>
 
       {/* Related Products */}
       <Container maxWidth="lg" sx={{ mt: { xs: 4, md: 6 } }}>
@@ -3021,6 +3024,7 @@ export default function ProductPage() {
           </Typography>
         )}
       </Box>
+      </Container>
 
       {/* Recently Viewed Products Section */}
       <Container maxWidth="lg" sx={{ mt: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
@@ -3064,8 +3068,6 @@ export default function ProductPage() {
               {t('productDetails.viewAll')}
             </Button>
           </Stack>
-          
-          <RecentlyViewedProducts currentProductId={productId} />
         </Box>
       </Container>
 
@@ -3114,7 +3116,6 @@ export default function ProductPage() {
           
           <MostlyPurchasedProducts products={mostlyPurchased} />
         </Box>
-      </Container>
       </Container>
 
       {/* Image Dialog */}
@@ -3218,719 +3219,16 @@ export default function ProductPage() {
         </Alert>
       </Snackbar>
 
-      {/* Enhanced Floating Bargain Chat Button - Visible on All Screen Sizes */}
+            {/* Bargain Chat Dialog */}
       {canUserBargain() && (
-        <>
-          {/* Main Floating Button */}
-          <Fab
-            color="warning"
-            onClick={handleStartBargaining}
-            sx={{
-              position: 'fixed',
-              bottom: { xs: 80, md: 120 }, // Higher on desktop to avoid conflicts
-              right: { xs: 16, md: 24 },
-              zIndex: 1000,
-              width: { xs: 56, md: 68 },
-              height: { xs: 56, md: 68 },
-              bgcolor: 'warning.main',
-              boxShadow: '0 8px 25px rgba(245, 158, 11, 0.6)',
-              '&:hover': {
-                bgcolor: 'warning.dark',
-                transform: 'scale(1.15)',
-                boxShadow: '0 12px 35px rgba(245, 158, 11, 0.8)'
-              },
-              animation: 'pulseGlow 2s ease-in-out infinite alternate',
-              transition: 'all 0.3s ease',
-              '@keyframes pulseGlow': {
-                '0%': { 
-                  boxShadow: '0 8px 25px rgba(245, 158, 11, 0.6)',
-                  transform: 'scale(1)'
-                },
-                '100%': { 
-                  boxShadow: '0 12px 35px rgba(245, 158, 11, 0.9)',
-                  transform: 'scale(1.05)'
-                }
-              }
-            }}
-          >
-            {existingChatId ? <ChatIcon sx={{ fontSize: { xs: 24, md: 28 } }} /> : <BargainIcon sx={{ fontSize: { xs: 24, md: 28 } }} />}
-          </Fab>
-
-          {/* Floating Label - Shows on hover/focus */}
-          <Paper
-            elevation={8}
-            sx={{
-              position: 'fixed',
-              bottom: { xs: 80, md: 120 },
-              right: { xs: 80, md: 100 },
-              zIndex: 999,
-              px: { xs: 1.5, md: 2 },
-              py: { xs: 0.5, md: 1 },
-              borderRadius: 3,
-              bgcolor: 'warning.dark',
-              color: 'white',
-              fontWeight: 600,
-              fontSize: { xs: '0.75rem', md: '0.875rem' },
-              whiteSpace: 'nowrap',
-              opacity: 0,
-              transform: 'translateX(10px)',
-              transition: 'all 0.3s ease',
-              pointerEvents: 'none',
-              '&.show-label': {
-                opacity: 1,
-                transform: 'translateX(0)'
-              },
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                right: -8,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: 0,
-                height: 0,
-                borderLeft: '8px solid',
-                borderLeftColor: 'warning.dark',
-                borderTop: '6px solid transparent',
-                borderBottom: '6px solid transparent'
-              }
-            }}
-            className="bargain-chat-label"
-          >
-            {existingChatId ? 
-              `💬 ${t('productDetails.continueChat') || 'Continue Chat'}` : 
-              `🚀 ${t('productDetails.startBargaining') || 'Start Bargaining'}`
-            }
-          </Paper>
-
-          {/* Enhanced Visual Indicator for Existing Chat */}
-          {existingChatId && (
-            <Paper
-              sx={{
-                position: 'fixed',
-                bottom: { xs: 135, md: 175 },
-                right: { xs: 12, md: 20 },
-                zIndex: 1001,
-                width: { xs: 20, md: 24 },
-                height: { xs: 20, md: 24 },
-                borderRadius: '50%',
-                bgcolor: 'success.main',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                animation: 'notification-pulse 1.5s ease-in-out infinite',
-                '@keyframes notification-pulse': {
-                  '0%, 100%': { 
-                    transform: 'scale(1)',
-                    opacity: 1
-                  },
-                  '50%': { 
-                    transform: 'scale(1.2)',
-                    opacity: 0.8
-                  }
-                }
-              }}
-            >
-              <Typography 
-                variant="caption" 
-                fontWeight="bold" 
-                color="white" 
-                fontSize={{ xs: '0.7rem', md: '0.75rem' }}
-              >
-                !
-              </Typography>
-            </Paper>
-          )}
-
-          <style jsx global>{`
-            .bargain-fab:hover + .bargain-chat-label,
-            .bargain-fab:focus + .bargain-chat-label {
-              opacity: 1 !important;
-              transform: translateX(0) !important;
-            }
-          `}</style>
-        </>
+        <BargainChat
+          open={bargainChatOpen}
+          onClose={() => setBargainChatOpen(false)}
+          product={product}
+          existingChatId={existingChatId}
+        />
       )}
-
-      {/* Bargain Chat */}
-      <BargainChat
-        isOpen={bargainChatOpen}
-        onClose={() => setBargainChatOpen(false)}
-        productId={!existingChatId ? productId : undefined}
-        chatId={existingChatId || undefined}
-      />
-      </Container>
     </Box>
   );
 }
-
-// Recently Viewed Products Component
-const RecentlyViewedProducts = ({ currentProductId }: { currentProductId: string }) => {
-  const { t } = useTranslation()
-  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  
-  useEffect(() => {
-    const fetchRecentlyViewed = async () => {
-      try {
-        // Get recently viewed product IDs from localStorage
-        const viewedIds = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
         
-        if (viewedIds.length === 0) {
-          setRecentlyViewed([])
-          setIsLoading(false)
-          return
-        }
-
-        // Filter out current product and limit to 6 items for mobile, 4 for desktop
-        const filteredIds = viewedIds.filter((id: string) => id !== currentProductId).slice(0, isMobile ? 6 : 4)
-        
-        if (filteredIds.length === 0) {
-          setRecentlyViewed([])
-          setIsLoading(false)
-          return
-        }
-
-        // Fetch real product data for all IDs at once
-        const products = await apiPost<Product[]>(`/products/by-ids`, { ids: filteredIds })
-        
-        const validProducts = products || []
-        
-        setRecentlyViewed(validProducts)
-      } catch (error) {
-        console.error('Error loading recently viewed products:', error)
-        setRecentlyViewed([])
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchRecentlyViewed()
-  }, [currentProductId, isMobile])
-  
-  if (isLoading) {
-    return (
-      <Grid container spacing={{ xs: 1.5, md: 2 }}>
-        {Array.from({ length: isMobile ? 6 : 4 }).map((_, index) => (
-          <Grid item xs={6} sm={4} md={3} key={index}>
-            <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Skeleton variant="rectangular" height="140" sx={{ height: { xs: 120, md: 140 } }} />
-              <CardContent sx={{ p: 1.5 }}>
-                <Skeleton width="80%" height={20} />
-                <Skeleton width="60%" height={16} sx={{ mt: 1 }} />
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    )
-  }
-  
-  if (recentlyViewed.length === 0) {
-    return (
-      <Paper
-        sx={{
-          p: 4,
-          textAlign: 'center',
-          borderRadius: 3,
-          bgcolor: theme.palette.mode === 'dark' 
-            ? 'rgba(255, 255, 255, 0.02)' 
-            : 'rgba(0, 0, 0, 0.02)',
-          border: `2px dashed ${theme.palette.divider}`
-        }}
-      >
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          👁️ {t('productDetails.noRecentlyViewed')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t('productDetails.noRecentlyViewedMessage')}
-        </Typography>
-      </Paper>
-    )
-  }
-  
-  return (
-    <Box>
-      {/* Mobile horizontal scroll for better UX */}
-      {isMobile ? (
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 1.5,
-            overflowX: 'auto',
-            pb: 1,
-            '&::-webkit-scrollbar': {
-              height: 4,
-            },
-            '&::-webkit-scrollbar-track': {
-              backgroundColor: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : 'rgba(0, 0, 0, 0.1)',
-              borderRadius: 2,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: theme.palette.primary.main,
-              borderRadius: 2,
-            },
-          }}
-        >
-          {recentlyViewed.map((product) => (
-            <Box
-              key={product._id}
-              sx={{
-                minWidth: 140,
-                flexShrink: 0,
-              }}
-            >
-              <RecentlyViewedProductCard product={product} />
-            </Box>
-          ))}
-        </Box>
-      ) : (
-        <Grid container spacing={{ xs: 1.5, md: 2 }}>
-          {recentlyViewed.map((product) => (
-            <Grid item xs={6} sm={4} md={3} key={product._id}>
-              <RecentlyViewedProductCard product={product} />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </Box>
-  )
-}
-
-// Mostly Purchased Products Component
-const MostlyPurchasedProducts = ({ products }: { products: Product[] }) => {
-  const { t } = useTranslation()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  
-  if (products.length === 0) {
-    return (
-      <Paper
-        sx={{
-          p: 4,
-          textAlign: 'center',
-          borderRadius: 3,
-          bgcolor: theme.palette.mode === 'dark' 
-            ? 'rgba(255, 255, 255, 0.02)' 
-            : 'rgba(0, 0, 0, 0.02)',
-          border: `2px dashed ${theme.palette.divider}`
-        }}
-      >
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          🛒 {t('productDetails.noPurchaseData')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t('productDetails.noPurchaseDataMessage')}
-        </Typography>
-      </Paper>
-    )
-  }
-  
-  return (
-    <Box>
-      {/* Mobile horizontal scroll for better UX */}
-      {isMobile ? (
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 1.5,
-            overflowX: 'auto',
-            pb: 1,
-            '&::-webkit-scrollbar': {
-              height: 4,
-            },
-            '&::-webkit-scrollbar-track': {
-              backgroundColor: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : 'rgba(0, 0, 0, 0.1)',
-              borderRadius: 2,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: theme.palette.success.main,
-              borderRadius: 2,
-            },
-          }}
-        >
-          {products.slice(0, 6).map((product) => (
-            <Box
-              key={product._id}
-              sx={{
-                minWidth: 140,
-                flexShrink: 0,
-              }}
-            >
-              <MostlyPurchasedProductCard product={product} />
-            </Box>
-          ))}
-        </Box>
-      ) : (
-        <Grid container spacing={{ xs: 1.5, md: 2 }}>
-          {products.slice(0, 4).map((product) => (
-            <Grid item xs={6} sm={4} md={3} key={product._id}>
-              <MostlyPurchasedProductCard product={product} />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </Box>
-  )
-}
-
-// Mostly Purchased Product Card Component
-const MostlyPurchasedProductCard = ({ product }: { product: Product }) => {
-  const router = useRouter()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  
-  return (
-    <Card 
-      elevation={0}
-      sx={{ 
-        height: '100%', 
-        cursor: 'pointer',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        border: '1px solid',
-        borderColor: 'success.main',
-        backdropFilter: 'blur(10px)',
-        background: theme.palette.mode === 'dark' 
-          ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%)'
-          : 'linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.02) 100%)',
-        borderRadius: { xs: 2, md: 3 },
-        overflow: 'hidden',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: theme.palette.mode === 'dark'
-            ? '0 12px 40px rgba(76, 175, 80, 0.3)'
-            : '0 12px 40px rgba(76, 175, 80, 0.2)',
-          borderColor: 'success.dark',
-        }
-      }}
-      onClick={() => router.push(`/product/${product._id}`)}
-    >
-      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-        <CardMedia
-          component="img"
-          height="160"
-          image={product.images?.[0] || '/placeholder-product.jpg'}
-          alt={product.title}
-          sx={{ 
-            objectFit: 'cover',
-            transition: 'transform 0.3s ease',
-            height: { xs: 120, md: 160 },
-            '&:hover': {
-              transform: 'scale(1.05)'
-            }
-          }}
-        />
-        
-        {/* Popular badge */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 8,
-            left: 8,
-            bgcolor: 'success.main',
-            color: 'white',
-            px: 1,
-            py: 0.5,
-            borderRadius: 1,
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5
-          }}
-        >
-          🔥 Popular
-        </Box>
-        
-        {/* Quick action overlay */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            opacity: 0,
-            transition: 'opacity 0.3s ease',
-            '.MuiCard-root:hover &': {
-              opacity: 1,
-            }
-          }}
-        >
-          <IconButton
-            size="small"
-            sx={{
-              bgcolor: theme.palette.mode === 'dark' 
-                ? 'rgba(255,255,255,0.9)' 
-                : 'rgba(255,255,255,0.9)',
-              color: theme.palette.mode === 'dark' ? 'black' : 'inherit',
-              width: 28,
-              height: 28,
-              '&:hover': {
-                bgcolor: 'success.main',
-                color: 'white',
-                transform: 'scale(1.1)'
-              }
-            }}
-          >
-            <ArrowForwardIcon sx={{ fontSize: 16 }} />
-          </IconButton>
-        </Box>
-      </Box>
-      
-      <CardContent sx={{ 
-        p: { xs: 1.5, md: 2 }, 
-        pb: { xs: '12px !important', md: '16px !important' },
-        '&:last-child': { pb: { xs: 1.5, md: 2 } }
-      }}>
-        <Typography 
-          variant="body2" 
-          fontWeight={600}
-          sx={{ 
-            mb: 1,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            fontSize: { xs: '0.8rem', md: '0.875rem' },
-            lineHeight: 1.3,
-            minHeight: { xs: '2.6em', md: '2.6em' }
-          }}
-        >
-          {product.title}
-        </Typography>
-        
-        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-          <Typography 
-            variant="h6" 
-            fontWeight={700} 
-            color="success.main"
-            sx={{ 
-              fontSize: { xs: '1rem', md: '1.25rem' },
-              background: theme.palette.mode === 'dark' 
-                ? 'linear-gradient(45deg, #4CAF50, #66BB6A)'
-                : 'linear-gradient(45deg, #2E7D32, #4CAF50)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            ${product.price?.toFixed(2) || '0.00'}
-          </Typography>
-          
-          {product.rating && (
-            <Stack direction="row" alignItems="center" spacing={0.3}>
-              <StarIcon sx={{ 
-                fontSize: { xs: 14, md: 16 }, 
-                color: 'warning.main' 
-              }} />
-              <Typography 
-                variant="caption" 
-                color="text.secondary"
-                sx={{ 
-                  fontSize: { xs: '0.7rem', md: '0.75rem' },
-                  fontWeight: 600
-                }}
-              >
-                {product.rating.average?.toFixed(1) || '4.0'}
-              </Typography>
-            </Stack>
-          )}
-        </Stack>
-        
-        {/* Mobile-specific quick info */}
-        {isMobile && (
-          <Stack direction="row" alignItems="center" spacing={1} mt={1}>
-            <Chip
-              label={product.category || 'Product'}
-              size="small"
-              variant="outlined"
-              sx={{
-                fontSize: '0.65rem',
-                height: 20,
-                '& .MuiChip-label': {
-                  px: 0.5
-                }
-              }}
-            />
-            {product.sold && product.sold > 0 && (
-              <Typography variant="caption" color="success.main" fontWeight={600}>
-                {product.sold} sold
-              </Typography>
-            )}
-          </Stack>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-// Recently Viewed Product Card Component
-const RecentlyViewedProductCard = ({ product }: { product: Product }) => {
-  const router = useRouter()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  
-  return (
-    <Card 
-      elevation={0}
-      sx={{ 
-        height: '100%', 
-        cursor: 'pointer',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        border: '1px solid',
-        borderColor: 'divider',
-        backdropFilter: 'blur(10px)',
-        background: theme.palette.mode === 'dark' 
-          ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
-          : 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-        borderRadius: { xs: 2, md: 3 },
-        overflow: 'hidden',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: theme.palette.mode === 'dark'
-            ? '0 12px 40px rgba(0,0,0,0.3)'
-            : '0 12px 40px rgba(0,0,0,0.15)',
-          borderColor: 'primary.main',
-        }
-      }}
-      onClick={() => router.push(`/product/${product._id}`)}
-    >
-      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-        <CardMedia
-          component="img"
-          height="160"
-          image={product.images?.[0] || '/placeholder-product.jpg'}
-          alt={product.title}
-          sx={{ 
-            objectFit: 'cover',
-            transition: 'transform 0.3s ease',
-            height: { xs: 120, md: 160 },
-            '&:hover': {
-              transform: 'scale(1.05)'
-            }
-          }}
-        />
-        {/* Quick action overlay */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            opacity: 0,
-            transition: 'opacity 0.3s ease',
-            '.MuiCard-root:hover &': {
-              opacity: 1,
-            }
-          }}
-        >
-          <IconButton
-            size="small"
-            sx={{
-              bgcolor: theme.palette.mode === 'dark' 
-                ? 'rgba(255,255,255,0.9)' 
-                : 'rgba(255,255,255,0.9)',
-              color: theme.palette.mode === 'dark' ? 'black' : 'inherit',
-              width: 28,
-              height: 28,
-              '&:hover': {
-                bgcolor: 'primary.main',
-                color: 'white',
-                transform: 'scale(1.1)'
-              }
-            }}
-          >
-            <ArrowForwardIcon sx={{ fontSize: 16 }} />
-          </IconButton>
-        </Box>
-      </Box>
-      
-      <CardContent sx={{ 
-        p: { xs: 1.5, md: 2 }, 
-        pb: { xs: '12px !important', md: '16px !important' },
-        '&:last-child': { pb: { xs: 1.5, md: 2 } }
-      }}>
-        <Typography 
-          variant="body2" 
-          fontWeight={600}
-          sx={{ 
-            mb: 1,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            fontSize: { xs: '0.8rem', md: '0.875rem' },
-            lineHeight: 1.3,
-            minHeight: { xs: '2.6em', md: '2.6em' }
-          }}
-        >
-          {product.title}
-        </Typography>
-        
-        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-          <Typography 
-            variant="h6" 
-            fontWeight={700} 
-            color="primary"
-            sx={{ 
-              fontSize: { xs: '1rem', md: '1.25rem' },
-              background: theme.palette.mode === 'dark' 
-                ? 'linear-gradient(45deg, #64B5F6, #42A5F5)'
-                : 'linear-gradient(45deg, #2196F3, #21CBF3)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            ${product.price?.toFixed(2) || '0.00'}
-          </Typography>
-          
-          {product.rating && (
-            <Stack direction="row" alignItems="center" spacing={0.3}>
-              <StarIcon sx={{ 
-                fontSize: { xs: 14, md: 16 }, 
-                color: 'warning.main' 
-              }} />
-              <Typography 
-                variant="caption" 
-                color="text.secondary"
-                sx={{ 
-                  fontSize: { xs: '0.7rem', md: '0.75rem' },
-                  fontWeight: 600
-                }}
-              >
-                {product.rating.average?.toFixed(1) || '4.0'}
-              </Typography>
-            </Stack>
-          )}
-        </Stack>
-        
-        {/* Mobile-specific quick info */}
-        {isMobile && (
-          <Stack direction="row" alignItems="center" spacing={1} mt={1}>
-            <Chip
-              label={product.category || 'Product'}
-              size="small"
-              variant="outlined"
-              sx={{
-                fontSize: '0.65rem',
-                height: 20,
-                '& .MuiChip-label': {
-                  px: 0.5
-                }
-              }}
-            />
-            {product.sold && product.sold > 0 && (
-              <Typography variant="caption" color="success.main" fontWeight={600}>
-                {product.sold} sold
-              </Typography>
-            )}
-          </Stack>
-        )}
-      </CardContent>
-    </Card>
-  )
-}

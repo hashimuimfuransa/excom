@@ -87,7 +87,8 @@ const currencies = [
   { code: 'JPY', name: 'Japanese Yen (¥)' },
   { code: 'CAD', name: 'Canadian Dollar (C$)' },
   { code: 'AUD', name: 'Australian Dollar (A$)' },
-  { code: 'NGN', name: 'Nigerian Naira (₦)' }
+  { code: 'NGN', name: 'Nigerian Naira (₦)' },
+  { code: 'RWF', name: 'Rwandan Franc (FRw)' }
 ];
 
 export default function NewProduct() {

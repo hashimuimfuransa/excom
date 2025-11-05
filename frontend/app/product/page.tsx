@@ -82,12 +82,14 @@ import LocationComparison from '@/components/LocationComparison';
 import { GamificationProvider, useGamification, calculateCreditsFromPurchase, calculateExperienceFromPurchase, getRankFromLevel } from '@/contexts/GamificationContext';
 import GamificationStats from '@/components/GamificationStats';
 import PurchaseCelebration from '@/components/PurchaseCelebration';
+import { formatPrice } from '@utils/currency';
 
 interface Product {
   _id: string;
   title: string;
   images: string[];
   price: number;
+  currency?: string;
   originalPrice?: number;
   category?: string;
   description?: string;
@@ -1434,10 +1436,10 @@ function ProductListPageContent() {
                                   boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
                                 }}
                               >
-                                ${p.price.toFixed(2)}
+                                {formatPrice(p.price, p.currency || 'USD')}
                                 {discountPercentage > 0 && (
                                   <Typography component="span" sx={{ fontSize: '0.7rem', ml: 0.5, textDecoration: 'line-through', opacity: 0.8 }}>
-                                    ${originalPrice.toFixed(2)}
+                                    {formatPrice(originalPrice, p.currency || 'USD')}
                                   </Typography>
                                 )}
                               </Box>
@@ -1738,7 +1740,7 @@ function ProductListPageContent() {
                             <Stack direction="row" alignItems="center" justifyContent="space-between">
                               <Stack spacing={1}>
                                 <Typography variant="h5" fontWeight={700} color="success.main">
-                                  ${p.price.toFixed(2)}
+                                  {formatPrice(p.price, p.currency || 'USD')}
                                 </Typography>
                                 <Stack direction="row" alignItems="center" spacing={0.5}>
                                   <StarIcon sx={{ color: 'warning.main', fontSize: 18 }} />
