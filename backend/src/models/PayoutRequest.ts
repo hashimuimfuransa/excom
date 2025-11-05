@@ -4,7 +4,7 @@ const payoutRequestSchema = new Schema({
   vendor: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   payoutAccount: { type: Schema.Types.ObjectId, ref: 'PayoutAccount', required: true },
   amount: { type: Number, required: true },
-  currency: { type: String, default: 'USD' },
+  currency: { type: String, default: 'RWF' },
   fee: { type: Number, required: true },
   netAmount: { type: Number, required: true },
   status: { 

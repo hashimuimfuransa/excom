@@ -136,7 +136,7 @@ export default function UserSettingsPage() {
     },
     preferences: {
       language: 'en',
-      currency: 'USD',
+      currency: 'RWF',
       timezone: 'UTC',
       theme: 'auto',
       emailMarketing: false,
@@ -577,12 +577,14 @@ export default function UserSettingsPage() {
                             onChange={(e) => updateSettings('preferences', 'currency', e.target.value)}
                             label="Currency"
                           >
+                            <MenuItem value="RWF">RWF (Rwandan Franc)</MenuItem>
                             <MenuItem value="USD">USD</MenuItem>
                             <MenuItem value="EUR">EUR</MenuItem>
                             <MenuItem value="GBP">GBP</MenuItem>
                             <MenuItem value="CAD">CAD</MenuItem>
                             <MenuItem value="AUD">AUD</MenuItem>
                             <MenuItem value="JPY">JPY</MenuItem>
+                            <MenuItem value="NGN">NGN (Nigerian Naira)</MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>

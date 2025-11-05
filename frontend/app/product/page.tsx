@@ -1198,7 +1198,7 @@ function ProductListPageContent() {
                 const img = getMainImage(p.images, 'product', p._id);
                 const isRealImage = hasRealImages(p.images);
                 const isWishlisted = isItemInWishlist(p._id);
-                const rating = p.rating || 4.5;
+                const rating = Number(p.rating) || 4.5;
                 const reviewCount = p.reviewCount || Math.floor(Math.random() * 50) + 1;
                 const isNearby = nearbyProducts.some(nearby => nearby._id === p._id);
                 const isVerified = verifiedProducts.some(verified => verified._id === p._id);
@@ -1436,10 +1436,10 @@ function ProductListPageContent() {
                                   boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
                                 }}
                               >
-                                {formatPrice(p.price, p.currency || 'USD')}
+                                {formatPrice(p.price, p.currency || 'RWF')}
                                 {discountPercentage > 0 && (
                                   <Typography component="span" sx={{ fontSize: '0.7rem', ml: 0.5, textDecoration: 'line-through', opacity: 0.8 }}>
-                                    {formatPrice(originalPrice, p.currency || 'USD')}
+                                    {formatPrice(originalPrice, p.currency || 'RWF')}
                                   </Typography>
                                 )}
                               </Box>
@@ -1740,7 +1740,7 @@ function ProductListPageContent() {
                             <Stack direction="row" alignItems="center" justifyContent="space-between">
                               <Stack spacing={1}>
                                 <Typography variant="h5" fontWeight={700} color="success.main">
-                                  {formatPrice(p.price, p.currency || 'USD')}
+                                  {formatPrice(p.price, p.currency || 'RWF')}
                                 </Typography>
                                 <Stack direction="row" alignItems="center" spacing={0.5}>
                                   <StarIcon sx={{ color: 'warning.main', fontSize: 18 }} />

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
 import { requireAuth, AuthRequest } from '../middleware/auth';
+import { sendPasswordResetLink, resetPassword } from '../services/passwordReset';
 
 const router = Router();
 
@@ -57,6 +58,69 @@ router.get('/affiliate-status', requireAuth, async (req: AuthRequest, res) => {
   res.json({ 
     affiliateOnboardingCompleted: user.affiliateOnboardingCompleted || false 
   });
+});
+
+// Forgot Password - Send reset link to email
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body as { email: string };
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    await sendPasswordResetLink(email);
+    // Always return success for security (don't reveal if email exists)
+    res.json({ 
+      message: 'If an account exists with this email, a password reset link has been sent.' 
+    });
+  } catch (error: any) {
+    console.error('Error sending password reset email:', error);
+    res.status(500).json({ message: 'Error processing password reset request' });
+  }
+});
+
+// Validate Reset Token
+router.post('/validate-reset-token', async (req, res) => {
+  const { email, token } = req.body as { email: string; token: string };
+
+  if (!email || !token) {
+    return res.status(400).json({ message: 'Email and token are required' });
+  }
+
+  try {
+    const isValid = await require('../services/passwordReset').validatePasswordResetToken(email, token);
+    
+    if (!isValid) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    res.json({ message: 'Token is valid', valid: true });
+  } catch (error: any) {
+    console.error('Error validating reset token:', error);
+    res.status(400).json({ message: 'Invalid or expired reset token' });
+  }
+});
+
+// Reset Password
+router.post('/reset-password', async (req, res) => {
+  const { email, token, newPassword } = req.body as { email: string; token: string; newPassword: string };
+
+  if (!email || !token || !newPassword) {
+    return res.status(400).json({ message: 'Email, token, and new password are required' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  }
+
+  try {
+    await resetPassword(email, token, newPassword);
+    res.json({ message: 'Password has been reset successfully' });
+  } catch (error: any) {
+    console.error('Error resetting password:', error);
+    res.status(400).json({ message: error.message || 'Error resetting password' });
+  }
 });
 
 export default router;

@@ -51,7 +51,7 @@ export function getCurrencyName(currencyCode: string): string {
  */
 export function formatPrice(
   price: number,
-  currencyCode: string = 'USD',
+  currencyCode: string = 'RWF',
   decimalPlaces: number = 2
 ): string {
   const symbol = getCurrencySymbol(currencyCode);
@@ -71,7 +71,7 @@ export function formatPrice(
  * @param currencyCode - The currency code (e.g., 'USD', 'RWF')
  * @returns Object with price, symbol, and code
  */
-export function formatPriceDetailed(price: number, currencyCode: string = 'USD') {
+export function formatPriceDetailed(price: number, currencyCode: string = 'RWF') {
   return {
     price: price.toFixed(2),
     symbol: getCurrencySymbol(currencyCode),

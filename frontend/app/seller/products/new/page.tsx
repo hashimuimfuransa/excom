@@ -97,7 +97,7 @@ export default function NewProduct() {
     title: '',
     description: '',
     price: '',
-    currency: 'USD',
+    currency: 'RWF',
     category: '',
     images: [],
     variants: {

@@ -54,7 +54,7 @@ const ProductSchema = new Schema<IProduct>({
   description: { type: String, required: true },
   images: { type: [String], default: [] },
   price: { type: Number, required: true },
-  currency: { type: String, default: 'USD' },
+  currency: { type: String, default: 'RWF' },
   seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   store: { type: Schema.Types.ObjectId, ref: 'Store' }, // Optional store reference
   category: { type: String, required: true },

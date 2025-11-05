@@ -154,7 +154,7 @@ export default function BargainingPage() {
     }
   };
 
-  const formatCurrency = (amount: number, currency: string = 'USD') => {
+  const formatCurrency = (amount: number, currency: string = 'RWF') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency

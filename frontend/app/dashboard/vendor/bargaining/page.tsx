@@ -206,7 +206,7 @@ export default function BargainingChatsPage() {
   const formatters = useMemo(() => ({
     currency: new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'RWF'
     }),
     formatLastActivity: (timestamp: string) => {
       const now = Date.now();

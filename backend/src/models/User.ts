@@ -6,6 +6,8 @@ export interface IUser extends Document {
   lastName: string;
   email: string;
   passwordHash?: string;
+  passwordResetToken?: string;
+  passwordResetExpiresAt?: Date;
   oauthProvider?: 'google' | 'facebook' | 'apple';
   oauthId?: string;
   role: 'buyer' | 'seller' | 'admin' | 'affiliate';
@@ -143,6 +145,8 @@ const UserSchema = new Schema<IUser>({
   lastName: { type: String },
   email: { type: String, required: true, unique: true },
   passwordHash: String,
+  passwordResetToken: { type: String, select: false },
+  passwordResetExpiresAt: { type: Date, select: false },
   oauthProvider: String,
   oauthId: String,
   role: { type: String, enum: ['buyer', 'seller', 'admin', 'affiliate'], default: 'buyer' },
@@ -163,7 +167,7 @@ const UserSchema = new Schema<IUser>({
   affiliateOnboardingCompleted: { type: Boolean, default: false },
   preferences: {
     language: { type: String, default: 'en' },
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: 'RWF' },
     timezone: { type: String, default: 'UTC' },
     theme: { type: String, enum: ['light', 'dark', 'auto'], default: 'auto' },
     emailMarketing: { type: Boolean, default: false },
@@ -222,7 +226,7 @@ const UserSchema = new Schema<IUser>({
     paypalEmail: String,
     stripeAccount: String,
     taxRate: { type: Number, default: 0 },
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: 'RWF' },
     freeShippingThreshold: { type: Number, default: 50 },
     shippingCost: { type: Number, default: 5.99 },
     processingTime: { type: Number, default: 2 },

@@ -29,7 +29,7 @@ const OrderSchema = new Schema<IOrder>({
     vendor: { type: String, required: true }
   }],
   total: { type: Number, required: true },
-  currency: { type: String, default: 'USD' },
+  currency: { type: String, default: 'RWF' },
   status: { type: String, enum: ['pending', 'paid', 'shipped', 'completed', 'cancelled'], default: 'pending' },
   // Affiliate tracking
   affiliateId: { type: Schema.Types.ObjectId, ref: 'Affiliate' },

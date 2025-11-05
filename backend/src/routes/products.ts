@@ -262,7 +262,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
     description, 
     images = [], 
     price, 
-    currency = 'USD', 
+    currency = 'RWF', 
     category, 
     source = 'local', 
     store,

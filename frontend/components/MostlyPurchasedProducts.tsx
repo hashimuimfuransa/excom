@@ -258,7 +258,7 @@ const ProductCard = ({
               fontSize: { xs: '0.95rem', sm: '1.1rem' }
             }}
           >
-            {formatPrice(product.price, product.currency || 'USD')}
+            {formatPrice(product.price, product.currency || 'RWF')}
           </Typography>
         </Stack>
 

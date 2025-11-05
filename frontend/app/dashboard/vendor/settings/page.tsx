@@ -139,7 +139,7 @@ export default function VendorSettingsPage() {
       paypalEmail: '',
       stripeAccount: '',
       taxRate: 0,
-      currency: 'USD'
+      currency: 'RWF'
     },
     notifications: {
       emailNotifications: true,
@@ -555,10 +555,12 @@ export default function VendorSettingsPage() {
                               onChange={(e) => updateSettings('payments', 'currency', e.target.value)}
                               label="Currency"
                             >
+                              <MenuItem value="RWF">RWF (Rwandan Franc)</MenuItem>
                               <MenuItem value="USD">USD</MenuItem>
                               <MenuItem value="EUR">EUR</MenuItem>
                               <MenuItem value="GBP">GBP</MenuItem>
                               <MenuItem value="CAD">CAD</MenuItem>
+                              <MenuItem value="NGN">NGN (Nigerian Naira)</MenuItem>
                             </Select>
                           </FormControl>
                         </Grid>

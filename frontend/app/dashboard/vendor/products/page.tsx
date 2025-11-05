@@ -119,7 +119,7 @@ export default function VendorProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState<number | ''>('');
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState('RWF');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [selectedStore, setSelectedStore] = useState(''); // Store for creating/editing products
@@ -241,7 +241,7 @@ export default function VendorProductsPage() {
     setEditing(null);
     setTitle('');
     setPrice('');
-    setCurrency('USD');
+    setCurrency('RWF');
     setDescription('');
     setCategory('');
     setSelectedStore('');

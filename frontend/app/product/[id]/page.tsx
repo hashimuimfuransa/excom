@@ -212,7 +212,7 @@ const RelatedProductCard = ({ product: relatedProduct, router }: { product: Prod
         fontWeight={700}
         sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
       >
-        {formatPrice(relatedProduct.price, relatedProduct.currency || 'USD')}
+        {formatPrice(relatedProduct.price, relatedProduct.currency || 'RWF')}
       </Typography>
     </CardContent>
   </Card>
@@ -638,7 +638,7 @@ export default function ProductPage() {
             title: `Similar Product ${i + 1}`,
             description: `This is a similar product to ${product.title}`,
             price: product.price + (Math.random() - 0.5) * 50,
-            currency: product.currency || 'USD',
+            currency: product.currency || 'RWF',
             images: [`https://picsum.photos/300/200?random=${i + 100}`],
             category: product.category,
             seller: product.seller || 'Unknown Seller',
@@ -1137,7 +1137,7 @@ export default function ProductPage() {
                           WebkitTextFillColor: 'transparent',
                         }}
                       >
-                        {formatPrice(product.price, product.currency || 'USD')}
+                        {formatPrice(product.price, product.currency || 'RWF')}
                       </Typography>
                       <Typography 
                         variant="h6" 
@@ -1145,7 +1145,7 @@ export default function ProductPage() {
                         fontWeight={500}
                         sx={{ fontSize: { xs: '0.8rem', md: '1.25rem' } }}
                       >
-                        {product.currency || 'USD'}
+                        {product.currency || 'RWF'}
                       </Typography>
                       {product.bargainingEnabled && (
                         <Chip 
@@ -1169,7 +1169,7 @@ export default function ProductPage() {
                       </Typography>
                       {product.bargainingEnabled && product.minBargainPrice && (
                         <Typography variant="caption" color="warning.dark" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
-                          {t('productDetails.min')} {formatPrice(product.minBargainPrice, product.currency || 'USD')}
+                          {t('productDetails.min')} {formatPrice(product.minBargainPrice, product.currency || 'RWF')}
                         </Typography>
                       )}
                     </Stack>
@@ -2326,7 +2326,7 @@ export default function ProductPage() {
                         fontWeight={600}
                         sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
                       >
-                        {product.currency || 'USD'}
+                        {product.currency || 'RWF'}
                       </Typography>
                     </Stack>
                     {product.brand && (
@@ -3219,7 +3219,7 @@ export default function ProductPage() {
         </Alert>
       </Snackbar>
 
-            {/* Bargain Chat Dialog */}
+          {/* Bargain Chat Dialog */}
       {canUserBargain() && (
         <BargainChat
           open={bargainChatOpen}
@@ -3231,4 +3231,3 @@ export default function ProductPage() {
     </Box>
   );
 }
-        

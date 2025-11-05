@@ -123,7 +123,7 @@ export default function ProfilePage() {
         // Set default preferences if not available
         const preferences = profileData.preferences || {
           language: 'en',
-          currency: 'USD',
+          currency: 'RWF',
           timeZone: 'CAT',
           emailNotifications: true,
           smsNotifications: false,
@@ -154,7 +154,7 @@ export default function ProfilePage() {
             createdAt: new Date().toISOString(),
             preferences: {
               language: 'en',
-              currency: 'USD',
+              currency: 'RWF',
               timeZone: 'CAT',
               emailNotifications: true,
               smsNotifications: false,

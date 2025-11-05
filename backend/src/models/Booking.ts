@@ -47,7 +47,7 @@ const BookingSchema = new Schema<IBooking>({
   roomType: String,
   
   totalAmount: { type: Number, required: true },
-  currency: { type: String, default: 'USD' },
+  currency: { type: String, default: 'RWF' },
   
   paymentStatus: { 
     type: String, 

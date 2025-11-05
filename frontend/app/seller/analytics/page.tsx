@@ -125,7 +125,7 @@ export default function SellerAnalytics() {
             productTitle: 'Wireless Bluetooth Headphones',
             customerName: 'John Doe',
             amount: 75,
-            currency: 'USD',
+            currency: 'RWF',
             status: 'completed',
             createdAt: new Date().toISOString()
           },
@@ -134,7 +134,7 @@ export default function SellerAnalytics() {
             productTitle: 'Smart Phone Case',
             customerName: 'Jane Smith',
             amount: 15,
-            currency: 'USD',
+            currency: 'RWF',
             status: 'pending',
             createdAt: new Date(Date.now() - 86400000).toISOString()
           }
@@ -155,7 +155,7 @@ export default function SellerAnalytics() {
     }
   };
 
-  const formatCurrency = (amount: number, currency = 'USD') => {
+  const formatCurrency = (amount: number, currency = 'RWF') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency

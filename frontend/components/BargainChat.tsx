@@ -303,7 +303,7 @@ const BargainChat: React.FC<BargainChatProps> = ({ chatId, productId, onClose, i
     setLoading(false);
   };
 
-  const formatCurrency = (amount: number, currency: string = 'USD') => {
+  const formatCurrency = (amount: number, currency: string = 'RWF') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency

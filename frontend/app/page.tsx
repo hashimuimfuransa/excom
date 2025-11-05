@@ -75,12 +75,14 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { apiGet } from '@utils/api';
 import { getMainImage, hasRealImages } from '@utils/imageHelpers';
+import { formatPrice } from '@utils/currency';
 
 interface Product {
   _id: string;
   title: string;
   images: string[];
   price: number;
+  currency?: string;
   category?: string;
   rating?: number;
   createdAt?: string;
@@ -1409,7 +1411,7 @@ export default function HomePage() {
                               animation: isHotItem ? 'priceFlash 3s ease-in-out infinite' : 'none'
                             }}
                           >
-                            ${(p.price ?? 0).toFixed(2)}
+                            {formatPrice(p.price ?? 0, p.currency || 'RWF')}
                           </Typography>
                           {discount > 5 && (
                             <Typography 
@@ -1421,7 +1423,7 @@ export default function HomePage() {
                                 opacity: 0.7
                               }}
                             >
-                              ${originalPrice.toFixed(2)}
+                              {formatPrice(originalPrice, p.currency || 'RWF')}
                             </Typography>
                           )}
                         </Stack>
@@ -1831,25 +1833,29 @@ export default function HomePage() {
                       {
                         image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=500&h=400&fit=crop',
                         name: 'Premium Wireless Headphones',
-                        price: '$199.99',
+                        priceValue: 199990,
+                        currency: 'RWF',
                         category: 'Electronics'
                       },
                       {
                         image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=500&h=400&fit=crop',
                         name: 'Designer Fashion Collection',
-                        price: '$89.99',
+                        priceValue: 89990,
+                        currency: 'RWF',
                         category: 'Fashion'
                       },
                       {
                         image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&h=400&fit=crop',
                         name: 'Modern Home Decor Set',
-                        price: '$149.99',
+                        priceValue: 149990,
+                        currency: 'RWF',
                         category: 'Home & Garden'
                       },
                       {
                         image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop',
                         name: 'Professional Sports Gear',
-                        price: '$299.99',
+                        priceValue: 299990,
+                        currency: 'RWF',
                         category: 'Sports & Fitness'
                       }
                     ].map((product, index) => (
@@ -1913,7 +1919,7 @@ export default function HomePage() {
                               fontSize: { xs: '1.2rem', md: '1.4rem' }
                             }}
                           >
-                            {product.price}
+                            {formatPrice(product.priceValue, product.currency || 'RWF')}
                           </Typography>
                         </Box>
                         

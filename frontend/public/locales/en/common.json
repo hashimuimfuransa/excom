@@ -54,7 +54,12 @@
     "filter": "Filter",
     "clear": "Clear",
     "optional": "Optional",
-    "required": "Required"
+    "required": "Required",
+    "sending": "Sending...",
+    "resetting": "Resetting...",
+    "error": "Error",
+    "contactSupport": "Contact Support",
+    "backToLogin": "Back to Login"
   },
   "actions": {
     "menu": "Menu",
@@ -576,6 +581,7 @@
     "fullName": "Full Name",
     "email": "Email",
     "password": "Password",
+    "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "phoneNumber": "Phone Number",
     "address": "Address",
@@ -629,7 +635,22 @@
     "nameRequired": "Name is required",
     "emailRequired": "Email is required",
     "passwordMinLength": "Password must be at least 6 characters",
-    "passwordsDoNotMatch": "Passwords do not match"
+    "passwordsDoNotMatch": "Passwords do not match",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordDescription": "Enter your email address and we'll send you a link to reset your password",
+    "resetLinkSent": "Password reset link sent! Check your email for instructions.",
+    "sendResetLink": "Send Reset Link",
+    "resetPassword": "Reset Password",
+    "enterNewPassword": "Enter your new password below",
+    "newPassword": "New Password",
+    "passwordResetSuccess": "Your password has been reset successfully! Redirecting to login...",
+    "invalidResetLink": "Invalid reset link",
+    "expiredResetLink": "This password reset link has expired. Please request a new one.",
+    "passwordsMustMatch": "Passwords must match",
+    "rememberPassword": "Remember your password?",
+    "loginHere": "Login here",
+    "needHelp": "Need help?",
+    "backToLogin": "Back to Login"
   },
   "messages": {
     "success": "Success",

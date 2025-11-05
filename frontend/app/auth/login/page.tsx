@@ -355,17 +355,22 @@ export default function LoginPage() {
                             {t('auth.rememberMe')}
                           </Typography>
                         </Box>
-                        <Typography 
-                          variant="body2" 
-                          color="primary" 
-                          sx={{ 
-                            cursor: 'pointer', 
-                            textDecoration: 'underline',
-                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
-                          }}
-                        >
-                          {t('auth.forgotPassword')}
-                        </Typography>
+                        <NextLink href="/auth/forgot-password" style={{ textDecoration: 'none' }}>
+                          <Typography 
+                            variant="body2" 
+                            color="primary" 
+                            sx={{ 
+                              cursor: 'pointer', 
+                              textDecoration: 'underline',
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                              '&:hover': {
+                                opacity: 0.8
+                              }
+                            }}
+                          >
+                            {t('auth.forgotPassword')}
+                          </Typography>
+                        </NextLink>
                       </Box>
 
                       <Button 

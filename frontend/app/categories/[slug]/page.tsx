@@ -208,7 +208,7 @@ const mockProductsByCategory: { [key: string]: Product[] } = {
       description: 'Latest Android smartphone with advanced camera features',
       images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300'],
       price: 699,
-      currency: 'USD',
+      currency: 'RWF',
       category: 'Electronics',
       seller: 'TechStore',
       createdAt: '2024-01-15T00:00:00Z'
@@ -219,7 +219,7 @@ const mockProductsByCategory: { [key: string]: Product[] } = {
       description: 'Premium noise-cancelling wireless headphones',
       images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300'],
       price: 199,
-      currency: 'USD',
+      currency: 'RWF',
       category: 'Electronics',
       seller: 'AudioHub',
       createdAt: '2024-01-10T00:00:00Z'
@@ -230,7 +230,7 @@ const mockProductsByCategory: { [key: string]: Product[] } = {
       description: '55-inch 4K Ultra HD Smart LED TV with streaming apps',
       images: ['https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&h=300'],
       price: 799,
-      currency: 'USD',
+      currency: 'RWF',
       category: 'Electronics',
       seller: 'ElectroWorld',
       createdAt: '2024-01-12T00:00:00Z'
@@ -243,7 +243,7 @@ const mockProductsByCategory: { [key: string]: Product[] } = {
       description: 'Premium leather jacket with modern style',
       images: ['https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=300'],
       price: 299,
-      currency: 'USD',
+      currency: 'RWF',
       category: 'Fashion',
       seller: 'StyleHub',
       createdAt: '2024-01-14T00:00:00Z'
@@ -254,7 +254,7 @@ const mockProductsByCategory: { [key: string]: Product[] } = {
       description: 'Comfortable running shoes for daily workouts',
       images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300'],
       price: 129,
-      currency: 'USD',
+      currency: 'RWF',
       category: 'Fashion',
       seller: 'SportStyle',
       createdAt: '2024-01-11T00:00:00Z'
@@ -267,7 +267,7 @@ const mockProductsByCategory: { [key: string]: Product[] } = {
       description: 'RGB mechanical keyboard for gaming enthusiasts',
       images: ['https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=400&h=300'],
       price: 149,
-      currency: 'USD',
+      currency: 'RWF',
       category: 'Gaming',
       seller: 'GameGear',
       createdAt: '2024-01-13T00:00:00Z'
@@ -278,7 +278,7 @@ const mockProductsByCategory: { [key: string]: Product[] } = {
       description: 'High-precision wireless gaming mouse',
       images: ['https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300'],
       price: 89,
-      currency: 'USD',
+      currency: 'RWF',
       category: 'Gaming',
       seller: 'GameGear',
       createdAt: '2024-01-09T00:00:00Z'
